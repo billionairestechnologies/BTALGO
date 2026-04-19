@@ -1,7 +1,7 @@
-tunnel: <your-tunnel-id>
-credentials-file: /root/.cloudflared/<your-tunnel-id>.json
+tunnel: openalgo
+credentials-file: <ABSOLUTE_PATH_TO_JSON>
 
 ingress:
-  - hostname: btalgo.yourdomain.com
-    service: http://localhost:5000
+  - hostname: demo.example.com
+    service: http://127.0.0.1:5000
   - service: http_status:404
