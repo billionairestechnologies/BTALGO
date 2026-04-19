@@ -216,7 +216,7 @@ export default function Dashboard() {
       borderColor: 'border-violet-500/20 hover:border-violet-500/40',
     },
     {
-      href: 'https://www.billionairestechnologies.com
+      href: 'https://www.billionairestechnologies.com',
       label: 'Documentation',
       description: 'Tutorials, API docs & features',
       icon: BookOpen,
