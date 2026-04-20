@@ -16,6 +16,21 @@ if __name__ == "__main__":
         print("\033[93mStarting BTAlgo...\033[0m", flush=True)
 
 import mimetypes
+import subprocess
+from pathlib import Path as _Path
+
+# Auto-build React frontend if dist is missing
+_frontend_dist = _Path(__file__).parent / "frontend" / "dist" / "index.html"
+if not _frontend_dist.exists():
+    _frontend_dir = _Path(__file__).parent / "frontend"
+    print("\033[94mFrontend not built — running npm install && npm run build...\033[0m", flush=True)
+    try:
+        subprocess.run(["npm", "install"], cwd=str(_frontend_dir), check=True)
+        subprocess.run(["npm", "run", "build"], cwd=str(_frontend_dir), check=True)
+        print("\033[92mFrontend build complete.\033[0m", flush=True)
+    except Exception as _e:
+        print(f"\033[91mFrontend build failed: {_e}\033[0m", flush=True)
+        print("Run manually: cd frontend && npm install && npm run build", flush=True)
 
 mimetypes.add_type("application/javascript", ".js")
 mimetypes.add_type("text/css", ".css")
