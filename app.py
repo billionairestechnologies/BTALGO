@@ -42,7 +42,6 @@ if _needs_build:
     print("\033[94mFrontend build required — running npm install && npm run build...\033[0m", flush=True)
     try:
         import platform as _platform
-        # On Windows npm is a .cmd file — must use shell=True
         _win = _platform.system() == "Windows"
         subprocess.run("npm install", cwd=str(_frontend_dir), check=True, shell=_win) if _win else subprocess.run(["npm", "install"], cwd=str(_frontend_dir), check=True)
         subprocess.run("npm run build", cwd=str(_frontend_dir), check=True, shell=_win) if _win else subprocess.run(["npm", "run", "build"], cwd=str(_frontend_dir), check=True)
@@ -88,7 +87,6 @@ from blueprints.vol_surface import vol_surface_bp  # Import the vol surface blue
 from blueprints.latency import latency_bp  # Import the latency blueprint
 from blueprints.leverage import leverage_bp  # Import the leverage blueprint
 from blueprints.health import health_bp  # Import the health monitoring blueprint
-from blueprints.billy import billy_bp  # Import Billy AI agent blueprint
 from blueprints.log import log_bp
 from blueprints.logging import logging_bp  # Import the logging blueprint
 from blueprints.master_contract_status import (
@@ -134,7 +132,6 @@ from database.symbol import init_db as ensure_master_contract_tables_exists
 from database.telegram_db import get_bot_config
 from database.traffic_db import init_logs_db as ensure_traffic_logs_exists
 from database.user_db import init_db as ensure_user_tables_exists
-from database.billy_db import init_billy_db as ensure_billy_tables_exists
 from extensions import socketio  # Import SocketIO
 from limiter import limiter  # Import the Limiter instance
 from restx_api import api, api_v1_bp
@@ -286,7 +283,6 @@ def create_app():
     app.register_blueprint(latency_bp)
     app.register_blueprint(leverage_bp)  # Register Leverage blueprint
     app.register_blueprint(health_bp)  # Register Health monitoring blueprint
-    app.register_blueprint(billy_bp)  # Register Billy AI agent blueprint
     app.register_blueprint(strategy_bp)
     app.register_blueprint(master_contract_status_bp)
     app.register_blueprint(websocket_bp)  # Register WebSocket example blueprint
@@ -559,7 +555,6 @@ def setup_environment(app):
                 ("Flow DB", ensure_flow_tables_exists),
                 ("Leverage DB", ensure_leverage_tables_exists),
                 ("Strategy Portfolio DB", ensure_strategy_portfolio_tables_exists),
-                ("Billy DB", ensure_billy_tables_exists),
             ]
 
             db_init_start = time.time()
