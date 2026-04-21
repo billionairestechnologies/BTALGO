@@ -41,8 +41,10 @@ _needs_build = not _frontend_dist.exists() or (_git_hash and _git_hash != _store
 if _needs_build:
     print("\033[94mFrontend build required — running npm install && npm run build...\033[0m", flush=True)
     try:
-        subprocess.run(["npm", "install"], cwd=str(_frontend_dir), check=True)
-        subprocess.run(["npm", "run", "build"], cwd=str(_frontend_dir), check=True)
+        import platform as _platform
+        _win = _platform.system() == "Windows"
+        subprocess.run("npm install", cwd=str(_frontend_dir), check=True, shell=_win) if _win else subprocess.run(["npm", "install"], cwd=str(_frontend_dir), check=True)
+        subprocess.run("npm run build", cwd=str(_frontend_dir), check=True, shell=_win) if _win else subprocess.run(["npm", "run", "build"], cwd=str(_frontend_dir), check=True)
         if _git_hash:
             _build_marker.write_text(_git_hash)
         print("\033[92mFrontend build complete.\033[0m", flush=True)
