@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Providers } from '@/app/providers'
 import { AuthSync } from '@/components/auth/AuthSync'
+import { BillyButton } from '@/components/billy/BillyButton'
+import { BillyPanel } from '@/components/billy/BillyPanel'
 import { FullWidthLayout } from '@/components/layout/FullWidthLayout'
 import { Layout } from '@/components/layout/Layout'
 import { PageLoader } from '@/components/ui/page-loader'
@@ -120,6 +122,9 @@ const FreezeQty = lazy(() => import('@/pages/admin/FreezeQty'))
 const Holidays = lazy(() => import('@/pages/admin/Holidays'))
 const MarketTimings = lazy(() => import('@/pages/admin/MarketTimings'))
 
+// Billy pages
+const BillySettings = lazy(() => import('@/pages/BillySettings'))
+
 // Telegram pages
 const TelegramIndex = lazy(() => import('@/pages/telegram/TelegramIndex'))
 const TelegramConfig = lazy(() => import('@/pages/telegram/TelegramConfig'))
@@ -145,6 +150,8 @@ function App() {
       <BrowserRouter>
         <PageTitleUpdater />
         <AuthSync>
+          <BillyButton />
+          <BillyPanel />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public routes */}
@@ -258,6 +265,8 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/master-contract" element={<MasterContract />} />
                 <Route path="/action-center" element={<ActionCenter />} />
+                {/* Billy AI Assistant */}
+                <Route path="/billy/settings" element={<BillySettings />} />
               </Route>
 
               {/* Full-width protected routes */}

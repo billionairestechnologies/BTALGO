@@ -479,6 +479,12 @@ def react_profile():
     return serve_react_app()
 
 
+# Billy AI Agent Settings
+@react_bp.route("/billy/settings", strict_slashes=False)
+def react_billy_settings():
+    return serve_react_app()
+
+
 # Action Center (Semi-automated trading)
 @react_bp.route("/action-center", strict_slashes=False)
 def react_action_center():
