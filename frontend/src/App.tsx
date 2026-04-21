@@ -120,6 +120,9 @@ const FreezeQty = lazy(() => import('@/pages/admin/FreezeQty'))
 const Holidays = lazy(() => import('@/pages/admin/Holidays'))
 const MarketTimings = lazy(() => import('@/pages/admin/MarketTimings'))
 
+// Billy AI
+const BillyAI = lazy(() => import('@/pages/billy-ai'))
+
 // Telegram pages
 const TelegramIndex = lazy(() => import('@/pages/telegram/TelegramIndex'))
 const TelegramConfig = lazy(() => import('@/pages/telegram/TelegramConfig'))
@@ -266,6 +269,8 @@ function App() {
                 <Route path="/historify" element={<Historify />} />
                 <Route path="/historify/charts" element={<HistorifyCharts />} />
                 <Route path="/historify/charts/:symbol" element={<HistorifyCharts />} />
+                {/* Billy AI (full-width for chat) */}
+                <Route path="/billy-ai" element={<BillyAI />} />
                 {/* Flow Editor (full-width for canvas) */}
                 <Route path="/flow/editor/:id" element={<FlowEditor />} />
               </Route>
