@@ -5,7 +5,55 @@ load_and_check_env_variables()
 
 import os
 import re
+import subprocess
 import sys
+from pathlib import Path
+
+
+def _auto_build_frontend():
+    """Build the React frontend automatically if frontend/dist/ is missing."""
+    # Skip in Docker — the image builds the frontend at image build time
+    if os.path.exists("/.dockerenv") or os.environ.get("APP_MODE", "").strip().strip("'\"") == "standalone":
+        return
+    # Skip in Werkzeug reloader child process to avoid rebuilding on every code change
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+        return
+
+    frontend_dir = Path(__file__).parent / "frontend"
+    dist_index = frontend_dir / "dist" / "index.html"
+
+    if dist_index.exists():
+        return  # Already built — nothing to do
+
+    print("\033[93m[BT Algo] Frontend not built — building now (one-time setup)...\033[0m", flush=True)
+
+    # Install node_modules if missing
+    node_modules = frontend_dir / "node_modules"
+    if not node_modules.exists():
+        print("\033[93m[BT Algo] Installing frontend dependencies (npm install)...\033[0m", flush=True)
+        result = subprocess.run(
+            ["npm", "install"],
+            cwd=frontend_dir,
+            shell=True,
+        )
+        if result.returncode != 0:
+            print("\033[91m[BT Algo] npm install failed. Run manually: cd frontend && npm install && npm run build\033[0m", flush=True)
+            return
+
+    print("\033[93m[BT Algo] Building frontend (npm run build)...\033[0m", flush=True)
+    result = subprocess.run(
+        ["npm", "run", "build"],
+        cwd=frontend_dir,
+        shell=True,
+    )
+    if result.returncode == 0:
+        print("\033[92m[BT Algo] Frontend built successfully.\033[0m", flush=True)
+    else:
+        print("\033[91m[BT Algo] Frontend build failed. Run manually: cd frontend && npm run build\033[0m", flush=True)
+
+
+_auto_build_frontend()
+
 
 # Show loading indicator early (before heavy imports) so user sees immediate feedback.
 # The full banner with "Ready" status prints later, right before the server accepts connections.
