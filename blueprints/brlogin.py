@@ -604,6 +604,29 @@ def broker_callback(broker, para=None):
             )
             forward_url = "broker.html"
 
+    elif broker == "sharekhan":
+        request_token = request.args.get("requestToken")
+        if request_token:
+            logger.debug(f"Sharekhan callback - requestToken received")
+            auth_result = auth_function(request_token)
+            if len(auth_result) == 3:
+                auth_token, user_id, error_message = auth_result
+            else:
+                auth_token, error_message = auth_result
+                user_id = None
+            forward_url = "broker.html"
+        else:
+            # Initial visit — redirect to Sharekhan OAuth login
+            logger.info("Redirecting to Sharekhan OAuth login page")
+            api_key = os.getenv("BROKER_API_KEY", "")
+            if not api_key:
+                return handle_auth_failure(
+                    "BROKER_API_KEY not configured for Sharekhan",
+                    forward_url="broker.html",
+                )
+            from broker.sharekhan.api.auth_api import get_login_url
+            return redirect(get_login_url())
+
     elif broker == "flattrade":
         code = request.args.get("code")
         client = request.args.get("client")  # Flattrade returns client ID as well
