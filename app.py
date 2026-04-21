@@ -19,14 +19,32 @@ import mimetypes
 import subprocess
 from pathlib import Path as _Path
 
-# Auto-build React frontend if dist is missing
-_frontend_dist = _Path(__file__).parent / "frontend" / "dist" / "index.html"
-if not _frontend_dist.exists():
-    _frontend_dir = _Path(__file__).parent / "frontend"
-    print("\033[94mFrontend not built — running npm install && npm run build...\033[0m", flush=True)
+# Auto-build React frontend if dist is missing or branch has changed
+_root = _Path(__file__).parent
+_frontend_dir = _root / "frontend"
+_frontend_dist = _frontend_dir / "dist" / "index.html"
+_build_marker = _frontend_dir / "dist" / ".git_hash"
+
+def _current_git_hash():
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=str(_root),
+            capture_output=True, text=True
+        ).stdout.strip()
+    except Exception:
+        return ""
+
+_git_hash = _current_git_hash()
+_stored_hash = _build_marker.read_text().strip() if _build_marker.exists() else ""
+_needs_build = not _frontend_dist.exists() or (_git_hash and _git_hash != _stored_hash)
+
+if _needs_build:
+    print("\033[94mFrontend build required — running npm install && npm run build...\033[0m", flush=True)
     try:
         subprocess.run(["npm", "install"], cwd=str(_frontend_dir), check=True)
         subprocess.run(["npm", "run", "build"], cwd=str(_frontend_dir), check=True)
+        if _git_hash:
+            _build_marker.write_text(_git_hash)
         print("\033[92mFrontend build complete.\033[0m", flush=True)
     except Exception as _e:
         print(f"\033[91mFrontend build failed: {_e}\033[0m", flush=True)
