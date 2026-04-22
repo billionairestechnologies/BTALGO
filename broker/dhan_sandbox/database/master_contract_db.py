@@ -372,6 +372,7 @@ def master_contract_download():
     logger.info("Downloading Master Contract")
 
     output_path = "tmp"
+    os.makedirs(output_path, exist_ok=True)
     try:
         download_csv_dhan_data(output_path)
         delete_symtoken_table()

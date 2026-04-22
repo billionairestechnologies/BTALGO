@@ -159,7 +159,7 @@ def download_csv_indmoney_data(output_path):
         if auth_obj:
             from database.auth_db import decrypt_token
 
-            auth_token = decrypt_token(auth_obj.auth)
+            auth_token = decrypt_token(auth_obj.auth).strip()
         else:
             auth_token = None
     except Exception as e:

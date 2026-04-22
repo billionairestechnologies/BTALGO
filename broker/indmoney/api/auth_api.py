@@ -16,7 +16,7 @@ def authenticate_broker(code):
         # For IndMoney, the access token is directly provided in BROKER_API_SECRET
         # No OAuth flow needed - just return the access token
         if BROKER_API_SECRET:
-            return BROKER_API_SECRET, None
+            return BROKER_API_SECRET.strip(), None
         else:
             return None, "No access token found in BROKER_API_SECRET environment variable"
 
