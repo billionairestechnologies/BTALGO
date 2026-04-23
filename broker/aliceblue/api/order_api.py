@@ -274,30 +274,50 @@ def place_order_api(data, auth):
         response.raise_for_status()
 
         response_data = response.json()
-        logger.debug(f"Place order response: {json.dumps(response_data, indent=2)}")
+        logger.info(f"AliceBlue place order raw response: {json.dumps(response_data, indent=2)}")
 
         # Process the V2 API response
         orderid = None
-        if response_data.get("status") == "Ok":
+        top_status = response_data.get("status", "")
+
+        # AliceBlue may return "Ok", "SUCCESS", "success" etc. as the top-level status
+        if top_status.lower() in ("ok", "success"):
             results = response_data.get("result", [])
             if results and len(results) > 0:
                 result_item = results[0]
-                # Check for per-result error (AliceBlue may return top-level Ok but result-level error)
-                result_status = result_item.get("status", "")
-                if result_status and result_status != "Ok" and result_item.get("brokerOrderId", "") == "":
-                    error_msg = result_item.get("message", "Unknown error in result")
-                    logger.error(f"Order placement failed (result error {result_status}): {error_msg}")
-                else:
-                    orderid = result_item.get("brokerOrderId")
+                logger.info(f"AliceBlue result item: {result_item}")
+
+                # Extract brokerOrderId — may be in brokerOrderId or orderId
+                broker_oid = (
+                    result_item.get("brokerOrderId")
+                    or result_item.get("orderId")
+                    or result_item.get("order_id")
+                    or result_item.get("NOrdNo")
+                )
+
+                result_status = str(result_item.get("status", "")).lower()
+                result_msg = result_item.get("message", "")
+
+                if broker_oid and str(broker_oid).strip() not in ("", "None", "null"):
+                    orderid = str(broker_oid)
                     logger.info(f"Order placed successfully: {orderid}")
+                elif result_status in ("error", "failed", "not_ok"):
+                    logger.error(f"Order placement failed at result level: {result_msg}")
+                else:
+                    # Order accepted but no ID returned yet (e.g. AMO)
+                    logger.warning(f"Order placed but no brokerOrderId in response: {result_item}")
+                    orderid = result_item.get("brokerOrderId", None)
+            else:
+                logger.warning(f"AliceBlue returned Ok but empty result list: {response_data}")
         else:
             error_msg = response_data.get("message", "No error message provided by API")
-            logger.error(f"Order placement failed: {error_msg}")
+            logger.error(f"Order placement failed (status={top_status}): {error_msg}")
 
         # Add status attribute for compatibility
         response.status = response.status_code
 
         return response, response_data, orderid
+
 
     except httpx.HTTPError as e:
         logger.error(f"HTTP error during place order: {str(e)}")
