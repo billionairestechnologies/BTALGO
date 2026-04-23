@@ -412,7 +412,7 @@ def place_order_api(data, auth):
 
     # Check if the API call was successful before accessing order ID
     orderid = None
-    if res.status_code == 200 or res.status_code == 201:
+    if res.status_code in (200, 201):
         if response_data and response_data.get("status") == "success":
             # Indmoney returns order ID in data.order_id field
             orderid = response_data.get("data", {}).get("order_id")
@@ -431,13 +431,22 @@ def place_order_api(data, auth):
                     orderid = "ORDER_PLACED"  # Placeholder since actual ID not available
                 else:
                     logger.error(f"Order placement failed: {error_msg}")
+                    # Override status so place_order_service sees a failure, not HTTP 200
+                    res.status = 400
             else:
                 error_msg = response_data.get("message", "Unknown error")
                 logger.error(f"Order placement failed: {error_msg}")
+                # Override status so place_order_service sees a failure, not HTTP 200
+                res.status = 400
         else:
             logger.error(f"Order placement failed: {response_data}")
+            res.status = 400
     else:
-        logger.error(f"API call failed with status {res.status_code}: {response_data}")
+        error_msg = response_data.get("message", str(response_data)) if isinstance(response_data, dict) else str(response_data)
+        logger.error(f"API call failed with status {res.status_code}: {error_msg}")
+        # Override to 400 so frontend shows error toast instead of redirecting to dashboard
+        res.status = 400
+        response_data = {"status": "error", "message": error_msg}
 
     return res, response_data, orderid
 
