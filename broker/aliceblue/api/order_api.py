@@ -267,6 +267,7 @@ def place_order_api(data, auth):
             "Content-Type": "application/json",
         }
 
+        url = f"{BASE_URL}/open-api/od/v1/orders/placeorder"
         logger.info(f"AliceBlue place order URL: {url}")
         logger.info(f"AliceBlue place order payload: {json.dumps(payload, indent=2)}")
 
