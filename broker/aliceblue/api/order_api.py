@@ -304,11 +304,12 @@ def place_order_api(data, auth):
                     orderid = str(broker_oid)
                     logger.info(f"Order placed successfully: {orderid}")
                 elif result_status in ("error", "failed", "not_ok"):
-                    logger.error(f"Order placement failed at result level: {result_msg}")
+                    logger.error(f"Order placement failed at result level ({result_status}): {result_msg}")
+                    response.status = 400  # Override so service layer treats as failure
                 else:
-                    # Order accepted but no ID returned yet (e.g. AMO)
+                    # Order accepted but no ID returned (e.g. AMO) — log and keep None
                     logger.warning(f"Order placed but no brokerOrderId in response: {result_item}")
-                    orderid = result_item.get("brokerOrderId", None)
+
             else:
                 logger.warning(f"AliceBlue returned Ok but empty result list: {response_data}")
         else:
