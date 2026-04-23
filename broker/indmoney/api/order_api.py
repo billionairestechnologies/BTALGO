@@ -312,7 +312,10 @@ def _invalidate_position_cache(auth):
 
 def get_open_position(tradingsymbol, exchange, product, auth):
     # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search in OpenPosition
+    original_tradingsymbol = tradingsymbol
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
+    expected_token = get_token(original_tradingsymbol, exchange)
+
     positions_response = _get_cached_positions(auth)
     net_qty = "0"
     # logger.info(f"Positions response: {positions_response}")
@@ -344,6 +347,7 @@ def get_open_position(tradingsymbol, exchange, product, auth):
             # Map the actual IndMoney API fields
             position_symbol = position.get("symbol")  # Actual field name from API
             position_segment = position.get("segment", "")
+            security_id = str(position.get("security_id", ""))
 
             # Map segment to exchange format for comparison
             if position_segment == "F&O" or position_segment == "FUTURES":
@@ -356,7 +360,13 @@ def get_open_position(tradingsymbol, exchange, product, auth):
                 mapped_exchange = position_segment
 
             # Check if this position matches our search criteria
-            if position_symbol == tradingsymbol and mapped_exchange == map_exchange_type(exchange):
+            is_match = False
+            if expected_token and security_id and security_id == str(expected_token):
+                is_match = True
+            elif position_symbol == tradingsymbol and mapped_exchange == map_exchange_type(exchange):
+                is_match = True
+
+            if is_match:
                 net_qty = str(position.get("net_qty", 0))
                 break  # Return the first match
 

@@ -11,7 +11,8 @@ import re
 from flask import Blueprint, jsonify, request, session
 from flask_cors import cross_origin
 
-from database.auth_db import get_api_key_for_tradingview
+from database.auth_db import get_api_key_for_tradingview, upsert_api_key
+from blueprints.apikey import generate_api_key
 from services.gex_service import get_gex_data
 from utils.logging import get_logger
 from utils.session import check_session_validity
@@ -33,12 +34,9 @@ def gex_data():
 
         api_key = get_api_key_for_tradingview(login_username)
         if not api_key:
-            return jsonify(
-                {
-                    "status": "error",
-                    "message": "API key not configured. Please generate an API key in /apikey",
-                }
-            ), 401
+            logger.info(f"Auto-generating API key for user: {login_username}")
+            api_key = generate_api_key()
+            upsert_api_key(login_username, api_key)
 
         data = request.get_json(silent=True) or {}
         underlying = data.get("underlying", "").strip()[:20]

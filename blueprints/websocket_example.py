@@ -172,13 +172,16 @@ def api_get_websocket_apikey():
         ), 401
 
     from database.auth_db import get_api_key_for_tradingview
+    from blueprints.apikey import generate_api_key
+    from database.auth_db import upsert_api_key
 
     api_key = get_api_key_for_tradingview(username)
 
     if not api_key:
-        return jsonify(
-            {"status": "error", "message": "No API key found. Please generate an API key first."}
-        ), 404
+        # Auto-generate API key to prevent WebSocket and Trading fallback failures
+        logger.info(f"Auto-generating API key for user: {username}")
+        api_key = generate_api_key()
+        upsert_api_key(username, api_key)
 
     return jsonify({"status": "success", "api_key": api_key}), 200
 

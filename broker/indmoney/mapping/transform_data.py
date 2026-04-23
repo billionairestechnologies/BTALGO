@@ -76,7 +76,7 @@ def transform_data(data, token):
     segment = map_segment(data["exchange"])
     transformed = {
         "txn_type": action,  # BUY/SELL
-        "exchange": data["exchange"].upper(),  # NSE/BSE
+        "exchange": map_exchange_type(data["exchange"]),  # Map NFO→NSE, BFO→BSE, MCX→MCX etc.
         "segment": segment,  # DERIVATIVE/EQUITY
         "product": map_product_type(data["product"]),  # MARGIN/INTRADAY/CNC
         "order_type": order_type,  # LIMIT/MARKET

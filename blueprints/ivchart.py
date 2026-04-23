@@ -6,7 +6,8 @@ Serves intraday Implied Volatility chart data for ATM options.
 from flask import Blueprint, jsonify, request, session
 from flask_cors import cross_origin
 
-from database.auth_db import get_api_key_for_tradingview, get_auth_token
+from database.auth_db import get_api_key_for_tradingview, get_auth_token, upsert_api_key
+from blueprints.apikey import generate_api_key
 from services.intervals_service import get_intervals
 from services.iv_chart_service import get_default_symbols, get_iv_chart_data
 from utils.logging import get_logger
@@ -34,9 +35,10 @@ def iv_data():
 
         api_key = get_api_key_for_tradingview(login_username)
         if not api_key:
-            return jsonify(
-                {"status": "error", "message": "API key not configured. Please generate an API key in /apikey"}
-            ), 401
+            # Auto-generate API key so IV chart works without manual setup
+            logger.info(f"Auto-generating API key for user: {login_username}")
+            api_key = generate_api_key()
+            upsert_api_key(login_username, api_key)
 
         data = request.get_json(silent=True) or {}
         underlying = data.get("underlying", "").strip()
@@ -78,9 +80,9 @@ def default_symbols():
 
         api_key = get_api_key_for_tradingview(login_username)
         if not api_key:
-            return jsonify(
-                {"status": "error", "message": "API key not configured. Please generate an API key in /apikey"}
-            ), 401
+            logger.info(f"Auto-generating API key for user: {login_username}")
+            api_key = generate_api_key()
+            upsert_api_key(login_username, api_key)
 
         data = request.get_json(silent=True) or {}
         underlying = data.get("underlying", "").strip()
@@ -118,9 +120,9 @@ def intervals():
 
         api_key = get_api_key_for_tradingview(login_username)
         if not api_key:
-            return jsonify(
-                {"status": "error", "message": "API key not configured. Please generate an API key in /apikey"}
-            ), 401
+            logger.info(f"Auto-generating API key for user: {login_username}")
+            api_key = generate_api_key()
+            upsert_api_key(login_username, api_key)
 
         success, response, status_code = get_intervals(api_key=api_key)
 
