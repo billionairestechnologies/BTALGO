@@ -267,10 +267,11 @@ def place_order_api(data, auth):
             "Content-Type": "application/json",
         }
 
-        logger.debug(f"Place order payload: {json.dumps(payload, indent=2)}")
+        logger.info(f"AliceBlue place order URL: {url}")
+        logger.info(f"AliceBlue place order payload: {json.dumps(payload, indent=2)}")
 
-        url = f"{BASE_URL}/open-api/od/v1/orders/placeorder"
         response = client.post(url, json=payload, headers=headers)
+        logger.info(f"AliceBlue HTTP status: {response.status_code}")
         response.raise_for_status()
 
         response_data = response.json()
