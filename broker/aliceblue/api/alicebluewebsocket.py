@@ -54,6 +54,7 @@ class AliceBlueWebSocket:
         self._connect_thread = None
         self._reconnect_thread = None
         self._stop_event = threading.Event()
+        self._current_url = self.PRIMARY_URL  # Track which URL is currently in use
 
         # Generate the encrypted token as required by AliceBlue
         sha256_encryption1 = hashlib.sha256(session_id.encode("utf-8")).hexdigest()
@@ -170,59 +171,44 @@ class AliceBlueWebSocket:
         """
         Attempts to connect to the WebSocket with exponential backoff retry logic.
         """
-        urls = [self.PRIMARY_URL, self.ALTERNATE_URL]
-        attempt = 0
-
-        while not self._stop_event.is_set() and attempt < self.MAX_RECONNECT_ATTEMPTS:
-            # Try each URL in sequence
-            for url in urls:
-                if self._stop_event.is_set():
-                    break
-
-                try:
-                    logger.info(f"Connecting to AliceBlue WebSocket: {url}")
-
-                    # Close any previous WebSocket before creating a new one
-                    if self.ws:
-                        try:
-                            self.ws.close()
-                        except Exception:
-                            pass
-
-                    websocket.enableTrace(False)
-                    self.ws = websocket.WebSocketApp(
-                        url,
-                        on_open=self.on_open,
-                        on_message=self.on_message,
-                        on_error=self.on_error,
-                        on_close=self.on_close,
-                    )
-
-                    # Reset reconnect count on successful connection attempt
-                    self.reconnect_count = 0
-
-                    # Run the WebSocket connection with proper SSL context
-                    self.ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
-
-                    # If we're here, the connection was closed
-                    if self.is_connected:
-                        # If it was a clean disconnect, break the retry loop
-                        break
-
-                except Exception as e:
-                    logger.error(f"Error connecting to {url}: {str(e)}")
-
-            # If we should stop or connection was successful, break the retry loop
-            if self._stop_event.is_set() or self.is_connected:
+        # Try PRIMARY first, fallback to ALTERNATE on failure
+        for url in [self.PRIMARY_URL, self.ALTERNATE_URL]:
+            if self._stop_event.is_set():
                 break
 
-            # Exponential backoff for reconnection attempts
-            attempt += 1
-            sleep_time = min(2**attempt, 30)  # Max 30 seconds between retries
-            logger.info(
-                f"Reconnection attempt {attempt}/{self.MAX_RECONNECT_ATTEMPTS} failed. Retrying in {sleep_time}s"
-            )
-            time.sleep(sleep_time)
+            try:
+                logger.info(f"Connecting to AliceBlue WebSocket: {url}")
+
+                # Close any previous WebSocket before creating a new one
+                if self.ws:
+                    try:
+                        self.ws.close()
+                    except Exception:
+                        pass
+
+                websocket.enableTrace(False)
+                self.ws = websocket.WebSocketApp(
+                    url,
+                    on_open=self.on_open,
+                    on_message=self.on_message,
+                    on_error=self.on_error,
+                    on_close=self.on_close,
+                )
+
+                # Track current URL so on_close reconnects to the same one
+                with self.lock:
+                    self._current_url = url
+                    self.reconnect_count = 0
+
+                # run_forever blocks until connection drops
+                self.ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+
+                # If connected successfully (authenticated), stop trying other URLs
+                if self.is_connected:
+                    break
+
+            except Exception as e:
+                logger.error(f"Error connecting to {url}: {str(e)}")
 
         if attempt >= self.MAX_RECONNECT_ATTEMPTS and not self.is_connected:
             logger.error(
@@ -702,6 +688,8 @@ class AliceBlueWebSocket:
     def on_close(self, ws, close_status_code, close_msg):
         """
         Called when the WebSocket connection is closed.
+        Does a simple reconnect to the same URL — does NOT call connect() to avoid
+        creating a new WS session or spawning a new _connect_thread.
 
         Args:
             ws: WebSocket instance
@@ -717,22 +705,39 @@ class AliceBlueWebSocket:
             if self._stop_event.is_set():
                 return
 
-            # Grab reference to old thread while holding lock
-            old_thread = self._reconnect_thread
-            self.reconnect_count += 1
-            sleep_time = min(2**self.reconnect_count, 30)
+            # Check if a reconnect thread is already running to avoid storm
+            if self._reconnect_thread and self._reconnect_thread.is_alive():
+                logger.info("Reconnect thread already running, skipping duplicate reconnect")
+                return
 
-        # Join outside lock to avoid deadlock (delayed_reconnect -> connect -> self.lock)
-        if old_thread and old_thread.is_alive():
-            logger.info("Waiting for previous reconnect thread to finish")
-            old_thread.join(timeout=5)
+            self.reconnect_count += 1
+            sleep_time = min(2 * self.reconnect_count, 30)  # Linear backoff: 2, 4, 6... max 30s
+            url_to_reconnect = self._current_url
 
         logger.info(f"Attempting to reconnect in {sleep_time} seconds")
 
         def delayed_reconnect():
             time.sleep(sleep_time)
-            if not self._stop_event.is_set():
-                self.connect()
+            if self._stop_event.is_set():
+                return
+            try:
+                logger.info(f"Reconnecting to AliceBlue WebSocket: {url_to_reconnect}")
+                if self.ws:
+                    try:
+                        self.ws.close()
+                    except Exception:
+                        pass
+
+                self.ws = websocket.WebSocketApp(
+                    url_to_reconnect,
+                    on_open=self.on_open,
+                    on_message=self.on_message,
+                    on_error=self.on_error,
+                    on_close=self.on_close,
+                )
+                self.ws.run_forever(sslopt={"cert_reqs": ssl.CERT_NONE})
+            except Exception as e:
+                logger.error(f"Error during reconnect: {e}")
 
         t = threading.Thread(target=delayed_reconnect, daemon=True)
         with self.lock:
