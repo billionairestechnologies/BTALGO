@@ -11,7 +11,7 @@ def map_product_type(product):
     """Map OpenAlgo product type to AliceBlue V2 product type."""
     mapping = {
         "CNC": "LONGTERM",
-        "NRML": "NRML",
+        "NRML": "LONGTERM",   # AliceBlue V2: carry-forward F&O = LONGTERM
         "MIS": "INTRADAY",
     }
     return mapping.get(product, "INTRADAY")

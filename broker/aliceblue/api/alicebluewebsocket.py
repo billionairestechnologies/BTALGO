@@ -210,10 +210,8 @@ class AliceBlueWebSocket:
             except Exception as e:
                 logger.error(f"Error connecting to {url}: {str(e)}")
 
-        if attempt >= self.MAX_RECONNECT_ATTEMPTS and not self.is_connected:
-            logger.error(
-                "Maximum reconnection attempts reached. Could not connect to AliceBlue WebSocket."
-            )
+        if not self.is_connected:
+            logger.error("Could not connect to AliceBlue WebSocket on any URL.")
 
     def disconnect(self):
         """
