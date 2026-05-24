@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Zebu Broking Parameters
 
 from broker.zebu.api.data import BrokerData

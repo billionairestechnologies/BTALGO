@@ -1,7 +1,7 @@
 """
-OpenAlgo Expiry Date Extraction Example
+BTAlgo Expiry Date Extraction Example
 ----------------------------------------
-Demonstrates how to extract expiry dates using the OpenAlgo Python SDK.
+Demonstrates how to extract expiry dates using the BTAlgo Python SDK.
 
 Weekly: current_week, next_week, current_month, next_month
 Monthly: current_month, next_month, far_month
@@ -28,7 +28,7 @@ expirytype = "weekly"  # Expiry type ("weekly" or "monthly")
 
 def get_expiry_dates(symbol: str, exchange: str, instrumenttype: str, expirytype: str):
     """
-    Fetch and categorize expiry dates from OpenAlgo API.
+    Fetch and categorize expiry dates from BTAlgo API.
 
     Args:
         symbol: Index symbol (NIFTY, BANKNIFTY, SENSEX, etc.)
@@ -40,7 +40,7 @@ def get_expiry_dates(symbol: str, exchange: str, instrumenttype: str, expirytype
         For weekly: dict with current_week, next_week, current_month, next_month
         For monthly: dict with current_month, next_month, far_month
     """
-    # Fetch expiry dates from OpenAlgo
+    # Fetch expiry dates from BTAlgo
     response = client.expiry(symbol=symbol, exchange=exchange, instrumenttype=instrumenttype)
 
     if response.get("status") != "success":

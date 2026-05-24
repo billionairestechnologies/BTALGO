@@ -120,7 +120,7 @@ def get_open_position(tradingsymbol, exchange, producttype, auth):
     Get the net quantity for a given symbol from the position book.
     This should return the NetQty which represents the net position (positive for long, negative for short).
     """
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search in OpenPosition
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
     positions_data = _get_cached_positions(auth)
 
@@ -216,7 +216,7 @@ def place_order_api(data, auth):
 
 def place_smartorder_api(data: dict, auth: str) -> tuple:
     """
-    Place a smart order to achieve target position size based on the OpenAlgo specification.
+    Place a smart order to achieve target position size based on the BTAlgo specification.
 
     The function compares the target position_size with current position and places
     appropriate BUY/SELL orders to match the target position.
@@ -417,7 +417,7 @@ def close_all_positions(current_api_key, auth):
             "orderQuantity": str(quantity),
             "limitPrice": "0",
             "stopPrice": "0",
-            "orderUniqueIdentifier": "openalgo",
+            "orderUniqueIdentifier": "btalgo",
         }
 
         # Place the order to close the position
@@ -446,7 +446,7 @@ def cancel_order(orderid, auth):
     }
 
     # Prepare the payload
-    payload = json.dumps({"appOrderID": orderid, "orderUniqueIdentifier": "openalgo"})
+    payload = json.dumps({"appOrderID": orderid, "orderUniqueIdentifier": "btalgo"})
 
     # Make the request using the shared client
     response = client.delete(f"{INTERACTIVE_URL}/orders?appOrderID={orderid}", headers=headers)

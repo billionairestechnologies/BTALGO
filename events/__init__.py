@@ -1,4 +1,4 @@
-"""Event types for the OpenAlgo event bus."""
+"""Event types for the BTAlgo event bus."""
 
 from events.analyzer_events import AnalyzerErrorEvent
 from events.base import OrderEvent

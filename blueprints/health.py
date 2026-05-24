@@ -70,7 +70,7 @@ def simple_health():
         "status": "pass"|"warn"|"fail",
         "version": "1.0",
         "releaseId": "...",
-        "serviceId": "openalgo"
+        "serviceId": "btalgo"
     }
     """
     try:
@@ -88,8 +88,8 @@ def simple_health():
                 {
                     "status": health_status["status"],
                     "version": "1.0",
-                    "serviceId": "openalgo",
-                    "description": "OpenAlgo Trading Platform",
+                    "serviceId": "btalgo",
+                    "description": "BTAlgo Trading Platform",
                 }
             ),
             status_code,
@@ -113,10 +113,10 @@ def detailed_health_check():
     {
         "status": "pass"|"warn"|"fail",
         "version": "1.0",
-        "serviceId": "openalgo",
+        "serviceId": "btalgo",
         "checks": {
             "database:connectivity": [{
-                "componentId": "openalgo",
+                "componentId": "btalgo",
                 "status": "pass"|"fail",
                 "time": "2026-01-30T10:15:30Z"
             }],
@@ -217,8 +217,8 @@ def detailed_health_check():
                 {
                     "status": overall_status,
                     "version": "1.0",
-                    "serviceId": "openalgo",
-                    "description": "OpenAlgo Trading Platform",
+                    "serviceId": "btalgo",
+                    "description": "BTAlgo Trading Platform",
                     "checks": checks,
                 }
             ),
@@ -232,7 +232,7 @@ def detailed_health_check():
                 {
                     "status": "fail",
                     "version": "1.0",
-                    "serviceId": "openalgo",
+                    "serviceId": "btalgo",
                     "description": str(e),
                 }
             ),

@@ -1,15 +1,15 @@
-# Security Audit Report - OpenAlgo v2
+# Security Audit Report - BTAlgo v2
 
 **Audit Date:** February 2026
 **Auditor:** Claude Code Security Analysis
 **Scope:** Full codebase security review
-**Version:** OpenAlgo v2.x
+**Version:** BTAlgo v2.x
 
 ---
 
 ## Executive Summary
 
-This security audit identified **23+ vulnerabilities** across the OpenAlgo codebase. The findings are categorized by severity and type, with recommended remediation steps.
+This security audit identified **23+ vulnerabilities** across the BTAlgo codebase. The findings are categorized by severity and type, with recommended remediation steps.
 
 ### Risk Summary
 
@@ -52,7 +52,7 @@ SQL injection vulnerabilities were found primarily in database migration scripts
 #### VULN-SQL-001: Table Name Injection in migrate_historify_scheduler.py
 
 **Severity:** HIGH
-**File:** `/openalgo/upgrade/migrate_historify_scheduler.py`
+**File:** `/btalgo/upgrade/migrate_historify_scheduler.py`
 **Lines:** 66-69
 **CVSS Score:** 7.5
 
@@ -87,7 +87,7 @@ def table_exists(conn, table_name):
 #### VULN-SQL-002: Table Name Injection in migrate_historify.py
 
 **Severity:** HIGH
-**File:** `/openalgo/upgrade/migrate_historify.py`
+**File:** `/btalgo/upgrade/migrate_historify.py`
 **Lines:** 282-285
 **CVSS Score:** 7.5
 
@@ -107,7 +107,7 @@ for table in required_tables:
 #### VULN-SQL-003: WHERE Clause and File Path Injection in historify_db.py
 
 **Severity:** MEDIUM-HIGH
-**File:** `/openalgo/database/historify_db.py`
+**File:** `/btalgo/database/historify_db.py`
 **Lines:** 2345, 2362-2365, 2385-2395
 **CVSS Score:** 6.8
 
@@ -142,7 +142,7 @@ export_query = f"""
 #### VULN-SQL-004: Direct Interpolation in migrate_telegram_bot.py
 
 **Severity:** HIGH
-**File:** `/openalgo/upgrade/migrate_telegram_bot.py`
+**File:** `/btalgo/upgrade/migrate_telegram_bot.py`
 **Line:** 375
 **CVSS Score:** 7.5
 
@@ -159,7 +159,7 @@ for table in tables:
 #### VULN-SQL-005: SQL Injection in migrate_sandbox.py
 
 **Severity:** HIGH
-**File:** `/openalgo/upgrade/migrate_sandbox.py`
+**File:** `/btalgo/upgrade/migrate_sandbox.py`
 **Lines:** 422-425
 **CVSS Score:** 7.5
 
@@ -181,7 +181,7 @@ for table in required_tables:
 #### VULN-SQL-006: LIKE Pattern Injection in token_db_enhanced.py
 
 **Severity:** LOW
-**File:** `/openalgo/database/token_db_enhanced.py`
+**File:** `/btalgo/database/token_db_enhanced.py`
 **Line:** 910
 **CVSS Score:** 4.3
 
@@ -207,7 +207,7 @@ Multiple API keys were found hardcoded in example files, test files, and API col
 #### VULN-SEC-001: Hardcoded API Keys in Example Files
 
 **Severity:** HIGH
-**Location:** `/openalgo/examples/python/`
+**Location:** `/btalgo/examples/python/`
 **CVSS Score:** 7.5
 
 **Affected Files and Keys:**
@@ -234,7 +234,7 @@ Multiple API keys were found hardcoded in example files, test files, and API col
 #### VULN-SEC-002: Hardcoded API Keys in Test Files
 
 **Severity:** HIGH
-**Location:** `/openalgo/test/`
+**Location:** `/btalgo/test/`
 **CVSS Score:** 7.5
 
 | File | Line | API Key |
@@ -248,7 +248,7 @@ Multiple API keys were found hardcoded in example files, test files, and API col
 #### VULN-SEC-003: Hardcoded API Keys in Bruno Collection
 
 **Severity:** HIGH
-**File:** `/openalgo/collections/openalgo_bruno.json`
+**File:** `/btalgo/collections/btalgo_bruno.json`
 **CVSS Score:** 7.5
 
 Multiple API keys embedded in API collection requests:
@@ -275,7 +275,7 @@ API_KEY = "7653f710c940cdf1d757b5a7d808a60f43bc7e9c0239065435861da2869ec0fc"
 
 # After (SECURE)
 import os
-API_KEY = os.environ.get("OPENALGO_API_KEY", "YOUR_API_KEY_HERE")
+API_KEY = os.environ.get("BTALGO_API_KEY", "YOUR_API_KEY_HERE")
 ```
 
 **Preventive Measures:**
@@ -296,7 +296,7 @@ Command injection vulnerabilities were assessed across the codebase. Most subpro
 #### VULN-CMD-001: User-Uploaded Python Script Execution
 
 **Severity:** MEDIUM
-**File:** `/openalgo/blueprints/python_strategy.py`
+**File:** `/btalgo/blueprints/python_strategy.py`
 **Line:** 469
 **CVSS Score:** 6.5
 
@@ -343,7 +343,7 @@ Multiple XSS vulnerabilities were found primarily in the playground JavaScript f
 #### VULN-XSS-001: Watchlist Symbol Rendering (CRITICAL)
 
 **Severity:** CRITICAL
-**File:** `/openalgo/playground/script.js`
+**File:** `/btalgo/playground/script.js`
 **Line:** 331
 **CVSS Score:** 8.2
 
@@ -370,7 +370,7 @@ symbol.symbol = '<img src=x onerror="alert(document.cookie)">'
 #### VULN-XSS-002: Search Results Display (CRITICAL)
 
 **Severity:** CRITICAL
-**File:** `/openalgo/playground/script.js`
+**File:** `/btalgo/playground/script.js`
 **Lines:** 337-342
 **CVSS Score:** 8.2
 
@@ -390,7 +390,7 @@ searchResultsContainer.innerHTML = content;
 #### VULN-XSS-003: WebSocket Inspector Content
 
 **Severity:** HIGH
-**File:** `/openalgo/playground/script.js`
+**File:** `/btalgo/playground/script.js`
 **Lines:** 135-147
 **CVSS Score:** 7.1
 
@@ -414,7 +414,7 @@ inspectorContent.innerHTML = filteredMessages.slice(-100).map(msg => {
 #### VULN-XSS-004: Log Message Display
 
 **Severity:** HIGH
-**File:** `/openalgo/playground/script.js`
+**File:** `/btalgo/playground/script.js`
 **Line:** 95
 **CVSS Score:** 7.1
 
@@ -432,7 +432,7 @@ logElement.innerHTML = `
 #### VULN-XSS-005: Toast Messages
 
 **Severity:** HIGH
-**File:** `/openalgo/playground/script.js`
+**File:** `/btalgo/playground/script.js`
 **Line:** 87
 **CVSS Score:** 7.1
 
@@ -446,7 +446,7 @@ toast.innerHTML = `<div><span>${message}</span></div>`;
 #### VULN-XSS-006: Depth Panel Rendering
 
 **Severity:** HIGH
-**File:** `/openalgo/playground/script.js`
+**File:** `/btalgo/playground/script.js`
 **Lines:** 383-384
 **CVSS Score:** 7.3
 
@@ -455,7 +455,7 @@ toast.innerHTML = `<div><span>${message}</span></div>`;
 #### VULN-XSS-007: Historical Data Results
 
 **Severity:** HIGH
-**File:** `/openalgo/playground/script.js`
+**File:** `/btalgo/playground/script.js`
 **Line:** 432
 **CVSS Score:** 7.1
 
@@ -464,7 +464,7 @@ toast.innerHTML = `<div><span>${message}</span></div>`;
 #### VULN-XSS-008: Jinja2 Template User Input
 
 **Severity:** MEDIUM
-**File:** `/openalgo/examples/python/flask_optionchain.py`
+**File:** `/btalgo/examples/python/flask_optionchain.py`
 **Lines:** 105-106, 119
 **CVSS Score:** 6.5
 
@@ -529,7 +529,7 @@ The authentication system is well-implemented with Argon2 hashing, TOTP support,
 #### VULN-AUTH-001: API Key Verification Brute Force
 
 **Severity:** HIGH
-**File:** `/openalgo/database/auth_db.py`
+**File:** `/btalgo/database/auth_db.py`
 **Line:** 525
 **CVSS Score:** 7.5
 
@@ -561,7 +561,7 @@ def verify_api_key(provided_api_key):
 #### VULN-AUTH-002: Rate Limiting Not Distributed
 
 **Severity:** MEDIUM
-**File:** `/openalgo/limiter.py`
+**File:** `/btalgo/limiter.py`
 **Lines:** 1-8
 **CVSS Score:** 5.3
 
@@ -591,7 +591,7 @@ limiter = Limiter(
 #### VULN-AUTH-003: Session Cookie Security Conditional
 
 **Severity:** MEDIUM
-**File:** `/openalgo/app.py`
+**File:** `/btalgo/app.py`
 **Lines:** 144-160
 **CVSS Score:** 5.0
 
@@ -614,7 +614,7 @@ app.config.update(
 #### VULN-AUTH-004: API Key Cache TTL Too Long
 
 **Severity:** MEDIUM
-**File:** `/openalgo/database/auth_db.py`
+**File:** `/btalgo/database/auth_db.py`
 **Line:** 123
 **CVSS Score:** 5.0
 
@@ -658,7 +658,7 @@ Path traversal vulnerabilities were found in static file serving and file upload
 #### VULN-PATH-001: Static File Serving (CRITICAL)
 
 **Severity:** CRITICAL
-**File:** `/openalgo/blueprints/react_app.py`
+**File:** `/btalgo/blueprints/react_app.py`
 **Lines:** 463, 499, 508, 517
 **CVSS Score:** 8.6
 
@@ -711,7 +711,7 @@ def serve_assets(filename):
 #### VULN-PATH-002: Hardcoded Temporary File Path
 
 **Severity:** HIGH
-**File:** `/openalgo/blueprints/admin.py`
+**File:** `/btalgo/blueprints/admin.py`
 **Lines:** 277-278
 **CVSS Score:** 6.5
 
@@ -750,7 +750,7 @@ finally:
 #### VULN-PATH-003: CSV Upload Extension-Only Validation
 
 **Severity:** MEDIUM
-**File:** `/openalgo/blueprints/admin.py`
+**File:** `/btalgo/blueprints/admin.py`
 **Lines:** 269-273
 **CVSS Score:** 5.3
 

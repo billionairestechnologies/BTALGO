@@ -610,7 +610,7 @@ def process_aliceblue_indices_csv(path):
             "NIFTYFINSERVICE": "FINNIFTY",
             "NIFTYBANK": "BANKNIFTY",
             "NIFTYMIDCAPSELECT": "MIDCPNIFTY",
-            # BSE Index Symbols (AliceBlue -> OpenAlgo)
+            # BSE Index Symbols (AliceBlue -> BTAlgo)
             "SNSX50": "SENSEX50",
             "SNXT50": "BSESENSEXNEXT50",
             "MID150": "BSE150MIDCAPINDEX",

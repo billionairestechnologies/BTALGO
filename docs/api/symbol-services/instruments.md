@@ -79,7 +79,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/instruments \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|-------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 | exchange | Exchange filter: NSE, BSE, NFO, BFO, CDS, BCD, MCX | Optional | All exchanges |
 | format | Output format: "json" or "csv" | Optional | json |
 
@@ -95,10 +95,10 @@ curl -X POST http://127.0.0.1:5000/api/v1/instruments \
 
 | Field | Type | Description |
 |-------|------|-------------|
-| symbol | string | OpenAlgo standard symbol |
+| symbol | string | BTAlgo standard symbol |
 | brsymbol | string | Broker-specific symbol |
 | name | string | Full company/instrument name |
-| exchange | string | OpenAlgo exchange code |
+| exchange | string | BTAlgo exchange code |
 | brexchange | string | Broker-specific exchange code |
 | token | string | Broker-specific instrument token |
 | expiry | string | Expiry date (null for equity) |

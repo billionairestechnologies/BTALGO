@@ -679,7 +679,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/trading-platform/python/indicators/volume.md?ask=<question>
+GET https://docs.billionairestechnologies.com/trading-platform/python/indicators/volume.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

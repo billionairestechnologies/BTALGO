@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo implements defense-in-depth security with multiple layers protecting the application from various attack vectors. The security architecture covers authentication, authorization, transport security, input validation, and monitoring.
+BTAlgo implements defense-in-depth security with multiple layers protecting the application from various attack vectors. The security architecture covers authentication, authorization, transport security, input validation, and monitoring.
 
 ## Security Layers Diagram
 
@@ -405,7 +405,7 @@ def get_encryption_key():
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=b'openalgo_static_salt',
+        salt=b'btalgo_static_salt',
         iterations=100000,
     )
     key = base64.urlsafe_b64encode(kdf.derive(PEPPER.encode()))
@@ -426,7 +426,7 @@ Five separate databases prevent cross-contamination:
 
 | Database | Contents | Sensitivity |
 |----------|----------|-------------|
-| `openalgo.db` | Users, auth tokens, orders | High |
+| `btalgo.db` | Users, auth tokens, orders | High |
 | `logs.db` | Traffic logs, IP bans | Medium |
 | `latency.db` | Performance metrics | Low |
 | `sandbox.db` | Sandbox trading data | Medium |

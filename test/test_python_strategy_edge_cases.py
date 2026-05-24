@@ -468,7 +468,7 @@ def test_schedule_route_refuses_when_running(ps_module):
 
 
 def test_subprocess_env_includes_strategy_exchange(ps_module, monkeypatch, tmp_path):
-    """start_strategy_process injects OPENALGO_STRATEGY_EXCHANGE per strategy."""
+    """start_strategy_process injects BTALGO_STRATEGY_EXCHANGE per strategy."""
     from pathlib import Path
 
     # Build a noop strategy file
@@ -501,7 +501,7 @@ def test_subprocess_env_includes_strategy_exchange(ps_module, monkeypatch, tmp_p
 
     success, msg = ps_module.start_strategy_process("envtest")
     assert success, msg
-    assert captured_env.get("OPENALGO_STRATEGY_EXCHANGE") == "MCX"
+    assert captured_env.get("BTALGO_STRATEGY_EXCHANGE") == "MCX"
     assert captured_env.get("STRATEGY_ID") == "envtest"
     assert captured_env.get("STRATEGY_NAME") == "EnvTest"
 

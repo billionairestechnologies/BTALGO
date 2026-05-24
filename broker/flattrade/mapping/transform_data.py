@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Flattrade Broking Parameters https://piconnect.flattrade.in/docs/
 
 from broker.flattrade.api.data import BrokerData

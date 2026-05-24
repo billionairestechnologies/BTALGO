@@ -2,7 +2,7 @@ import logging
 
 
 class IndmoneyExchangeMapper:
-    """Maps OpenAlgo exchange codes to INDmoney-specific segment codes"""
+    """Maps BTAlgo exchange codes to INDmoney-specific segment codes"""
 
     # Exchange segment mapping for INDmoney broker
     # Format: SEGMENT:TOKEN (e.g., NSE:2885, BSE:500325)
@@ -50,7 +50,7 @@ class IndmoneyExchangeMapper:
 class IndmoneyModeMapper:
     """Maps subscription mode integers to INDmoney mode strings"""
 
-    # Mode mapping: OpenAlgo mode number -> INDmoney mode string
+    # Mode mapping: BTAlgo mode number -> INDmoney mode string
     MODE_MAP = {
         1: "ltp",  # LTP (Last Traded Price)
         2: "quote",  # Quote (Full quote data)
@@ -62,10 +62,10 @@ class IndmoneyModeMapper:
     @staticmethod
     def get_indmoney_mode(mode):
         """
-        Convert OpenAlgo mode number to INDmoney mode string
+        Convert BTAlgo mode number to INDmoney mode string
 
         Args:
-            mode (int): OpenAlgo mode (1: LTP, 2: Quote)
+            mode (int): BTAlgo mode (1: LTP, 2: Quote)
 
         Returns:
             str: INDmoney mode string ('ltp' or 'quote')
@@ -73,15 +73,15 @@ class IndmoneyModeMapper:
         return IndmoneyModeMapper.MODE_MAP.get(mode, "ltp")
 
     @staticmethod
-    def get_openalgo_mode(indmoney_mode):
+    def get_btalgo_mode(indmoney_mode):
         """
-        Convert INDmoney mode string to OpenAlgo mode number
+        Convert INDmoney mode string to BTAlgo mode number
 
         Args:
             indmoney_mode (str): INDmoney mode ('ltp' or 'quote')
 
         Returns:
-            int: OpenAlgo mode number
+            int: BTAlgo mode number
         """
         return IndmoneyModeMapper.REVERSE_MODE_MAP.get(indmoney_mode, 1)
 

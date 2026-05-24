@@ -13,7 +13,7 @@ def calculate_margin_api(positions, auth):
     Calculate margin requirement for a basket of positions using Angel Broking API.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for Angel Broking
 
     Returns:

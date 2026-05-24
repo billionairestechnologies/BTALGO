@@ -45,7 +45,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/cancelgttorder \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|--------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 | strategy | Strategy identifier (used in event logs) | Mandatory | - |
 | trigger_id | Active trigger ID returned by `PlaceGTTOrder` | Mandatory | - |
 
@@ -69,7 +69,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/cancelgttorder \
 | Error | Cause |
 |-------|-------|
 | `trigger_id is required` (400) | Missing or empty `trigger_id` |
-| `Invalid openalgo apikey` (403) | Bad / unrecognised API key |
+| `Invalid btalgo apikey` (403) | Bad / unrecognised API key |
 | `GTT orders are not supported for broker 'X' yet` (501) | Broker doesn't ship a `gtt_api` module |
 | `Sandbox GTT support not yet implemented` (501) | Analyzer mode is enabled |
 | `Failed to cancel GTT` (4xx/5xx) | Broker rejected — usually because the trigger is no longer active |

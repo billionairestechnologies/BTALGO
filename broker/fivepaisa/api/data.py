@@ -640,7 +640,7 @@ class BrokerData:
             raise
 
     def map_interval(self, interval: str) -> str:
-        """Map openalgo interval to 5paisa interval"""
+        """Map btalgo interval to 5paisa interval"""
         interval_map = {
             "1m": "1m",
             "5m": "5m",

@@ -59,7 +59,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/modifyorder \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|-------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 | orderid | Order ID to modify | Mandatory | - |
 | strategy | Strategy identifier | Optional | - |
 | symbol | Trading symbol | Mandatory | - |

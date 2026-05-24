@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo uses **5 separate databases** for data isolation, performance optimization, and specialized use cases. This separation prevents contention and allows each database to be optimized for its specific workload.
+BTAlgo uses **5 separate databases** for data isolation, performance optimization, and specialized use cases. This separation prevents contention and allows each database to be optimized for its specific workload.
 
 ## Architecture Diagram
 
@@ -15,7 +15,7 @@ OpenAlgo uses **5 separate databases** for data isolation, performance optimizat
 │                           5 Separate Databases                               │
 │                                                                              │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐             │
-│  │   openalgo.db   │  │    logs.db      │  │   latency.db    │             │
+│  │   btalgo.db   │  │    logs.db      │  │   latency.db    │             │
 │  │   (Main DB)     │  │   (Traffic)     │  │  (Performance)  │             │
 │  │                 │  │                 │  │                 │             │
 │  │  - Users        │  │  - traffic_logs │  │  - order_latency│             │
@@ -39,11 +39,11 @@ OpenAlgo uses **5 separate databases** for data isolation, performance optimizat
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-## Database 1: Main Database (openalgo.db)
+## Database 1: Main Database (btalgo.db)
 
 ### Location
 ```
-db/openalgo.db
+db/btalgo.db
 ```
 
 ### Core Tables
@@ -257,7 +257,7 @@ db/latency.db
 │ rtt_ms           │ FLOAT        │ Round-trip time  │
 │ validation_ms    │ FLOAT        │ Pre-request      │
 │ response_ms      │ FLOAT        │ Post-response    │
-│ overhead_ms      │ FLOAT        │ OpenAlgo overhead│
+│ overhead_ms      │ FLOAT        │ BTAlgo overhead│
 │ total_latency_ms │ FLOAT        │ End-to-end time  │
 │ status           │ VARCHAR(20)  │ SUCCESS/FAILED   │
 └──────────────────┴──────────────┴──────────────────┘
@@ -270,7 +270,7 @@ db/latency.db
 | rtt_ms | Network round-trip to broker |
 | validation_ms | Request validation time |
 | response_ms | Response processing time |
-| overhead_ms | Total OpenAlgo overhead |
+| overhead_ms | Total BTAlgo overhead |
 | P50, P90, P95, P99 | Latency percentiles |
 
 ## Database 4: Sandbox Database (sandbox.db)
@@ -397,7 +397,7 @@ Primary Key: (symbol, exchange, interval, timestamp)
 from sqlalchemy.pool import NullPool
 
 engine = create_engine(
-    'sqlite:///db/openalgo.db',
+    'sqlite:///db/btalgo.db',
     poolclass=NullPool,  # Create/close per request
     connect_args={'timeout': 30}
 )

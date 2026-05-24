@@ -320,7 +320,7 @@ def broker_callback(broker, para=None):
                 client_id = broker_api_key
 
         if request.method == "GET":
-            # Initial hit from OpenAlgo broker page has no callback parameters.
+            # Initial hit from BTAlgo broker page has no callback parameters.
             if not callback_args:
                 referrer = (request.headers.get("Referer") or "").lower()
                 if "iiflcapital.com" in referrer:
@@ -346,7 +346,7 @@ def broker_callback(broker, para=None):
                     )
                 return redirect(login_url)
 
-            # Callback reached OpenAlgo but required params were not provided.
+            # Callback reached BTAlgo but required params were not provided.
             if not auth_code or not client_id:
                 logger.warning(
                     "IIFL Capital callback missing required params. "

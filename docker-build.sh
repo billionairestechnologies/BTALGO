@@ -1,6 +1,6 @@
 #!/bin/bash
-# OpenAlgo Docker Build and Deployment Script
-# This script builds and deploys OpenAlgo with numba/llvmlite support
+# BTAlgo Docker Build and Deployment Script
+# This script builds and deploys BTAlgo with numba/llvmlite support
 
 set -e  # Exit on error
 
@@ -12,9 +12,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-IMAGE_NAME="openalgo"
+IMAGE_NAME="btalgo"
 IMAGE_TAG="latest"
-CONTAINER_NAME="openalgo-web"
+CONTAINER_NAME="btalgo-web"
 
 # Functions
 print_header() {
@@ -158,7 +158,7 @@ verify_dependencies() {
 
 # Start container
 start_container() {
-    print_header "Starting OpenAlgo Container"
+    print_header "Starting BTAlgo Container"
 
     if [ -f "docker-compose.yaml" ]; then
         print_info "Starting with docker-compose..."
@@ -171,10 +171,10 @@ start_container() {
             --shm-size=2g \
             -p 5000:5000 \
             -p 8765:8765 \
-            -v openalgo_db:/app/db \
-            -v openalgo_log:/app/log \
-            -v openalgo_strategies:/app/strategies \
-            -v openalgo_keys:/app/keys \
+            -v btalgo_db:/app/db \
+            -v btalgo_log:/app/log \
+            -v btalgo_strategies:/app/strategies \
+            -v btalgo_keys:/app/keys \
             -v "$(pwd)/.env:/app/.env" \
             --tmpfs /app/tmp:size=1g,mode=1777 \
             --restart unless-stopped \
@@ -196,7 +196,7 @@ health_check() {
     else
         print_error "Container is not running!"
         print_info "Checking logs..."
-        docker-compose logs --tail=50 openalgo || docker logs ${CONTAINER_NAME}
+        docker-compose logs --tail=50 btalgo || docker logs ${CONTAINER_NAME}
         exit 1
     fi
 
@@ -222,18 +222,18 @@ test_python_deps() {
     print_info "Testing basic imports..."
 
     # Test 1: Basic imports
-    if docker-compose exec -T openalgo python -c "import numba; import llvmlite; import scipy; print('SUCCESS')" 2>/dev/null | grep -q "SUCCESS"; then
+    if docker-compose exec -T btalgo python -c "import numba; import llvmlite; import scipy; print('SUCCESS')" 2>/dev/null | grep -q "SUCCESS"; then
         print_success "numba, llvmlite, scipy imports successful"
     else
         print_error "Failed to import dependencies"
         print_info "Running detailed test..."
-        docker-compose exec openalgo python -c "import numba; import llvmlite; import scipy; print('SUCCESS')"
+        docker-compose exec btalgo python -c "import numba; import llvmlite; import scipy; print('SUCCESS')"
         return 1
     fi
 
     # Test 2: Numba JIT compilation
     print_info "Testing numba JIT compilation..."
-    if docker-compose exec -T openalgo python -c "
+    if docker-compose exec -T btalgo python -c "
 from numba import jit
 import numpy as np
 
@@ -252,7 +252,7 @@ print('SUCCESS' if len(result) == 3 else 'FAILED')
 
     # Test 3: SciPy operations
     print_info "Testing scipy operations..."
-    if docker-compose exec -T openalgo python -c "
+    if docker-compose exec -T btalgo python -c "
 from scipy import stats
 result = stats.norm.cdf(0)
 print('SUCCESS' if abs(result - 0.5) < 0.001 else 'FAILED')
@@ -265,7 +265,7 @@ print('SUCCESS' if abs(result - 0.5) < 0.001 else 'FAILED')
 
     # Test 4: Cache directory permissions
     print_info "Testing cache directory..."
-    if docker-compose exec -T openalgo bash -c "
+    if docker-compose exec -T btalgo bash -c "
 [ -d /app/tmp/numba_cache ] && [ -w /app/tmp/numba_cache ] && echo 'SUCCESS'
 " 2>/dev/null | grep -q "SUCCESS"; then
         print_success "Numba cache directory is writable"
@@ -278,7 +278,7 @@ print('SUCCESS' if abs(result - 0.5) < 0.001 else 'FAILED')
 show_access_info() {
     print_header "Deployment Complete!"
 
-    echo -e "${GREEN}✓ OpenAlgo is now running${NC}\n"
+    echo -e "${GREEN}✓ BTAlgo is now running${NC}\n"
 
     echo -e "${BLUE}Access URLs:${NC}"
     echo -e "  Web UI:       ${GREEN}http://127.0.0.1:5000${NC}"
@@ -290,8 +290,8 @@ show_access_info() {
     echo -e "  View logs:        ${YELLOW}docker-compose logs -f${NC}"
     echo -e "  Stop container:   ${YELLOW}docker-compose down${NC}"
     echo -e "  Restart:          ${YELLOW}docker-compose restart${NC}"
-    echo -e "  Shell access:     ${YELLOW}docker-compose exec openalgo bash${NC}"
-    echo -e "  Run strategy:     ${YELLOW}docker-compose exec openalgo uv run python /app/strategies/scripts/your_script.py${NC}"
+    echo -e "  Shell access:     ${YELLOW}docker-compose exec btalgo bash${NC}"
+    echo -e "  Run strategy:     ${YELLOW}docker-compose exec btalgo uv run python /app/strategies/scripts/your_script.py${NC}"
 
     echo -e "\n${BLUE}Configured Broker:${NC}"
     if grep -q "fyers" .env 2>/dev/null; then
@@ -316,7 +316,7 @@ show_access_info() {
 
 # Main execution
 main() {
-    print_header "OpenAlgo Docker Build & Deploy"
+    print_header "BTAlgo Docker Build & Deploy"
     print_info "Starting build process with numba/llvmlite support..."
 
     # Step 1: Check environment

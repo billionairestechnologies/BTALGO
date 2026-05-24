@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Samco 2FA Auth Migration Script for OpenAlgo
+Samco 2FA Auth Migration Script for BTAlgo
 
 This migration adds auxiliary columns (aux_param1-4) to the existing auth table.
 These columns are used by Samco for 2FA data (secret key, IP registration)
@@ -39,7 +39,7 @@ load_dotenv(os.path.join(parent_dir, ".env"))
 
 def get_engine():
     """Get main database engine"""
-    database_url = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+    database_url = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
 
     if database_url.startswith("sqlite:///"):
         db_path = database_url.replace("sqlite:///", "")

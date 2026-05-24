@@ -2,7 +2,7 @@
 # NIFTY 50 YTD 2026 Heatmap
 # Baseline: close on 2025-12-31 (last trading day of 2025)
 # Sorted: top gainers top-left → top losers bottom-right
-# Data source: OpenAlgo Historify local DuckDB (source='db')
+# Data source: BTAlgo Historify local DuckDB (source='db')
 # ---------------------------------------------------
 
 import pandas as pd

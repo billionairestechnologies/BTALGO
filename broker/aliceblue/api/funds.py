@@ -89,7 +89,7 @@ def get_margin_data(auth_token):
         # Note: unrealized PnL requires LTP which is not available via REST API
         realized_pnl = _get_realized_pnl(client, headers)
 
-        # Map V2 API fields to OpenAlgo format
+        # Map V2 API fields to BTAlgo format
         processed_margin_data["availablecash"] = "{:.2f}".format(
             float(item.get("tradingLimit", 0))
         )

@@ -1,6 +1,6 @@
 # Component Documentation
 
-This document covers the UI components used in the OpenAlgo frontend.
+This document covers the UI components used in the BTAlgo frontend.
 
 ## Component Architecture
 

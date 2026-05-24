@@ -2,7 +2,7 @@
 
 ## Overview
 
-Guidelines for upgrading OpenAlgo to new versions while preserving data and configurations.
+Guidelines for upgrading BTAlgo to new versions while preserving data and configurations.
 
 ## Pre-Upgrade Checklist
 
@@ -14,7 +14,7 @@ Guidelines for upgrading OpenAlgo to new versions while preserving data and conf
 │  □ 2. Backup .env file                                                     │
 │  □ 3. Backup custom strategies                                             │
 │  □ 4. Note current version                                                 │
-│  □ 5. Stop running OpenAlgo instance                                       │
+│  □ 5. Stop running BTAlgo instance                                       │
 │  □ 6. Read release notes for breaking changes                              │
 │                                                                             │
 └────────────────────────────────────────────────────────────────────────────┘
@@ -29,7 +29,7 @@ Guidelines for upgrading OpenAlgo to new versions while preserving data and conf
 mkdir -p backups/$(date +%Y%m%d)
 
 # Backup all databases
-cp db/openalgo.db backups/$(date +%Y%m%d)/
+cp db/btalgo.db backups/$(date +%Y%m%d)/
 cp db/logs.db backups/$(date +%Y%m%d)/
 cp db/latency.db backups/$(date +%Y%m%d)/
 cp db/sandbox.db backups/$(date +%Y%m%d)/
@@ -48,14 +48,14 @@ cp -r strategies/ backups/$(date +%Y%m%d)/
 
 ## Upgrade Steps
 
-### Step 1: Stop OpenAlgo
+### Step 1: Stop BTAlgo
 
 ```bash
 # Stop running instance
 # Press Ctrl+C if running in terminal
 
 # Or if running as service
-sudo systemctl stop openalgo
+sudo systemctl stop btalgo
 ```
 
 ### Step 2: Pull Latest Changes
@@ -90,7 +90,7 @@ diff .env .sample.env
 
 ### Step 5: Database Initialization
 
-OpenAlgo uses automatic database initialization on startup. New tables are created automatically when the application starts - no manual migrations are required.
+BTAlgo uses automatic database initialization on startup. New tables are created automatically when the application starts - no manual migrations are required.
 
 ```bash
 # Start the app to initialize any new database tables
@@ -100,7 +100,7 @@ uv run app.py
 
 > **Note**: There is no `migrations/` directory. Database schema updates are handled automatically by SQLAlchemy's `create_all()` during app startup.
 
-### Step 6: Start OpenAlgo
+### Step 6: Start BTAlgo
 
 ```bash
 # Start application
@@ -158,7 +158,7 @@ init_all_databases()
 git checkout v1.x.x  # Previous version tag
 
 # Restore databases
-cp backups/YYYYMMDD/openalgo.db db/
+cp backups/YYYYMMDD/btalgo.db db/
 cp backups/YYYYMMDD/.env ./
 
 # Restart
@@ -195,17 +195,17 @@ volumes:
 
 ```bash
 # Stop service
-sudo systemctl stop openalgo
+sudo systemctl stop btalgo
 
 # Update code
 git pull origin main
 uv sync
 
 # Restart service
-sudo systemctl start openalgo
+sudo systemctl start btalgo
 
 # Check status
-sudo systemctl status openalgo
+sudo systemctl status btalgo
 ```
 
 ## Post-Upgrade Verification
@@ -214,7 +214,7 @@ sudo systemctl status openalgo
 
 ```bash
 # Check application logs
-tail -f log/openalgo.log
+tail -f log/btalgo.log
 
 # Verify web access
 curl http://127.0.0.1:5000/health
@@ -278,7 +278,7 @@ uv run python -c "from database import init_all_databases; init_all_databases()"
 #!/bin/bash
 set -e
 
-echo "Starting OpenAlgo upgrade..."
+echo "Starting BTAlgo upgrade..."
 
 # Backup
 BACKUP_DIR="backups/$(date +%Y%m%d_%H%M%S)"

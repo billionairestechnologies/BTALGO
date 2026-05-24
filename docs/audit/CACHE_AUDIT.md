@@ -1,8 +1,8 @@
-# OpenAlgo Cache Architecture Audit
+# BTAlgo Cache Architecture Audit
 
 **Date:** 2026-02-22
 **Scope:** All in-memory caching, persistence, eviction, concurrency, fault tolerance, and security
-**Codebase:** OpenAlgo (Flask + React 19 algorithmic trading platform)
+**Codebase:** BTAlgo (Flask + React 19 algorithmic trading platform)
 
 ---
 
@@ -27,7 +27,7 @@
 
 ## 1. Executive Summary
 
-OpenAlgo uses a **multi-layer, all-in-memory caching architecture** built primarily on `cachetools.TTLCache` with one custom singleton cache (`BrokerSymbolCache`) and several broker-specific streaming caches. There are **28+ distinct cache instances** spread across database modules, broker adapters, and utility services. No external cache service (Redis, Memcached) is used.
+BTAlgo uses a **multi-layer, all-in-memory caching architecture** built primarily on `cachetools.TTLCache` with one custom singleton cache (`BrokerSymbolCache`) and several broker-specific streaming caches. There are **28+ distinct cache instances** spread across database modules, broker adapters, and utility services. No external cache service (Redis, Memcached) is used.
 
 ### Strengths
 - Well-structured TTL-based caching with appropriate expiry times
@@ -220,7 +220,7 @@ return result
 
 All caches except rate limiter and WebSocket throttle are backed by SQLite databases:
 
-- `db/openalgo.db` — Auth, settings, strategies, symbols, users
+- `db/btalgo.db` — Auth, settings, strategies, symbols, users
 - `db/logs.db` — Traffic logs (IP bans)
 - `db/sandbox.db` — Analyzer mode data
 - `db/latency.db` — Latency metrics
@@ -451,7 +451,7 @@ Logging uses the centralized `utils/logging.py` module with configurable log lev
 | Aspect | Behavior |
 |--------|----------|
 | Workers | Single process via `start.sh` |
-| Volumes | `openalgo_db` persists SQLite databases across container restarts |
+| Volumes | `btalgo_db` persists SQLite databases across container restarts |
 | Cache persistence | In-memory caches lost; DB survives; caches restored from DB on startup |
 | WebSocket proxy | Started separately by `start.sh` (Docker/standalone mode) |
 | Rate limiter | In-memory; resets on container restart |
@@ -506,7 +506,7 @@ If someone uses `-w N` (N > 1) despite documentation warnings:
 | L1 | **`_freeze_qty_cache` never expires** | `qty_freeze_db.py:42` | Stale freeze quantities if updated without restart | LOW (rarely changes) |
 | L2 | **Settings cache 1-hour TTL** | `settings_db.py:19` | Settings changes take up to 1 hour to propagate | LOW (settings rarely change) |
 | L3 | **Strategy/webhook cache 5-min TTL** | `strategy_db.py:15` | New strategies may not receive webhooks for up to 5 minutes | LOW |
-| L4 | **Static Fernet encryption salt** | `auth_db.py:60` | `b"openalgo_static_salt"` — functional but reduces KDF diversity | LOW |
+| L4 | **Static Fernet encryption salt** | `auth_db.py:60` | `b"btalgo_static_salt"` — functional but reduces KDF diversity | LOW |
 
 ---
 

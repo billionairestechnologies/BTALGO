@@ -161,8 +161,8 @@ class PocketfulWebSocketAdapter(BaseBrokerWebSocketAdapter):
         Returns:
             Dict: Response with status and error message if applicable
         """
-        # Map OpenAlgo mode to Pocketful mode
-        # OpenAlgo: 1=LTP, 2=Quote, 3=Depth
+        # Map BTAlgo mode to Pocketful mode
+        # BTAlgo: 1=LTP, 2=Quote, 3=Depth
         # Pocketful: 1=Detailed, 2=Compact, 4=Snapquote
         pocketful_mode_map = {
             1: 2,  # LTP -> Compact

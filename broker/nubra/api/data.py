@@ -20,7 +20,7 @@ logger = get_logger(__name__)
 def get_api_response(endpoint, auth, method="GET", payload=""):
     """Helper function to make API calls to Nubra with 429 rate limit handling."""
     AUTH_TOKEN = auth
-    device_id = "OPENALGO"  # Fixed device ID
+    device_id = "BTALGO"  # Fixed device ID
 
     # Get the shared httpx client with connection pooling
     client = get_httpx_client()
@@ -85,7 +85,7 @@ class BrokerData:
         self.auth_token = auth_token
         self._websocket = None
         self._ws_lock = threading.Lock()
-        # Map OpenAlgo timeframe format to Nubra intervals
+        # Map BTAlgo timeframe format to Nubra intervals
         # Nubra supports: 1s, 1m, 2m, 3m, 5m, 15m, 30m, 1h, 1d, 1w, 1mt
         self.timeframe_map = {
             # Seconds
@@ -231,7 +231,7 @@ class BrokerData:
         Uses try/finally to guarantee unsubscribe even on exceptions.
 
         Returns:
-            dict: Quote data in OpenAlgo format, or None if not available
+            dict: Quote data in BTAlgo format, or None if not available
         """
         websocket = None
         subscribed_type = None  # Track what we subscribed to for cleanup
@@ -357,7 +357,7 @@ class BrokerData:
         don't have ref_id in Nubra's API, so quotes are not available for indices.
         
         Returns:
-            dict: Quote data in OpenAlgo format, or None if failed
+            dict: Quote data in BTAlgo format, or None if failed
         """
         try:
             # Indices not supported by REST orderbook API
@@ -851,7 +851,7 @@ class BrokerData:
                 .reset_index(drop=True)
             )
 
-            # Reorder columns to match OpenAlgo REST API format
+            # Reorder columns to match BTAlgo REST API format
             df = df[["close", "high", "low", "open", "timestamp", "volume", "oi"]]
 
             logger.info(f"Debug - Received {len(df)} candles for {symbol}")
@@ -936,7 +936,7 @@ class BrokerData:
         Uses try/finally to guarantee unsubscribe even on exceptions.
 
         Returns:
-            dict: Depth data in OpenAlgo format, or None if not available
+            dict: Depth data in BTAlgo format, or None if not available
         """
         websocket = None
         token_int = None
@@ -1021,7 +1021,7 @@ class BrokerData:
         Nubra API: GET /orderbooks/{ref_id}?levels=5
         
         Returns:
-            dict: Depth data in OpenAlgo format, or None if failed
+            dict: Depth data in BTAlgo format, or None if failed
         """
         try:
             if exchange.endswith('_INDEX'):
@@ -1109,7 +1109,7 @@ class BrokerData:
         Get list of supported intervals for historical data.
         
         Based on Nubra API: 1s, 1m, 2m, 3m, 5m, 15m, 30m, 1h, 1d, 1w
-        OpenAlgo supported: 1m, 3m, 5m, 15m, 30m, 1h, D
+        BTAlgo supported: 1m, 3m, 5m, 15m, 30m, 1h, D
         
         Returns:
             list: List of supported interval strings

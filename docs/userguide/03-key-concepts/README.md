@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Before diving into OpenAlgo, let's understand the key terms and concepts you'll encounter. This foundation will make everything else easier to understand.
+Before diving into BTAlgo, let's understand the key terms and concepts you'll encounter. This foundation will make everything else easier to understand.
 
 ## Core Concepts
 
@@ -10,15 +10,15 @@ Before diving into OpenAlgo, let's understand the key terms and concepts you'll 
 
 **Simple Explanation**: An API is like a waiter in a restaurant. You (the customer) tell the waiter what you want, the waiter goes to the kitchen (the system), and brings back your food (the response).
 
-**In OpenAlgo**: When TradingView wants to place an order, it sends a request to OpenAlgo's API. OpenAlgo processes it and sends the order to your broker.
+**In BTAlgo**: When TradingView wants to place an order, it sends a request to BTAlgo's API. BTAlgo processes it and sends the order to your broker.
 
 ```
-TradingView → "Place BUY order for SBIN" → OpenAlgo API → Broker
+TradingView → "Place BUY order for SBIN" → BTAlgo API → Broker
 ```
 
 ### 2. API Key
 
-**Simple Explanation**: Your API key is like a password that identifies you. It proves to OpenAlgo that the request is coming from an authorized source.
+**Simple Explanation**: Your API key is like a password that identifies you. It proves to BTAlgo that the request is coming from an authorized source.
 
 **Example**:
 ```
@@ -32,7 +32,7 @@ API Key: a1b2c3d4e5f6g7h8i9j0
 
 ### 3. Webhook
 
-**Simple Explanation**: A webhook is like a doorbell. When something happens (like a TradingView alert), it "rings" your OpenAlgo server to notify it.
+**Simple Explanation**: A webhook is like a doorbell. When something happens (like a TradingView alert), it "rings" your BTAlgo server to notify it.
 
 **How it works**:
 ```
@@ -40,7 +40,7 @@ TradingView Alert Triggers
         ↓
 Webhook sends data to your URL
         ↓
-OpenAlgo receives and processes
+BTAlgo receives and processes
         ↓
 Order placed with broker
 ```
@@ -52,7 +52,7 @@ http://your-server:5000/api/v1/placeorder
 
 ### 4. Broker Token / Access Token
 
-**Simple Explanation**: When you log into your broker through OpenAlgo, you get a temporary pass (token) that lets OpenAlgo place orders on your behalf.
+**Simple Explanation**: When you log into your broker through BTAlgo, you get a temporary pass (token) that lets BTAlgo place orders on your behalf.
 
 **Characteristics**:
 - Valid for one trading day
@@ -61,10 +61,10 @@ http://your-server:5000/api/v1/placeorder
 
 ### 5. Symbol Format
 
-**Simple Explanation**: Every stock has a specific way to write its name that OpenAlgo understands.
+**Simple Explanation**: Every stock has a specific way to write its name that BTAlgo understands.
 
 **Examples**:
-| What you want | OpenAlgo Symbol |
+| What you want | BTAlgo Symbol |
 |---------------|-----------------|
 | Reliance on NSE | RELIANCE |
 | SBIN on NSE | SBIN |
@@ -141,7 +141,7 @@ F&O overnight? → Use NRML
 | SHORT | Sell shares you don't own (borrow and sell) |
 | COVER | Buy back shorted shares |
 
-## OpenAlgo Specific Concepts
+## BTAlgo Specific Concepts
 
 ### 10. Analyzer Mode (Sandbox Testing)
 
@@ -235,9 +235,9 @@ Enter password → Enter 6-digit code → Access granted
 
 ### 17. Session
 
-**Simple Explanation**: The period you're logged into OpenAlgo. Sessions expire for security.
+**Simple Explanation**: The period you're logged into BTAlgo. Sessions expire for security.
 
-**Browser Session**: Your OpenAlgo web login
+**Browser Session**: Your BTAlgo web login
 **Broker Session**: Your broker connection (usually daily)
 
 ## Data Concepts
@@ -292,6 +292,6 @@ Qty    Price    |    Price    Qty
 
 ---
 
-**Previous**: [02 - Why Build with OpenAlgo](../02-why-build-with-openalgo/README.md)
+**Previous**: [02 - Why Build with BTAlgo](../02-why-build-with-btalgo/README.md)
 
 **Next**: [03 - System Requirements](../03-system-requirements/README.md)

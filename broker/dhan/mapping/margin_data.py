@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Dhan Margin API https://dhanhq.co/docs/v2/funds/
 
 from broker.dhan.mapping.transform_data import map_exchange_type, map_order_type, map_product_type
@@ -10,12 +10,12 @@ logger = get_logger(__name__)
 
 def transform_margin_position(position, client_id):
     """
-    Transform a single OpenAlgo margin position to Dhan margin format.
+    Transform a single BTAlgo margin position to Dhan margin format.
 
     Note: Dhan margin calculator API accepts only one order at a time, not a batch.
 
     Args:
-        position: Position in OpenAlgo format
+        position: Position in BTAlgo format
         client_id: Dhan client ID
 
     Returns:
@@ -62,9 +62,9 @@ def transform_margin_position(position, client_id):
 
 def map_product_type_for_margin(product):
     """
-    Maps OpenAlgo product type to Dhan product type for margin calculation.
+    Maps BTAlgo product type to Dhan product type for margin calculation.
 
-    OpenAlgo: CNC, NRML, MIS
+    BTAlgo: CNC, NRML, MIS
     Dhan: CNC, MARGIN, INTRADAY, MTF, CO, BO
     """
     product_type_mapping = {
@@ -77,7 +77,7 @@ def map_product_type_for_margin(product):
 
 def parse_margin_response(response_data):
     """
-    Parse Dhan margin response to OpenAlgo standard format.
+    Parse Dhan margin response to BTAlgo standard format.
 
     According to Dhan API docs, response includes:
     - totalMargin: Total margin required for placing the order
@@ -93,7 +93,7 @@ def parse_margin_response(response_data):
         response_data: Raw response from Dhan API
 
     Returns:
-        Standardized margin response matching OpenAlgo format
+        Standardized margin response matching BTAlgo format
     """
     try:
         if not response_data or not isinstance(response_data, dict):
@@ -140,13 +140,13 @@ def parse_batch_margin_response(responses):
     - Short Straddle (CE + PE): Sum of individual margins (no hedge benefit)
     - Iron Condor: Sum of 4 individual leg margins (no spread benefit)
 
-    This is a limitation of the Dhan API, not OpenAlgo.
+    This is a limitation of the Dhan API, not BTAlgo.
 
     Args:
         responses: List of individual margin responses (one per leg)
 
     Returns:
-        Aggregated margin response matching OpenAlgo format
+        Aggregated margin response matching BTAlgo format
     """
     try:
         total_margin = 0

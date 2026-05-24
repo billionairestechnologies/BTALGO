@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Angel Broking Parameters https://smartapi.angelbroking.com/docs/Orders
 
 from database.token_db import get_br_symbol

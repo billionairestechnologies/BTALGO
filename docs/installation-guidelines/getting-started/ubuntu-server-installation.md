@@ -10,7 +10,7 @@
 * 1 vCPU
 * Clean installation recommended
 
-OpenAlgo runs on Ubuntu, Debian, Raspbian, RHEL, Rocky, AlmaLinux, Amazon Linux, Fedora, and Arch — the installation script auto-detects the distro and uses the right package manager. The flow below uses Ubuntu as the example.
+BTAlgo runs on Ubuntu, Debian, Raspbian, RHEL, Rocky, AlmaLinux, Amazon Linux, Fedora, and Arch — the installation script auto-detects the distro and uses the right package manager. The flow below uses Ubuntu as the example.
 
 #### Domain and DNS Setup (Required)
 
@@ -42,7 +42,7 @@ OpenAlgo runs on Ubuntu, Debian, Raspbian, RHEL, Rocky, AlmaLinux, Amazon Linux,
 
 #### Broker Setup (Required)
 
-* Obtain your broker's API credentials per the OpenAlgo documentation:
+* Obtain your broker's API credentials per the BTAlgo documentation:
   * API Key
   * API Secret
 * Prepare the redirect URL based on your domain and broker name:
@@ -69,10 +69,10 @@ ssh user@your_server_ip
 #### 1. Download the Installation Script
 
 ```bash
-mkdir -p ~/openalgo-install
-cd ~/openalgo-install
+mkdir -p ~/btalgo-install
+cd ~/btalgo-install
 
-wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/install.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/install.sh
 chmod +x install.sh
 ```
 
@@ -96,31 +96,31 @@ The installer will:
 * Install required packages, including Chromium (used for Telegram /chart rendering — non-fatal if unavailable)
 * Install the `uv` package manager (via snap on Ubuntu, or the Astral standalone installer on PEP 668 systems like Ubuntu 24.04+)
 * Configure Nginx with HTTPS via Let's Encrypt (Certbot)
-* Set up the OpenAlgo application under `/var/python/openalgo`
-* Create the systemd unit `openalgo.service`
-* Generate timestamped installation logs in `~/openalgo-install/logs/`
+* Set up the BTAlgo application under `/var/python/btalgo`
+* Create the systemd unit `btalgo.service`
+* Generate timestamped installation logs in `~/btalgo-install/logs/`
 
 #### Default Layout (single deployment)
 
 After a successful run, the install lives at:
 
 ```
-/var/python/openalgo/                  cloned repo
-/var/python/openalgo/.venv/            uv-managed Python virtual environment
-/var/python/openalgo/.env              configuration
-/var/python/openalgo/openalgo.sock     Gunicorn Unix socket
-/etc/systemd/system/openalgo.service   systemd unit
-/etc/nginx/sites-available/openalgo.conf   Nginx vhost (stable name across domain changes)
+/var/python/btalgo/                  cloned repo
+/var/python/btalgo/.venv/            uv-managed Python virtual environment
+/var/python/btalgo/.env              configuration
+/var/python/btalgo/btalgo.sock     Gunicorn Unix socket
+/etc/systemd/system/btalgo.service   systemd unit
+/etc/nginx/sites-available/btalgo.conf   Nginx vhost (stable name across domain changes)
 ```
 
-The Nginx vhost name `openalgo.conf` is intentionally fixed — `install/change-domain.sh` updates `server_name` in place rather than renaming the file.
+The Nginx vhost name `btalgo.conf` is intentionally fixed — `install/change-domain.sh` updates `server_name` in place rather than renaming the file.
 
 #### Multi-Domain Deployment (Optional)
 
-The default `install.sh` is single-deploy per server. If you need 2+ OpenAlgo instances side by side (different broker per instance, etc.), use the dedicated multi-deploy installer:
+The default `install.sh` is single-deploy per server. If you need 2+ BTAlgo instances side by side (different broker per instance, etc.), use the dedicated multi-deploy installer:
 
 ```bash
-wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/install-multi.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/install-multi.sh
 chmod +x install-multi.sh
 sudo ./install-multi.sh
 ```
@@ -128,37 +128,37 @@ sudo ./install-multi.sh
 Multi-deploy installs use a per-deployment layout:
 
 ```
-/var/python/openalgo-flask/<domain-broker>/openalgo/
-/var/python/openalgo-flask/<domain-broker>/venv/
-openalgo-<domain-broker>.service
+/var/python/btalgo-flask/<domain-broker>/btalgo/
+/var/python/btalgo-flask/<domain-broker>/venv/
+btalgo-<domain-broker>.service
 ```
 
-Each deployment gets its own service, configuration, virtual environment, SSL certificate, and log file. The single-deploy `update.sh` and `change-domain.sh` scripts also handle this layout transparently — they detect the simple path first and fall back to scanning `/var/python/openalgo-flask/`.
+Each deployment gets its own service, configuration, virtual environment, SSL certificate, and log file. The single-deploy `update.sh` and `change-domain.sh` scripts also handle this layout transparently — they detect the simple path first and fall back to scanning `/var/python/btalgo-flask/`.
 
 #### 3. Verify the Installation
 
 1. **Check service status**
 
    ```bash
-   sudo systemctl status openalgo
+   sudo systemctl status btalgo
    ```
 2. **Test the Nginx configuration**
 
    ```bash
    sudo nginx -t
-   ls -l /etc/nginx/sites-enabled/openalgo.conf
+   ls -l /etc/nginx/sites-enabled/btalgo.conf
    ```
 3. **Open the dashboard** at `https://yourdomain.com`
 4. **View installation log**
 
    ```bash
-   ls -l ~/openalgo-install/logs/
-   cat ~/openalgo-install/logs/install_YYYYMMDD_HHMMSS.log
+   ls -l ~/btalgo-install/logs/
+   cat ~/btalgo-install/logs/install_YYYYMMDD_HHMMSS.log
    ```
 
 ### Remote MCP
 
-Remote MCP exposes `/mcp` and `/oauth/*` so hosted AI clients (claude.ai, chatgpt.com) can connect to your OpenAlgo install over HTTPS. Local stdio MCP (Claude Desktop, Cursor, Windsurf) is unaffected — it works regardless of this setting.
+Remote MCP exposes `/mcp` and `/oauth/*` so hosted AI clients (claude.ai, chatgpt.com) can connect to your BTAlgo install over HTTPS. Local stdio MCP (Claude Desktop, Cursor, Windsurf) is unaffected — it works regardless of this setting.
 
 You can enable Remote MCP two ways:
 
@@ -167,7 +167,7 @@ You can enable Remote MCP two ways:
 2. **From the admin UI** — visit `https://yourdomain.com/admin/remote-mcp`. The settings card at the top of the page lets you flip Remote MCP on or off, edit the public HTTPS origin, and adjust the OAuth posture toggles. Saving writes the new values to `.env`; a yellow banner then prompts you to restart the service:
 
    ```bash
-   sudo systemctl restart openalgo
+   sudo systemctl restart btalgo
    ```
 
    The banner clears automatically once the running process picks up the new values.
@@ -199,13 +199,13 @@ The MCP URL to give your AI client is the same as your dashboard URL with `/mcp`
 
    ```bash
    # View live logs
-   sudo journalctl -fu openalgo
+   sudo journalctl -fu btalgo
 
    # Last 100 lines
-   sudo journalctl -n 100 -u openalgo
+   sudo journalctl -n 100 -u btalgo
 
    # Restart
-   sudo systemctl restart openalgo
+   sudo systemctl restart btalgo
    ```
 
 3. **Nginx issues**
@@ -227,8 +227,8 @@ The MCP URL to give your AI client is the same as your dashboard URL with `/mcp`
 4. **Installation logs**
 
    ```bash
-   ls -l ~/openalgo-install/logs/
-   cat ~/openalgo-install/logs/$(ls -t ~/openalgo-install/logs/ | head -1)
+   ls -l ~/btalgo-install/logs/
+   cat ~/btalgo-install/logs/$(ls -t ~/btalgo-install/logs/ | head -1)
    ```
 
 5. **`uv` install failed with `externally-managed-environment`**
@@ -236,9 +236,9 @@ The MCP URL to give your AI client is the same as your dashboard URL with `/mcp`
    This is PEP 668 enforcement on Ubuntu 24.04+ / Debian 12+. The current `install.sh` falls through to the Astral standalone installer automatically; if you're on an older copy, refresh the script and re-run:
 
    ```bash
-   cd ~/openalgo-install
+   cd ~/btalgo-install
    rm -f install.sh
-   wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/install.sh
+   wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/install.sh
    chmod +x install.sh
    sudo ./install.sh
    ```
@@ -247,16 +247,16 @@ The MCP URL to give your AI client is the same as your dashboard URL with `/mcp`
 
    ```bash
    # Repo
-   ls /var/python/openalgo
+   ls /var/python/btalgo
 
    # Effective configuration
-   sudo cat /var/python/openalgo/.env
+   sudo cat /var/python/btalgo/.env
 
    # Application logs
-   sudo tail -f /var/python/openalgo/log/openalgo_$(date +%F).log
+   sudo tail -f /var/python/btalgo/log/btalgo_$(date +%F).log
 
    # JSON-formatted error log (always-on)
-   sudo tail -f /var/python/openalgo/log/errors.jsonl
+   sudo tail -f /var/python/btalgo/log/errors.jsonl
    ```
 
 #### Multi-Domain Deployment Notes
@@ -264,33 +264,33 @@ The MCP URL to give your AI client is the same as your dashboard URL with `/mcp`
 If you ran `install-multi.sh` (per-deployment layout), substitute the deployment-specific names everywhere:
 
 ```bash
-# List all OpenAlgo services on this host
-systemctl list-units 'openalgo*'
+# List all BTAlgo services on this host
+systemctl list-units 'btalgo*'
 
 # Manage a specific deployment (example: trading1.yourdomain.com + Fyers)
-sudo systemctl status openalgo-trading1-yourdomain-com-fyers
-sudo journalctl -fu openalgo-trading1-yourdomain-com-fyers
+sudo systemctl status btalgo-trading1-yourdomain-com-fyers
+sudo journalctl -fu btalgo-trading1-yourdomain-com-fyers
 
 # Per-deployment install directories
-ls /var/python/openalgo-flask/
+ls /var/python/btalgo-flask/
 ```
 
 ### Updating
 
 ```bash
-cd ~/openalgo-install
-wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/update.sh
+cd ~/btalgo-install
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/update.sh
 chmod +x update.sh
 sudo ./update.sh
 ```
 
-The update script detects both layouts (single-deploy at `/var/python/openalgo` and legacy multi-deploy under `/var/python/openalgo-flask/`) and asks which to update if multiple are present. It runs `git pull`, `uv sync`, and restarts the service.
+The update script detects both layouts (single-deploy at `/var/python/btalgo` and legacy multi-deploy under `/var/python/btalgo-flask/`) and asks which to update if multiple are present. It runs `git pull`, `uv sync`, and restarts the service.
 
 ### Changing the Domain
 
 ```bash
-cd ~/openalgo-install
-wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/change-domain.sh
+cd ~/btalgo-install
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/change-domain.sh
 chmod +x change-domain.sh
 sudo ./change-domain.sh
 ```
@@ -327,7 +327,7 @@ The script updates `.env` (`HOST_SERVER`, `WEBSOCKET_URL`), the Nginx vhost's `s
 
 5. **Single user per deployment**
 
-   OpenAlgo is designed for one trader per server. There is no multi-user model — server access equals full control of the broker session. Don't share the host.
+   BTAlgo is designed for one trader per server. There is no multi-user model — server access equals full control of the broker session. Don't share the host.
 
 ### Post-Installation
 
@@ -338,9 +338,9 @@ The script updates `.env` (`HOST_SERVER`, `WEBSOCKET_URL`), the Nginx vhost's `s
 
 ### Support
 
-* GitHub: [github.com/marketcalls/openalgo](https://github.com/marketcalls/openalgo)
-* Documentation: [docs.openalgo.in](https://docs.openalgo.in)
-* Discord: [openalgo.in/discord](https://www.openalgo.in/discord)
+* GitHub: [github.com/billionairestechnologies/btalgo](https://github.com/billionairestechnologies/btalgo)
+* Documentation: [docs.billionairestechnologies.com](https://docs.billionairestechnologies.com)
+* Discord: [billionairestechnologies.com/discord](https://www.billionairestechnologies.com/discord)
 
 Remember to:
 
@@ -358,7 +358,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/installation-guidelines/getting-started/ubuntu-server-installation.md?ask=<question>
+GET https://docs.billionairestechnologies.com/installation-guidelines/getting-started/ubuntu-server-installation.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

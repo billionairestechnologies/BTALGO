@@ -2,13 +2,13 @@
 
 ## Overview
 
-OpenAlgo follows specific design patterns and architectural principles to maintain code quality, extensibility, and reliability across the trading platform.
+BTAlgo follows specific design patterns and architectural principles to maintain code quality, extensibility, and reliability across the trading platform.
 
 ## Core Design Principles
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                          OpenAlgo Design Principles                          │
+│                          BTAlgo Design Principles                          │
 └──────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -293,7 +293,7 @@ class MarketDataService:
 ### Broker Mapping Pattern
 
 ```python
-# OpenAlgo → Broker format
+# BTAlgo → Broker format
 def transform_data(data):
     return {
         "tradingsymbol": get_broker_symbol(data['symbol']),
@@ -302,7 +302,7 @@ def transform_data(data):
         # ... more mappings
     }
 
-# Broker → OpenAlgo format
+# Broker → BTAlgo format
 def transform_response(response):
     return {
         "orderid": response['data']['order_id'],

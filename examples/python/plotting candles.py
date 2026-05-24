@@ -1,11 +1,11 @@
 """
 RELIANCE 5-Minute Candlestick Chart - Last 20 Days
 With Bollinger Bands (Top) and RSI (Bottom)
-Author : OpenAlgo GPT
+Author : BTAlgo GPT
 Description: Plots RELIANCE 5m candlestick chart using Plotly with category x-axis
 """
 
-print("🔁 OpenAlgo Python Bot is running.")
+print("🔁 BTAlgo Python Bot is running.")
 
 from datetime import datetime
 
@@ -46,7 +46,7 @@ def fetch_historical_data():
     # Print the raw response
     print(f"History Response: {response}")
 
-    # OpenAlgo history() returns DataFrame directly (not a dict)
+    # BTAlgo history() returns DataFrame directly (not a dict)
     if isinstance(response, pd.DataFrame):
         df = response.copy()
     else:
@@ -89,7 +89,7 @@ BB_STD_DEV = 2.0
 
 # ───────────────────── CALCULATE INDICATORS ─────────────────────
 def calculate_indicators(df: pd.DataFrame):
-    """Calculate RSI and Bollinger Bands using OpenAlgo ta library"""
+    """Calculate RSI and Bollinger Bands using BTAlgo ta library"""
 
     # RSI (20)
     df["rsi"] = ta.rsi(df["close"], period=RSI_PERIOD)

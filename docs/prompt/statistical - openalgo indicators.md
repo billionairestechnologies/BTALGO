@@ -1,6 +1,6 @@
 # Statistical
 
-## OpenAlgo Statistical Indicators Documentation
+## BTAlgo Statistical Indicators Documentation
 
 Statistical indicators analyze price data using mathematical and statistical methods to identify patterns, relationships, and forecast future price movements.
 
@@ -564,7 +564,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/trading-platform/python/indicators/statistical.md?ask=<question>
+GET https://docs.billionairestechnologies.com/trading-platform/python/indicators/statistical.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

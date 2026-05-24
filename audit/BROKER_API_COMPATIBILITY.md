@@ -1,10 +1,10 @@
-# OpenAlgo Broker API Compatibility Report
+# BTAlgo Broker API Compatibility Report
 
 > **Generated**: February 2026
 > **Brokers Audited**: 29
 > **API Endpoints Audited**: 38
 
-This document provides a comprehensive audit of which REST API endpoints (`/api/v1/*`) are supported by each broker integration in OpenAlgo. It helps traders understand broker capabilities and helps developers identify feature gaps.
+This document provides a comprehensive audit of which REST API endpoints (`/api/v1/*`) are supported by each broker integration in BTAlgo. It helps traders understand broker capabilities and helps developers identify feature gaps.
 
 ---
 

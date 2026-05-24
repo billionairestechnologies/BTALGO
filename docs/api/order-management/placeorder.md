@@ -99,7 +99,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/placeorder \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|-------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 | strategy | Strategy identifier for tracking | Mandatory | - |
 | symbol | Trading symbol (e.g., RELIANCE, NIFTY30JAN25FUT) | Mandatory | - |
 | action | Order action: BUY or SELL | Mandatory | - |
@@ -126,7 +126,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/placeorder \
 - For **LIMIT** orders, price is required
 - For **SL** (Stop-Loss Limit) orders, both price and trigger_price are required
 - For **SL-M** (Stop-Loss Market) orders, only trigger_price is required
-- The **symbol** must be in OpenAlgo standard format:
+- The **symbol** must be in BTAlgo standard format:
   - Equity: `RELIANCE`
   - Futures: `NIFTY30JAN25FUT`
   - Options: `NIFTY30JAN2525000CE`

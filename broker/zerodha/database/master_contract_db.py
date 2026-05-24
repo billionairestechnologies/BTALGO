@@ -180,7 +180,7 @@ def process_zerodha_csv(path):
     }
 
     # Capture the raw Kite-side exchange code (NSE/BSE/NFO/.../GLOBAL/NSEIX)
-    # BEFORE we remap to OpenAlgo names, so brexchange retains the broker's
+    # BEFORE we remap to BTAlgo names, so brexchange retains the broker's
     # exchange code. This matters for /quote calls which use NSE/BSE for
     # indices and GLOBAL/NSEIX for the foreign-index feeds.
     df['_kite_exchange'] = df['exchange']
@@ -235,7 +235,7 @@ def process_zerodha_csv(path):
     df.loc[(df['instrumenttype'] == 'CE'), 'symbol'] = df['name'] + df['expiry'].str.replace('-', '', regex=False) + df['strike'].apply(format_strike) + df['instrumenttype']
     df.loc[(df['instrumenttype'] == 'PE'), 'symbol'] = df['name'] + df['expiry'].str.replace('-', '', regex=False) + df['strike'].apply(format_strike) + df['instrumenttype']
 
-    # NSE Index Symbol Mapping (Zerodha tradingsymbol → OpenAlgo format)
+    # NSE Index Symbol Mapping (Zerodha tradingsymbol → BTAlgo format)
     df['symbol'] = df['symbol'].replace({
         # Major NSE Indices
         'NIFTY 50': 'NIFTY',

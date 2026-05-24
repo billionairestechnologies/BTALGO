@@ -126,7 +126,7 @@ def _format_margin_data(limit_data):
 
 def get_margin_data(auth_token):
     """
-    Fetch margin/limits from IIFL Capital and normalize to OpenAlgo fields.
+    Fetch margin/limits from IIFL Capital and normalize to BTAlgo fields.
 
     IIFL exposes pooled limits (`/limits`) and segment-wise limits
     (`/limits/equity`, `/limits/fno`). We prefer pooled values when they are

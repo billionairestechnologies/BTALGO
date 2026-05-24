@@ -2,16 +2,16 @@
 
 ## Introduction
 
-TradingView is a popular charting platform with powerful Pine Script strategy capabilities. OpenAlgo connects TradingView alerts to your broker for automated order execution.
+TradingView is a popular charting platform with powerful Pine Script strategy capabilities. BTAlgo connects TradingView alerts to your broker for automated order execution.
 
 ## How It Works
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    TradingView → OpenAlgo Flow                              │
+│                    TradingView → BTAlgo Flow                              │
 │                                                                              │
 │  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌──────────┐  │
-│  │ TradingView │     │   Webhook   │     │  OpenAlgo   │     │  Broker  │  │
+│  │ TradingView │     │   Webhook   │     │  BTAlgo   │     │  Broker  │  │
 │  │   Alert     │────▶│   Request   │────▶│   Server    │────▶│   API    │  │
 │  │  Triggers   │     │             │     │             │     │          │  │
 │  └─────────────┘     └─────────────┘     └─────────────┘     └──────────┘  │
@@ -25,17 +25,17 @@ TradingView is a popular charting platform with powerful Pine Script strategy ca
 ## Prerequisites
 
 1. TradingView account (free or paid)
-2. OpenAlgo running and accessible via internet
-3. API key generated in OpenAlgo
+2. BTAlgo running and accessible via internet
+3. API key generated in BTAlgo
 4. Broker connected and logged in
 
-## Making OpenAlgo Accessible for Webhooks
+## Making BTAlgo Accessible for Webhooks
 
-TradingView webhooks need to reach your OpenAlgo server from the internet.
+TradingView webhooks need to reach your BTAlgo server from the internet.
 
 ### Recommended: Production Server with Domain
 
-Deploy OpenAlgo on an Ubuntu server using `install.sh` (see [Installation Guide](../04-installation/README.md)):
+Deploy BTAlgo on an Ubuntu server using `install.sh` (see [Installation Guide](../04-installation/README.md)):
 
 ```
 Webhook URL: https://yourdomain.com/api/v1/placeorder
@@ -79,7 +79,7 @@ cloudflared tunnel --url http://localhost:5000
 # Copy the https URL provided
 ```
 
-**Important**: Tunnel services are **only for webhooks**, not for running the full application. Always run OpenAlgo on your own server for production use.
+**Important**: Tunnel services are **only for webhooks**, not for running the full application. Always run BTAlgo on your own server for production use.
 
 | Aspect | Domain (Recommended) | Tunnel Services |
 |--------|---------------------|-----------------|
@@ -97,7 +97,7 @@ In TradingView Pine Script:
 
 ```pine
 //@version=5
-strategy("My OpenAlgo Strategy", overlay=true)
+strategy("My BTAlgo Strategy", overlay=true)
 
 // Simple moving average crossover
 fastMA = ta.sma(close, 9)
@@ -126,12 +126,12 @@ if (shortCondition)
 ### Step 3: Configure Webhook URL
 
 ```
-https://your-openalgo-url/api/v1/placesmartorder
+https://your-btalgo-url/api/v1/placesmartorder
 ```
 
 Or for regular orders:
 ```
-https://your-openalgo-url/api/v1/placeorder
+https://your-btalgo-url/api/v1/placeorder
 ```
 
 ### Step 4: Configure Alert Message
@@ -243,7 +243,7 @@ Use this JSON template in the **Message** field:
 
 TradingView symbols map directly:
 
-| TradingView | OpenAlgo |
+| TradingView | BTAlgo |
 |-------------|----------|
 | SBIN | SBIN |
 | RELIANCE | RELIANCE |
@@ -251,7 +251,7 @@ TradingView symbols map directly:
 
 ### Index Symbols
 
-| TradingView | OpenAlgo Exchange |
+| TradingView | BTAlgo Exchange |
 |-------------|-------------------|
 | NIFTY | NSE (use INDEX product) |
 | BANKNIFTY | NSE (use INDEX product) |
@@ -275,7 +275,7 @@ Examples:
 
 Before live trading, test in Analyzer Mode:
 
-1. Go to **Analyzer** page in OpenAlgo
+1. Go to **Analyzer** page in BTAlgo
 2. Enable **Analyzer Mode**
 3. This routes orders to sandbox
 
@@ -286,7 +286,7 @@ In TradingView:
 2. Set condition to trigger immediately (for testing)
 3. Or manually trigger: Right-click alert → **Trigger**
 
-### Step 3: Verify in OpenAlgo
+### Step 3: Verify in BTAlgo
 
 Check:
 1. **Order Book** - Order should appear
@@ -377,7 +377,7 @@ Use smart order for automatic reversal:
 
 ### Checking Logs
 
-1. Go to **Traffic Logs** in OpenAlgo
+1. Go to **Traffic Logs** in BTAlgo
 2. Filter by "webhook"
 3. Check request body and response
 
@@ -427,7 +427,7 @@ Create separate alerts for each symbol or use dynamic symbols:
 
 ### 5. Monitor Execution
 
-- Keep OpenAlgo dashboard open
+- Keep BTAlgo dashboard open
 - Check order book regularly
 - Set up Telegram notifications
 

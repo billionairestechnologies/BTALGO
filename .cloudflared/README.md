@@ -63,7 +63,7 @@ Select your domain when prompted.
 ### Step 2: Create a tunnel
 
 ```powershell
-cloudflared tunnel create openalgo
+cloudflared tunnel create btalgo
 ```
 
 This creates a credentials JSON file (DO NOT COMMIT).
@@ -75,7 +75,7 @@ This creates a credentials JSON file (DO NOT COMMIT).
 Example:
 
 ```yaml
-tunnel: openalgo
+tunnel: btalgo
 credentials-file: <ABSOLUTE_PATH_TO_JSON>
 
 ingress:
@@ -89,7 +89,7 @@ ingress:
 ### Step 4: Route DNS
 
 ```powershell
-cloudflared tunnel route dns openalgo demo.example.com
+cloudflared tunnel route dns btalgo demo.example.com
 ```
 
 ---
@@ -97,7 +97,7 @@ cloudflared tunnel route dns openalgo demo.example.com
 ### Step 5: Run the tunnel
 
 ```powershell
-cloudflared tunnel --config .\config.yml run openalgo
+cloudflared tunnel --config .\config.yml run btalgo
 ```
 
 ---

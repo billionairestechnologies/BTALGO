@@ -7,13 +7,13 @@ import logging
 
 
 class DeltaExchangeMapper:
-    """Maps OpenAlgo exchange codes to Delta Exchange equivalents.
+    """Maps BTAlgo exchange codes to Delta Exchange equivalents.
 
     Delta Exchange uses plain symbol strings (e.g. "BTCUSD").
-    All products trade on a single exchange named "CRYPTO" in OpenAlgo.
+    All products trade on a single exchange named "CRYPTO" in BTAlgo.
     """
 
-    # OpenAlgo exchange code → Delta Exchange exchange code
+    # BTAlgo exchange code → Delta Exchange exchange code
     EXCHANGE_SEGMENTS = {
         "CRYPTO": "CRYPTO",
         "NSE":    "CRYPTO",   # safety alias if misconfigured
@@ -32,9 +32,9 @@ class DeltaExchangeMapper:
 
 
 class DeltaModeMapper:
-    """Maps OpenAlgo subscription mode integers to Delta Exchange channel names."""
+    """Maps BTAlgo subscription mode integers to Delta Exchange channel names."""
 
-    # OpenAlgo mode → Delta WS channel name
+    # BTAlgo mode → Delta WS channel name
     MODE_CHANNELS = {
         1: "v2/ticker",    # LTP mode
         2: "v2/ticker",    # Quote mode (also uses ticker; provides bid/ask/OI)

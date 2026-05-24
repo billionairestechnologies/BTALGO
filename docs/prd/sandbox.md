@@ -27,7 +27,7 @@ A complete sandbox trading environment that:
 
 | User | Use Case |
 |------|----------|
-| New User | Learn OpenAlgo safely |
+| New User | Learn BTAlgo safely |
 | Strategy Developer | Test before live |
 | Educator | Demonstrate without risk |
 | Debugger | Isolate integration issues |

@@ -570,7 +570,7 @@ def _execute_webhook(token, webhook_data=None, url_secret=None):
     if not api_key:
         api_key = get_current_api_key()  # Fallback to session (if called from UI)
     if not api_key:
-        api_key = os.getenv("OPENALGO_API_KEY")  # Fallback to environment variable
+        api_key = os.getenv("BTALGO_API_KEY")  # Fallback to environment variable
 
     if not api_key:
         logger.error(f"Webhook: No API key for workflow {workflow.id}")

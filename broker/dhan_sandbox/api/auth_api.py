@@ -420,7 +420,7 @@ def get_direct_access_token(access_token):
 
 def authenticate_broker(code):
     """
-    OpenAlgo auth entrypoint for dhan_sandbox.
+    BTAlgo auth entrypoint for dhan_sandbox.
 
     Compatibility behavior:
     - If callback provides "dhan_sandbox" (current flow), use BROKER_API_SECRET directly.

@@ -1,18 +1,18 @@
 # Websockets
 
-## OpenAlgo WebSocket Protocol Documentation
+## BTAlgo WebSocket Protocol Documentation
 
 ### Overview
 
-The OpenAlgo WebSocket protocol allows clients to receive **real-time market data** using a standardized and broker-agnostic interface. It supports data streaming for **LTP (Last Traded Price)**, **Quotes (OHLC + Volume)**, and **Market Depth** (up to 50 levels depending on broker capability).
+The BTAlgo WebSocket protocol allows clients to receive **real-time market data** using a standardized and broker-agnostic interface. It supports data streaming for **LTP (Last Traded Price)**, **Quotes (OHLC + Volume)**, and **Market Depth** (up to 50 levels depending on broker capability).
 
-The protocol ensures efficient, scalable, and secure communication between client applications (such as trading bots, dashboards, or analytics tools) and the OpenAlgo platform. Authentication is handled using the OpenAlgo API key, and subscriptions are maintained per session.
+The protocol ensures efficient, scalable, and secure communication between client applications (such as trading bots, dashboards, or analytics tools) and the BTAlgo platform. Authentication is handled using the BTAlgo API key, and subscriptions are maintained per session.
 
 ### Version
 
 * Protocol Version: 1.0
 * Last Updated: May 28, 2025
-* Platform: OpenAlgo Trading Framework
+* Platform: BTAlgo Trading Framework
 
 ### WebSocket URL
 
@@ -20,7 +20,7 @@ The protocol ensures efficient, scalable, and secure communication between clien
 ws://<host>:8765
 ```
 
-Replace `<host>` with the IP/domain of your OpenAlgo instance. For local development setups, use thee hostname as`127.0.0.1`
+Replace `<host>` with the IP/domain of your BTAlgo instance. For local development setups, use thee hostname as`127.0.0.1`
 
 ```
 ws://127.0.0.1:8765
@@ -49,7 +49,7 @@ All WebSocket sessions must begin with API key authentication:
 ```json
 {
   "action": "authenticate", 
-  "api_key": "YOUR_OPENALGO_API_KEY"
+  "api_key": "YOUR_BTALGO_API_KEY"
 }
 ```
 
@@ -213,7 +213,7 @@ If a client requests a depth level not supported by their broker:
 * Rate limits may apply to prevent abuse.
 * TLS encryption recommended for production deployments.
 
-The OpenAlgo WebSocket feed provides a reliable and structured method for receiving real-time trading data. Proper mode selection and parsing allow efficient integration into trading algorithms and monitoring systems.
+The BTAlgo WebSocket feed provides a reliable and structured method for receiving real-time trading data. Proper mode selection and parsing allow efficient integration into trading algorithms and monitoring systems.
 
 
 ---
@@ -225,7 +225,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/api-documentation/v1/websockets.md?ask=<question>
+GET https://docs.billionairestechnologies.com/api-documentation/v1/websockets.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

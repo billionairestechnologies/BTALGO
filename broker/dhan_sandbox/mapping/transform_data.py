@@ -1,10 +1,10 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Upstox Broking Parameters https://dhanhq.co/docs/v2/orders/
 
 
 def transform_data(data, token):
     """
-    Transforms the OpenAlgo API request structure to Dhan v2 API structure.
+    Transforms the BTAlgo API request structure to Dhan v2 API structure.
 
     Parameters required by Dhan v2:
     - dhanClientId (required): string
@@ -123,7 +123,7 @@ def map_order_type(pricetype):
 
 def map_exchange_type(exchange):
     """
-    Maps the Broker Exchange to the OpenAlgo Exchange.
+    Maps the Broker Exchange to the BTAlgo Exchange.
     """
     exchange_mapping = {
         "NSE": "NSE_EQ",
@@ -139,7 +139,7 @@ def map_exchange_type(exchange):
 
 def map_exchange(brexchange):
     """
-    Maps the Broker Exchange to the OpenAlgo Exchange.
+    Maps the Broker Exchange to the BTAlgo Exchange.
     """
     exchange_mapping = {
         "NSE_EQ": "NSE",
@@ -167,9 +167,9 @@ def map_product_type(product):
 
 def reverse_map_product_type(product):
     """
-    Reverse maps the broker product type to the OpenAlgo product type, considering the exchange.
+    Reverse maps the broker product type to the BTAlgo product type, considering the exchange.
     """
-    # Exchange to OpenAlgo product type mapping for 'D'
+    # Exchange to BTAlgo product type mapping for 'D'
     product_mapping = {"CNC": "CNC", "MARGIN": "NRML", "MIS": "INTRADAY"}
 
     return product_mapping.get(product)  # Removed default; will return None if not found

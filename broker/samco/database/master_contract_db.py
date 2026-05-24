@@ -811,7 +811,7 @@ def convert_date_format(date_str):
 
 def process_samco_data(df):
     """
-    Process Samco ScripMaster CSV data to fit the OpenAlgo database schema.
+    Process Samco ScripMaster CSV data to fit the BTAlgo database schema.
     """
     logger.info(f"Processing Samco data. Columns: {df.columns.tolist()}")
 
@@ -876,7 +876,7 @@ def process_samco_data(df):
     df["strike"] = pd.to_numeric(df["strike"], errors="coerce").fillna(0.0)
     df["tick_size"] = pd.to_numeric(df["tick_size"], errors="coerce").fillna(0.05)
 
-    # Convert expiry date to OpenAlgo format (DD-MMM-YY)
+    # Convert expiry date to BTAlgo format (DD-MMM-YY)
     if "expiry" in df.columns:
         df["expiry"] = df["expiry"].apply(convert_date_format)
 
@@ -884,7 +884,7 @@ def process_samco_data(df):
     # Map MFO (MCX Futures & Options) to MCX
     df.loc[df["exchange"] == "MFO", "exchange"] = "MCX"
 
-    # Map index instruments to OpenAlgo exchange format
+    # Map index instruments to BTAlgo exchange format
     df.loc[(df["instrumenttype"] == "INDEX") & (df["exchange"] == "NSE"), "exchange"] = "NSE_INDEX"
     df.loc[(df["instrumenttype"] == "INDEX") & (df["exchange"] == "BSE"), "exchange"] = "BSE_INDEX"
     df.loc[(df["instrumenttype"] == "INDEX") & (df["exchange"] == "MCX"), "exchange"] = "MCX_INDEX"

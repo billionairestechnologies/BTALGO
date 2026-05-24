@@ -50,11 +50,11 @@ The Event Bus is a lightweight, in-process pub/sub system that decouples order s
 │  │                  │  │ Subscriber      │  │ Subscriber      │             │
 │  │ Live mode:       │  │                 │  │                 │             │
 │  │  → order_logs    │  │ Live mode:      │  │ Calls           │             │
-│  │    (openalgo.db) │  │  → order_event  │  │ send_order_alert│             │
+│  │    (btalgo.db) │  │  → order_event  │  │ send_order_alert│             │
 │  │                  │  │  → cancel_event │  │ for all event   │             │
 │  │ Analyze mode:    │  │  → modify_event │  │ types with      │             │
 │  │  → analyzer_logs │  │                 │  │ mode awareness  │             │
-│  │    (openalgo.db) │  │ Analyze mode:   │  │                 │             │
+│  │    (btalgo.db) │  │ Analyze mode:   │  │                 │             │
 │  │                  │  │  → analyzer_    │  │ Future:         │             │
 │  │ Future:          │  │    update       │  │ strategy_store  │             │
 │  │ strategy_tracker │  │                 │  │ risk_manager    │             │
@@ -193,7 +193,7 @@ def _log_event(event):
 
 ### Why In-Process (Not Redis/ZeroMQ)?
 
-OpenAlgo is a single-user, single-process application using SQLite. External message brokers add infrastructure complexity for zero benefit at this scale. The EventBus is ~70 lines of Python using stdlib `threading` and `concurrent.futures`.
+BTAlgo is a single-user, single-process application using SQLite. External message brokers add infrastructure complexity for zero benefit at this scale. The EventBus is ~70 lines of Python using stdlib `threading` and `concurrent.futures`.
 
 ### Why ThreadPoolExecutor?
 

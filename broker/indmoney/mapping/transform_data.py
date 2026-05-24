@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Indmoney API Parameters https://api.indstocks.com/
 
 from flask import session
@@ -13,7 +13,7 @@ logger = get_logger(__name__)
 
 def transform_data(data, token):
     """
-    Transforms the OpenAlgo API request structure to Indmoney API structure.
+    Transforms the BTAlgo API request structure to Indmoney API structure.
     For market orders, fetches quotes and adjusts price accordingly:
     - BUY: Uses bid price + 0.1%
     - SELL: Uses ask price - 0.1%
@@ -72,7 +72,7 @@ def transform_data(data, token):
             # Change order type to LIMIT (uppercase required by API)
             order_type = "LIMIT"
 
-    # Basic mapping from OpenAlgo to Indmoney
+    # Basic mapping from BTAlgo to Indmoney
     segment = map_segment(data["exchange"])
     transformed = {
         "txn_type": action,  # BUY/SELL
@@ -114,7 +114,7 @@ def transform_data(data, token):
 
 def transform_modify_order_data(data):
     """
-    Transforms OpenAlgo modify order data to Indmoney format.
+    Transforms BTAlgo modify order data to Indmoney format.
     """
     transformed = {
         "segment": map_segment_from_orderid(data.get("orderid", "")),  # Derive from order ID
@@ -128,7 +128,7 @@ def transform_modify_order_data(data):
 
 def map_order_type(pricetype):
     """
-    Maps OpenAlgo pricetype to Indmoney order_type.
+    Maps BTAlgo pricetype to Indmoney order_type.
     """
     order_type_mapping = {
         "MARKET": "MARKET",
@@ -141,7 +141,7 @@ def map_order_type(pricetype):
 
 def map_segment(exchange):
     """
-    Maps OpenAlgo exchange to Indmoney segment.
+    Maps BTAlgo exchange to Indmoney segment.
     """
     segment_mapping = {
         "NSE": "EQUITY",
@@ -169,7 +169,7 @@ def map_segment_from_orderid(orderid):
 
 def map_exchange_type(exchange):
     """
-    Maps OpenAlgo exchange to Indmoney exchange format.
+    Maps BTAlgo exchange to Indmoney exchange format.
     """
     exchange_mapping = {
         "NSE": "NSE",
@@ -185,7 +185,7 @@ def map_exchange_type(exchange):
 
 def map_exchange(br_exchange):
     """
-    Maps Indmoney exchange back to OpenAlgo exchange.
+    Maps Indmoney exchange back to BTAlgo exchange.
     """
     exchange_mapping = {"NSE": "NSE", "BSE": "BSE", "MCX": "MCX"}
     return exchange_mapping.get(br_exchange, "NSE")
@@ -193,7 +193,7 @@ def map_exchange(br_exchange):
 
 def map_product_type(product):
     """
-    Maps OpenAlgo product type to Indmoney product type.
+    Maps BTAlgo product type to Indmoney product type.
     """
     product_type_mapping = {
         "CNC": "CNC",
@@ -205,7 +205,7 @@ def map_product_type(product):
 
 def reverse_map_product_type(product):
     """
-    Maps Indmoney product type back to OpenAlgo product type.
+    Maps Indmoney product type back to BTAlgo product type.
     """
     product_mapping = {"CNC": "CNC", "MARGIN": "NRML", "INTRADAY": "MIS"}
     return product_mapping.get(product, "MIS")

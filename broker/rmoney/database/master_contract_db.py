@@ -222,7 +222,7 @@ BSE_INDEX_SYMBOL_MAP = {
 
 
 def normalize_bse_index_symbols(symbol_series: pd.Series) -> pd.Series:
-    """Normalize raw BSE index symbols to OpenAlgo naming and format."""
+    """Normalize raw BSE index symbols to BTAlgo naming and format."""
     normalized = symbol_series.astype(str).str.upper().str.strip()
     normalized = normalized.str.replace(r"\s+", " ", regex=True)
     normalized = normalized.replace(BSE_INDEX_SYMBOL_MAP)
@@ -282,7 +282,7 @@ def process_compositedge_bse_csv(path):
     token_df["instrumenttype"] = df["Series"]
     token_df["tick_size"] = df["TickSize"]
 
-    # Normalize BSE index short codes from SPOT rows to OpenAlgo index symbols
+    # Normalize BSE index short codes from SPOT rows to BTAlgo index symbols
     bse_idx_mask = token_df["exchange"] == "BSE_INDEX"
     token_df.loc[bse_idx_mask, "symbol"] = normalize_bse_index_symbols(
         token_df.loc[bse_idx_mask, "symbol"]
@@ -481,7 +481,7 @@ def process_compositedge_mcx_csv(path):
 
 def process_index_data(index_data):
     """
-    Processes index data from API to fit the OpenAlgo database schema.
+    Processes index data from API to fit the BTAlgo database schema.
     Uses regex normalization to handle spacing variations in symbol names.
 
     Input format from API (index_entry format: "SYMBOL_TOKEN"):
@@ -499,7 +499,7 @@ def process_index_data(index_data):
     df["symbol"] = df["symbol"].astype(str).str.upper().str.strip()
     df["symbol"] = df["symbol"].str.replace(r"\s+", " ", regex=True)
 
-    # NSE index mapping (raw broker index names -> OpenAlgo symbols)
+    # NSE index mapping (raw broker index names -> BTAlgo symbols)
     nse_index_map = {
         "NIFTY 50": "NIFTY",
         "NIFTY BANK": "BANKNIFTY",

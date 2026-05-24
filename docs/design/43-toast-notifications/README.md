@@ -1,10 +1,10 @@
 # Toast Notifications System
 
-This document describes the toast notification system in OpenAlgo's React frontend, including guidelines for developers adding new features.
+This document describes the toast notification system in BTAlgo's React frontend, including guidelines for developers adding new features.
 
 ## Overview
 
-OpenAlgo uses [Sonner](https://sonner.emilkowal.ski/) (v2.0.7) as the underlying toast library, wrapped with a custom utility that provides category-based filtering. This allows users to control which types of notifications they see via the **Profile > Alerts** settings.
+BTAlgo uses [Sonner](https://sonner.emilkowal.ski/) (v2.0.7) as the underlying toast library, wrapped with a custom utility that provides category-based filtering. This allows users to control which types of notifications they see via the **Profile > Alerts** settings.
 
 ## Architecture
 

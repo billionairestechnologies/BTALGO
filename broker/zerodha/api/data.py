@@ -14,7 +14,7 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-# OpenAlgo→Kite exchange-prefix translation for /quote, /quote/ltp, /quote/ohlc.
+# BTAlgo→Kite exchange-prefix translation for /quote, /quote/ltp, /quote/ohlc.
 # Kite uses NSE/BSE/NFO/BFO/MCX/NCO/CDS/BCD/GLOBAL/NSEIX as the prefix in
 # `i=EXCHANGE:tradingsymbol`. NSE_INDEX/BSE_INDEX/MCX_INDEX use NSE/BSE/MCX on
 # the broker side. GLOBAL_INDEX folds two Kite feeds (GLOBAL + NSEIX) — the
@@ -27,7 +27,7 @@ _OA_INDEX_TO_KITE = {
 
 
 def _kite_quote_exchange(oa_exchange: str, brexchange: str | None) -> str:
-    """Resolve the OpenAlgo exchange + per-row brexchange to the Kite-side
+    """Resolve the BTAlgo exchange + per-row brexchange to the Kite-side
     exchange prefix used in /quote* endpoints."""
     if oa_exchange == "GLOBAL_INDEX":
         # brexchange holds the original Kite exchange code (GLOBAL or NSEIX).

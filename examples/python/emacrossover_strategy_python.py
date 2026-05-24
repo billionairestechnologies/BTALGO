@@ -1,23 +1,23 @@
 """
 ===============================================================================
                 EMA CROSSOVER WITH FIXED DATETIME HANDLING
-                            OpenAlgo Trading Bot
+                            BTAlgo Trading Bot
 ===============================================================================
 
 Run standalone:
-    export OPENALGO_API_KEY="your-api-key"
+    export BTALGO_API_KEY="your-api-key"
     python emacrossover_strategy_python.py
 
-Run via OpenAlgo's /python strategy runner:
-    OPENALGO_API_KEY            : injected per-strategy (PR #1247).
-    OPENALGO_STRATEGY_EXCHANGE  : set from the strategy's `exchange` config
+Run via BTAlgo's /python strategy runner:
+    BTALGO_API_KEY            : injected per-strategy (PR #1247).
+    BTALGO_STRATEGY_EXCHANGE  : set from the strategy's `exchange` config
                                   (NSE / BSE / NFO / BFO / MCX / BCD / CDS / CRYPTO).
                                   Drives both this script's trading exchange and
                                   the host's calendar/holiday gating, so the two
                                   always agree (no NSE-only orders on an MCX-gated
                                   strategy).
     STRATEGY_ID / STRATEGY_NAME : injected for log/order tagging.
-    HOST_SERVER / WEBSOCKET_URL : inherited from OpenAlgo's .env.
+    HOST_SERVER / WEBSOCKET_URL : inherited from BTAlgo's .env.
     No code changes required.
 """
 
@@ -34,21 +34,21 @@ from openalgo import api
 # ===============================================================================
 
 # API Configuration — read from environment with sensible fallbacks.
-# When launched via OpenAlgo's /python runner, these come from the platform:
-#   OPENALGO_API_KEY : injected per-strategy (decrypted from DB)
-#   HOST_SERVER      : inherited from OpenAlgo's .env
-#   WEBSOCKET_URL    : inherited from OpenAlgo's .env
-API_KEY = os.getenv("OPENALGO_API_KEY", "openalgo-apikey")
+# When launched via BTAlgo's /python runner, these come from the platform:
+#   BTALGO_API_KEY : injected per-strategy (decrypted from DB)
+#   HOST_SERVER      : inherited from BTAlgo's .env
+#   WEBSOCKET_URL    : inherited from BTAlgo's .env
+API_KEY = os.getenv("BTALGO_API_KEY", "btalgo-apikey")
 API_HOST = os.getenv("HOST_SERVER", "http://127.0.0.1:5000")
 WS_URL = os.getenv("WEBSOCKET_URL", "ws://127.0.0.1:8765")
 
 # Trade Settings
-# EXCHANGE prefers OPENALGO_STRATEGY_EXCHANGE (set by /python runner from the
+# EXCHANGE prefers BTALGO_STRATEGY_EXCHANGE (set by /python runner from the
 # strategy's config) so the script trades on whichever exchange the host is
 # gating its calendar against. Falls back to EXCHANGE env var, then NSE.
 SYMBOL = os.getenv("SYMBOL", "NHPC")              # Stock to trade
 EXCHANGE = os.getenv(
-    "OPENALGO_STRATEGY_EXCHANGE",
+    "BTALGO_STRATEGY_EXCHANGE",
     os.getenv("EXCHANGE", "NSE"),
 )                                                 # NSE, BSE, NFO, BFO, MCX, BCD, CDS, CRYPTO
 QUANTITY = int(os.getenv("QUANTITY", "1"))        # Number of shares
@@ -117,16 +117,16 @@ class ConfigurableEMABot:
         else:
             self.lookback_days = LOOKBACK_DAYS
 
-        print("[BOT] OpenAlgo Trading Bot Started")
+        print("[BOT] BTAlgo Trading Bot Started")
         print(f"[BOT] Host: {API_HOST} | WS: {WS_URL}")
         print(f"[BOT] Symbol: {SYMBOL} on {EXCHANGE}")
         print(f"[BOT] Direction Mode: {TRADE_DIRECTION}")
         print(f"[BOT] Strategy: {FAST_EMA_PERIOD} EMA x {SLOW_EMA_PERIOD} EMA")
         print(f"[BOT] Lookback Period: {self.lookback_days} days")
         print(f"[BOT] Signal Check Interval: {SIGNAL_CHECK_INTERVAL} seconds")
-        if os.getenv("OPENALGO_STRATEGY_EXCHANGE"):
+        if os.getenv("BTALGO_STRATEGY_EXCHANGE"):
             print(
-                f"[BOT] Exchange resolved from OPENALGO_STRATEGY_EXCHANGE "
+                f"[BOT] Exchange resolved from BTALGO_STRATEGY_EXCHANGE "
                 f"(host calendar = {EXCHANGE})"
             )
 
@@ -599,14 +599,14 @@ class ConfigurableEMABot:
 # ===============================================================================
 
 if __name__ == "__main__":
-    if not API_KEY or API_KEY == "openalgo-apikey":
+    if not API_KEY or API_KEY == "btalgo-apikey":
         print(
-            "[WARNING] OPENALGO_API_KEY is not set in environment. "
+            "[WARNING] BTALGO_API_KEY is not set in environment. "
             "Set it before running in live mode."
         )
 
     print("\n" + "=" * 60)
-    print(" OPENALGO EMA STRATEGY - READY TO RUN")
+    print(" BTALGO EMA STRATEGY - READY TO RUN")
     print("=" * 60)
     print(f" Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f" Mode: {TRADE_DIRECTION}")

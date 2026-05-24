@@ -59,7 +59,7 @@ import { onModeChange } from '@/stores/themeStore'
 import type { Position } from '@/types/trading'
 import { showToast } from '@/utils/toast'
 
-const STORAGE_KEY = 'openalgo_positions_prefs'
+const STORAGE_KEY = 'btalgo_positions_prefs'
 
 type GroupingType = 'none' | 'underlying' | 'underlying_expiry'
 type SortColumn = 0 | 3 | 4 | 6 | 7 | null

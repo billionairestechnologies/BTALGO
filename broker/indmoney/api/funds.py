@@ -9,7 +9,7 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Default response format for margin data (OpenAlgo standard format)
+# Default response format for margin data (BTAlgo standard format)
 DEFAULT_MARGIN_RESPONSE = {
     "availablecash": "0.00",
     "collateral": "0.00",
@@ -90,7 +90,7 @@ def get_margin_data(auth_token):
             # Calculate utilized debits (SOD balance minus withdrawal balance)
             utilised_debits = max(0, sod_balance - withdrawal_balance)
 
-            # OpenAlgo standard required keys (matching Angel broker format)
+            # BTAlgo standard required keys (matching Angel broker format)
             required_keys = [
                 "availablecash",
                 "collateral",
@@ -99,10 +99,10 @@ def get_margin_data(auth_token):
                 "utiliseddebits",
             ]
 
-            # Prepare the response in OpenAlgo standard format
+            # Prepare the response in BTAlgo standard format
             processed_data = {}
 
-            # Map INDmoney fields to OpenAlgo standard fields
+            # Map INDmoney fields to BTAlgo standard fields
             field_mapping = {
                 "availablecash": withdrawal_balance,  # Available cash is the withdrawal balance
                 "collateral": pledge_received,  # Collateral is the pledge received

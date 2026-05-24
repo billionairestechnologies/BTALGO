@@ -282,7 +282,7 @@ def get_gtt_book(auth):
     """List all Forever Orders for the user. Returns ``(response_dict, status_code)``.
 
     The returned dict has ``status`` and ``data`` where ``data`` is the
-    OpenAlgo-normalised list (see :func:`map_gtt_book`).
+    BTAlgo-normalised list (see :func:`map_gtt_book`).
     """
     # Dhan's published docs say GET /v2/forever/all but their official SDK
     # and live API use GET /v2/forever/orders. /all returns 404.

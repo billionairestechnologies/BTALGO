@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Groww API Parameters based on SDK documentation
 
 # Groww API constants based on the SDK documentation
@@ -48,7 +48,7 @@ ORDER_STATUS_REJECTED = "REJECTED"
 
 def transform_data(data, token):
     """
-    Transforms the OpenAlgo API request structure to Groww API structure.
+    Transforms the BTAlgo API request structure to Groww API structure.
 
     Parameters required by Groww:
     - trading_symbol (required): string - Trading Symbol of the instrument as defined by the exchange
@@ -102,10 +102,10 @@ def transform_data(data, token):
 
 def transform_modify_order_data(data):
     """
-    Transforms the OpenAlgo order modification data to Groww API structure
+    Transforms the BTAlgo order modification data to Groww API structure
 
     Args:
-        data (dict): Order data in OpenAlgo format
+        data (dict): Order data in BTAlgo format
 
     Returns:
         dict: Order data in Groww format
@@ -138,7 +138,7 @@ def transform_modify_order_data(data):
 
 def map_order_type(pricetype):
     """
-    Maps the OpenAlgo pricetype to Groww order_type values.
+    Maps the BTAlgo pricetype to Groww order_type values.
     """
     order_type_mapping = {
         "MARKET": ORDER_TYPE_MARKET,
@@ -153,7 +153,7 @@ def map_order_type(pricetype):
 
 def map_exchange_type(exchange):
     """
-    Maps the OpenAlgo Exchange to Groww Exchange values.
+    Maps the BTAlgo Exchange to Groww Exchange values.
     """
     exchange_mapping = {
         "NSE": EXCHANGE_NSE,
@@ -166,7 +166,7 @@ def map_exchange_type(exchange):
 
 def map_exchange(brexchange):
     """
-    Maps the Groww Exchange to OpenAlgo Exchange format.
+    Maps the Groww Exchange to BTAlgo Exchange format.
     """
     exchange_mapping = {
         EXCHANGE_NSE: "NSE",
@@ -179,7 +179,7 @@ def map_exchange(brexchange):
 
 def map_product_type(product):
     """
-    Maps the OpenAlgo product type to Groww product type.
+    Maps the BTAlgo product type to Groww product type.
     """
     product_type_mapping = {
         "CNC": PRODUCT_CNC,  # Cash and Carry
@@ -191,7 +191,7 @@ def map_product_type(product):
 
 def reverse_map_product_type(product):
     """
-    Maps the Groww product type to the OpenAlgo product type.
+    Maps the Groww product type to the BTAlgo product type.
     """
     product_mapping = {PRODUCT_CNC: "CNC", PRODUCT_NRML: "NRML", PRODUCT_MIS: "MIS"}
     return product_mapping.get(product)  # Return None if not found
@@ -212,7 +212,7 @@ def get_segment(exchange):
 
 def map_segment_type(exchange):
     """
-    Maps the OpenAlgo exchange to Groww segment type.
+    Maps the BTAlgo exchange to Groww segment type.
     """
     segment_mapping = {
         "NSE": SEGMENT_CASH,
@@ -225,7 +225,7 @@ def map_segment_type(exchange):
 
 def map_validity(validity):
     """
-    Maps OpenAlgo validity to Groww validity type.
+    Maps BTAlgo validity to Groww validity type.
     """
     validity_mapping = {
         "DAY": VALIDITY_DAY,
@@ -237,7 +237,7 @@ def map_validity(validity):
 
 def map_transaction_type(action):
     """
-    Maps OpenAlgo action to Groww transaction_type.
+    Maps BTAlgo action to Groww transaction_type.
     """
     transaction_type_mapping = {"BUY": TRANSACTION_TYPE_BUY, "SELL": TRANSACTION_TYPE_SELL}
     return transaction_type_mapping.get(

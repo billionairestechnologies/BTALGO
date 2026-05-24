@@ -2,7 +2,7 @@
 High-level IIFL Capital market-data feed client.
 
 Sits on top of `iiflcapital_mqtt.IiflMqttClient` and exposes the same
-broker-feed surface that other OpenAlgo adapters consume (Zerodha-style):
+broker-feed surface that other BTAlgo adapters consume (Zerodha-style):
 
     client = IiflcapitalWebSocket(user_session=<jwt>)
     client.on_ticks = lambda ticks: ...
@@ -11,7 +11,7 @@ broker-feed surface that other OpenAlgo adapters consume (Zerodha-style):
 
 The IIFL feed publishes a single 188-byte "MWBOCombined" packet per market
 update — it always contains LTP + OHLC + L5 depth + bid/ask totals + timestamp.
-OpenAlgo's WebSocket proxy still wants three distinct modes (LTP/Quote/Depth),
+BTAlgo's WebSocket proxy still wants three distinct modes (LTP/Quote/Depth),
 so we subscribe ONCE per (segment, token) at the MQTT layer and let the
 adapter slice the decoded dict into the right shape for each subscribed mode.
 That is the same trade-off the Zerodha adapter makes with its `full` mode.
@@ -46,7 +46,7 @@ TOPIC_INDEX_FEED = "prod/marketfeed/index/v1/"
 TOPIC_OPEN_INTEREST = "prod/marketfeed/oi/v1/"
 
 # Modes are local to the IIFL client. They DO NOT correspond 1:1 with
-# OpenAlgo's mode ints — the adapter layer translates 1/2/3 → "ltp"/"quote"/"full".
+# BTAlgo's mode ints — the adapter layer translates 1/2/3 → "ltp"/"quote"/"full".
 MODE_LTP = "ltp"
 MODE_QUOTE = "quote"
 MODE_FULL = "full"
@@ -256,7 +256,7 @@ class IiflcapitalWebSocket:
         # when two reconnects fire on the same host within the same microsecond
         # (broker drops the older session with CONNACK rc=2 on collision).
         self.client_id = (
-            "openalgo"
+            "btalgo"
             + datetime.now().strftime("%d%m%y%H%M%S%f")
             + os.urandom(4).hex()
         )
@@ -393,7 +393,7 @@ class IiflcapitalWebSocket:
         Args:
             instruments: list of (segment, token) tuples. Segment is the
                 IIFL brexchange ('NSEEQ', 'NSEFO', 'BSEEQ', ...).
-            mode: "ltp" / "quote" / "full" — affects which OpenAlgo modes the
+            mode: "ltp" / "quote" / "full" — affects which BTAlgo modes the
                 adapter will publish, not which broker topic we hit (the
                 broker only has one packet shape per stream).
             is_index: True for NSE_INDEX/BSE_INDEX symbols; routes to the
@@ -600,7 +600,7 @@ class IiflcapitalWebSocket:
         self._oi_cache[key] = decoded
         # We deliberately do not push an OI-only tick — OI is merged into the
         # next market-feed tick (which is publishing constantly during market
-        # hours). This keeps the OpenAlgo proxy's mode set simple.
+        # hours). This keeps the BTAlgo proxy's mode set simple.
 
     def _on_mqtt_disconnect(self, _exc: Exception | None) -> None:
         was_connected = self.connected

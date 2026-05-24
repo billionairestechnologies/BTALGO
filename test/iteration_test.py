@@ -33,7 +33,7 @@ logger = logging.getLogger("websocket_test")
 
 # Test configuration
 WEBSOCKET_URI = "ws://127.0.0.1:8765"
-API_KEY = "your-openalgo-api-key"  # OpenAlgo API key
+API_KEY = "your-btalgo-api-key"  # BTAlgo API key
 CLIENT_COUNT = 10
 TEST_DURATION_SECONDS = 30
 

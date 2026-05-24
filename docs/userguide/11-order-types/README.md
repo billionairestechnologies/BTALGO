@@ -67,7 +67,7 @@ Result: You get 100 shares at approximately ₹625.50
 | Simple to use | May get worse price |
 | Fast | Slippage in volatile markets |
 
-### OpenAlgo API
+### BTAlgo API
 
 ```json
 {
@@ -123,7 +123,7 @@ Result: Order executes at ₹620 (or better at ₹615)
 | No slippage | Order may expire |
 | Better average price | Requires price monitoring |
 
-### OpenAlgo API
+### BTAlgo API
 
 ```json
 {
@@ -181,7 +181,7 @@ SELL Stop-Loss (for long positions):
   Limit Price: Minimum price you'll accept (equal or lower)
 ```
 
-### OpenAlgo API
+### BTAlgo API
 
 ```json
 {
@@ -239,7 +239,7 @@ Price Movement:
 | Complexity | Two prices needed | One trigger price |
 | Best for | Normal markets | Gap protection |
 
-### OpenAlgo API
+### BTAlgo API
 
 ```json
 {
@@ -295,7 +295,7 @@ Most brokers support:
 | IOC | Immediate or Cancel (execute now or cancel) |
 | GTC | Good Till Cancelled (until manually cancelled) |
 
-**Note**: OpenAlgo typically uses DAY validity.
+**Note**: BTAlgo typically uses DAY validity.
 
 ## Common Order Mistakes
 

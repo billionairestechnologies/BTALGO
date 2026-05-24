@@ -165,7 +165,7 @@ def _invalidate_position_cache(auth):
 
 
 def get_open_position(tradingsymbol, exchange, product, auth):
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search in OpenPosition
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
     positions_data = _get_cached_positions(auth)
     net_qty = "0"
@@ -372,7 +372,7 @@ def close_all_positions(current_api_key, auth):
             # print(f"Trading Symbol : {position['tradingsymbol']}")
             # print(f"Exchange : {position['exchange']}")
 
-            # get openalgo symbol to send to placeorder function
+            # get btalgo symbol to send to placeorder function
             symbol = get_symbol(position["securityId"], map_exchange(position["exchangeSegment"]))
             logger.info(f"The Symbol is {symbol}")
 

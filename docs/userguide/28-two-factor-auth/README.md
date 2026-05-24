@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Two-Factor Authentication (2FA) adds an extra layer of security to your OpenAlgo account. Even if someone knows your password, they can't access your account without the second factor - a time-based code from your authenticator app.
+Two-Factor Authentication (2FA) adds an extra layer of security to your BTAlgo account. Even if someone knows your password, they can't access your account without the second factor - a time-based code from your authenticator app.
 
 ## How 2FA Works
 
@@ -95,7 +95,7 @@ Install an authenticator app:
 ### Step 3: Verify Code
 
 1. Open authenticator app
-2. Find the OpenAlgo entry
+2. Find the BTAlgo entry
 3. Enter the 6-digit code
 4. Click **Verify & Enable**
 
@@ -231,7 +231,7 @@ If you lose access to your authenticator:
 |-------|----------|
 | Code expired | Wait for new code (30 seconds) |
 | Time sync issue | Sync phone time to network |
-| Wrong account | Verify you're using OpenAlgo entry |
+| Wrong account | Verify you're using BTAlgo entry |
 | Typo | Re-enter code carefully |
 
 ### Lost Authenticator Access
@@ -311,7 +311,7 @@ A:
 
 ### Q: Can I use SMS instead?
 
-A: No, OpenAlgo uses TOTP apps only (more secure than SMS).
+A: No, BTAlgo uses TOTP apps only (more secure than SMS).
 
 ### Q: Will 2FA slow down my login?
 

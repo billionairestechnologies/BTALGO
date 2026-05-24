@@ -1,5 +1,5 @@
 """
-Dhan WebSocket streaming integration for OpenAlgo.
+Dhan WebSocket streaming integration for BTAlgo.
 """
 
 from .dhan_adapter import DhanWebSocketAdapter

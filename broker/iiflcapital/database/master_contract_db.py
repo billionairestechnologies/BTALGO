@@ -265,7 +265,7 @@ def format_expiry(expiry_str):
 
 
 def format_strike(strike_val):
-    """Format strike price for OpenAlgo symbol. Integer if whole number, else decimal."""
+    """Format strike price for BTAlgo symbol. Integer if whole number, else decimal."""
     try:
         strike = float(strike_val)
     except (TypeError, ValueError):
@@ -385,12 +385,12 @@ def _process_derivatives_csv(path, segment, exchange):
     # Parse strike
     df["_strike"] = pd.to_numeric(df[COL_STRIKE], errors="coerce").fillna(0.0)
 
-    # Determine OpenAlgo instrument type from Option Type column
+    # Determine BTAlgo instrument type from Option Type column
     # XX = FUT, CE = CE, PE = PE
     option_type = df[COL_OPTION_TYPE].str.strip().str.upper()
     df["_instrumenttype"] = option_type.map({"XX": "FUT", "CE": "CE", "PE": "PE"})
 
-    # Build OpenAlgo symbols
+    # Build BTAlgo symbols
     underlying = df[COL_UNDERLYING].str.strip()
 
     # Futures: {underlying}{DDMMMYY}FUT
@@ -447,7 +447,7 @@ def process_iiflcapital_indices_csv(path):
         logger.warning("Empty CSV for INDICES segment")
         return pd.DataFrame()
 
-    # Determine OpenAlgo exchange from CSV Exchange column
+    # Determine BTAlgo exchange from CSV Exchange column
     # NSEEQ entries → NSE_INDEX, BSEEQ entries → BSE_INDEX
     csv_exchange = df[COL_EXCHANGE].str.strip().str.upper()
     df["_exchange"] = csv_exchange.map({"NSEEQ": "NSE_INDEX", "BSEEQ": "BSE_INDEX"})

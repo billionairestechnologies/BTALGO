@@ -38,7 +38,7 @@ def get_margin_data(auth_token):
         equity_available = float(equity_limit.get("netAvailableMargin", 0) or 0)
         equity_used = float(equity_limit.get("marginUsed", 0) or 0)
 
-        # Map Samco fields to OpenAlgo standard format
+        # Map Samco fields to BTAlgo standard format
         filtered_data = {
             "availablecash": f"{equity_available:.2f}",
             "collateral": "{:.2f}".format(

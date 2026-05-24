@@ -80,7 +80,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/holidays \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|-------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 | year | Year to get holidays for (2020-2050) | Optional | Current year |
 
 ## Response Fields

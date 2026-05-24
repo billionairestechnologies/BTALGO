@@ -1,7 +1,7 @@
 # WebSocket Keepalive & Reconnection Audit
 
 **Scope:** All 32 broker streaming integrations under `broker/*/streaming/` (and `broker/*/api/*websocket*.py` for adapter-only brokers).
-**Tracking issue:** [#1101 — Standard WebSocket Ping/Heartbeat](https://github.com/marketcalls/openalgo/issues/1101).
+**Tracking issue:** [#1101 — Standard WebSocket Ping/Heartbeat](https://github.com/billionairestechnologies/btalgo/issues/1101).
 **Audit date:** 2026-04-28.
 **Source of truth:** code, not documentation. Every value below was read directly from the broker's streaming files.
 
@@ -17,7 +17,7 @@ The 32 broker integrations use **five different transport stacks** (websocket-cl
 
 ### What's not
 
-- **9 brokers have no ping configuration at all** at the websocket-client layer (rely purely on TCP keepalive, server-side pings, or app-level heartbeats). Three of those have neither WS-level nor app-level heartbeats: **Wisdom, Tradejini, Compositedge, FivepaisaXTS, Ibulls, IIFL, Jainamxts** (Socket.IO transport hides this concern, but it still means OpenAlgo has no visibility into liveness).
+- **9 brokers have no ping configuration at all** at the websocket-client layer (rely purely on TCP keepalive, server-side pings, or app-level heartbeats). Three of those have neither WS-level nor app-level heartbeats: **Wisdom, Tradejini, Compositedge, FivepaisaXTS, Ibulls, IIFL, Jainamxts** (Socket.IO transport hides this concern, but it still means BTAlgo has no visibility into liveness).
 - **18 brokers have no silent-stall detection.** They rely entirely on the WebSocket library's ping/pong to notice a dead connection. On a sleeping VPS or NAT-translated cloud network, this can leave a "connected" socket delivering zero ticks indefinitely.
 - **Ping intervals across the fleet vary from 10s (Angel, FivePaisa, Fyers TBT) to 295s (RMoney) to "never" (8 brokers).** No reason for the spread other than what each integrator copied from the broker's reference SDK.
 - **No broker reads its keepalive policy from environment variables.** Every interval, every timeout, every retry count is hardcoded in source.
@@ -90,7 +90,7 @@ Legend: **Lib** = transport library. **Ping** = WS-frame ping interval (seconds)
 | **Tier 2 — Strong** (WS ping + active health check + data-timeout, no app HB) | angel, fyers HSM, upstox, zerodha | Detects TCP-dead and silent-data-stall. |
 | **Tier 3 — Standard** (WS-level ping only, no health check) | dhan, deltaexchange, fivepaisa, kotak, mstock, nubra, paytm | TCP-dead detection only. Will not notice silent stalls. |
 | **Tier 4 — App-heartbeat-only** (no WS-level ping, JSON heartbeat on a timer) | aliceblue, definedge, fyers TBT, pocketful | Liveness depends on a single timer thread. |
-| **Tier 5 — Transport-managed** (Socket.IO / engine.io / NATS handles its own heartbeat invisibly) | compositedge, fivepaisaxts, ibulls, iifl, jainamxts, rmoney, groww | OpenAlgo has zero visibility into liveness. |
+| **Tier 5 — Transport-managed** (Socket.IO / engine.io / NATS handles its own heartbeat invisibly) | compositedge, fivepaisaxts, ibulls, iifl, jainamxts, rmoney, groww | BTAlgo has zero visibility into liveness. |
 | **Tier 6 — Weak / missing** | tradejini (no client-initiated keepalive), motilal (passive on-demand only), wisdom (no reconnect, no health), iiflcapital (REST polling) | Lowest resilience. |
 
 ### 3.3 By reconnect strategy
@@ -170,7 +170,7 @@ Legend: **Lib** = transport library. **Ping** = WS-frame ping interval (seconds)
 - `run_forever()` without ping config — Fyers' binary HSM protocol manages it server-side.
 - `_health_check_thread` runs every 30s; data timeout 90s.
 - Pending subscriptions replayed on reconnect.
-- (Fyers also fixes today's commit `5eb7baaa` that was scrambling HSM↔OpenAlgo symbol mappings — see issue #1093.)
+- (Fyers also fixes today's commit `5eb7baaa` that was scrambling HSM↔BTAlgo symbol mappings — see issue #1093.)
 
 #### Fyers TBT (`broker/fyers/streaming/fyers_tbt_websocket.py`)
 - 50-level depth only, NSE/NFO equity only.
@@ -256,10 +256,10 @@ Legend: **Lib** = transport library. **Ping** = WS-frame ping interval (seconds)
 ### 4.2 Socket.IO cohort (XTS family + others)
 
 #### Compositedge / Fivepaisaxts / Ibulls / IIFL / Jainamxts (XTS family)
-- All use `python-socketio.Client`. No explicit `ping_interval`/`ping_timeout` — engine.io transport-level heartbeat handles it (opaque to OpenAlgo).
+- All use `python-socketio.Client`. No explicit `ping_interval`/`ping_timeout` — engine.io transport-level heartbeat handles it (opaque to BTAlgo).
 - Adapter-layer reconnect: 10 retries, `5 × 2ⁿ → 60s` exponential.
 - Subscriptions stored, replayed via `_resubscribe_all()` after `on_connect`.
-- **Gap:** no health-check thread. No data-timeout. If engine.io's internal heartbeat hangs, OpenAlgo learns about it only via `on_disconnect` callback.
+- **Gap:** no health-check thread. No data-timeout. If engine.io's internal heartbeat hangs, BTAlgo learns about it only via `on_disconnect` callback.
 - **Jainamxts caveat:** Socket.IO's built-in auto-reconnect is **not explicitly disabled**, so two reconnect mechanisms (Socket.IO + adapter) may race.
 
 #### Rmoney
@@ -374,7 +374,7 @@ The same plan from Issue #1101 applies, plus:
 
 ## 7. Out of scope
 
-- The WebSocket Proxy server (`websocket_proxy/server.py`) handles client-initiated `{"action":"ping"}` from SDKs and responds with `{"type":"pong",...}`. That's the *external* keep-alive between SDK clients and OpenAlgo, separate from this audit which covers the *internal* keep-alive between OpenAlgo and the brokers. Issue #1101 mentions both; this audit only covers the latter.
+- The WebSocket Proxy server (`websocket_proxy/server.py`) handles client-initiated `{"action":"ping"}` from SDKs and responds with `{"type":"pong",...}`. That's the *external* keep-alive between SDK clients and BTAlgo, separate from this audit which covers the *internal* keep-alive between BTAlgo and the brokers. Issue #1101 mentions both; this audit only covers the latter.
 - IIFLCapital's REST-polling adapter. Not a WebSocket; separate concern.
 - Today's Fyers fixes (#1093 routing fix `5eb7baaa`, #1243 multiquotes fix `15c2c63b`, batching fix `671b8548`) — those are functional fixes, not keepalive.
 

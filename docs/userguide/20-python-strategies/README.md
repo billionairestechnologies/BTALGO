@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Python is one of the most powerful ways to build trading strategies with OpenAlgo. Using the official OpenAlgo Python library, you can create sophisticated algorithms, backtest strategies, and execute trades programmatically.
+Python is one of the most powerful ways to build trading strategies with BTAlgo. Using the official BTAlgo Python library, you can create sophisticated algorithms, backtest strategies, and execute trades programmatically.
 
 ## Getting Started
 
@@ -24,7 +24,7 @@ client = api(
 )
 
 # Test connection
-print("Connected to OpenAlgo!")
+print("Connected to BTAlgo!")
 ```
 
 ## Core Functions
@@ -620,7 +620,7 @@ while True:
 
 ```python
 # Use Analyzer Mode for testing
-# Enable it in OpenAlgo before running your strategy
+# Enable it in BTAlgo before running your strategy
 ```
 
 ### 2. Implement Risk Management

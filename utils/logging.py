@@ -385,7 +385,7 @@ def setup_logging():
         cleanup_old_logs(log_path, log_retention)
 
         # Create file handler with daily rotation
-        log_file = log_path / f"openalgo_{datetime.now().strftime('%Y-%m-%d')}.log"
+        log_file = log_path / f"btalgo_{datetime.now().strftime('%Y-%m-%d')}.log"
         file_handler = TimedRotatingFileHandler(
             filename=str(log_file),
             when="midnight",

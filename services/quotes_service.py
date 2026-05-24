@@ -169,7 +169,7 @@ def get_quotes(
     Args:
         symbol: Trading symbol
         exchange: Exchange (e.g., NSE, BSE)
-        api_key: OpenAlgo API key (for API-based calls)
+        api_key: BTAlgo API key (for API-based calls)
         auth_token: Direct broker authentication token (for internal calls)
         feed_token: Direct broker feed token (for internal calls)
         broker: Direct broker name (for internal calls)
@@ -186,7 +186,7 @@ def get_quotes(
             api_key, include_feed_token=True
         )
         if AUTH_TOKEN is None:
-            return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
         return get_quotes_with_auth(AUTH_TOKEN, FEED_TOKEN, broker_name, symbol, exchange)
 
     # Case 2: Direct internal call with auth_token and broker
@@ -337,7 +337,7 @@ def get_multiquotes(
 
     Args:
         symbols: List of dicts with 'symbol' and 'exchange' keys
-        api_key: OpenAlgo API key (for API-based calls)
+        api_key: BTAlgo API key (for API-based calls)
         auth_token: Direct broker authentication token (for internal calls)
         feed_token: Direct broker feed token (for internal calls)
         broker: Direct broker name (for internal calls)
@@ -354,7 +354,7 @@ def get_multiquotes(
             api_key, include_feed_token=True
         )
         if AUTH_TOKEN is None:
-            return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
         return get_multiquotes_with_auth(AUTH_TOKEN, FEED_TOKEN, broker_name, symbols)
 
     # Case 2: Direct internal call with auth_token and broker

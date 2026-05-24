@@ -114,7 +114,7 @@ def _fetch_daily_oi_changes(
     Args:
         option_symbols: List of dicts with 'symbol' key
         options_exchange: Exchange for options (NFO, BFO)
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Dict mapping symbol -> previous_day_oi
@@ -201,7 +201,7 @@ def get_oi_profile_data(
         expiry_date: Expiry in DDMMMYY format
         interval: Candle interval (1m, 5m, 15m)
         days: Number of days for futures candles
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Tuple of (success, response_data, status_code)

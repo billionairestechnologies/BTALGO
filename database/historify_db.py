@@ -23,7 +23,7 @@ logger = get_logger(__name__)
 # Load environment variables
 load_dotenv()
 
-# Database path - in /db folder like other OpenAlgo databases
+# Database path - in /db folder like other BTAlgo databases
 HISTORIFY_DB_PATH = os.getenv("HISTORIFY_DATABASE_PATH", "db/historify.duckdb")
 
 
@@ -31,7 +31,7 @@ def get_db_path() -> str:
     """Get absolute path to the DuckDB database file."""
     if os.path.isabs(HISTORIFY_DB_PATH):
         return HISTORIFY_DB_PATH
-    # Relative to the openalgo directory
+    # Relative to the btalgo directory
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_dir, HISTORIFY_DB_PATH)
 
@@ -1532,7 +1532,7 @@ def get_supported_intervals(api_key: str) -> list[str]:
     Uses the intervals_service to fetch broker-specific supported timeframes.
 
     Args:
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         List of supported interval strings (e.g., ['1m', '5m', '15m', '1h', 'D'])

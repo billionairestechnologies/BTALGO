@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Firstock basketMargin API
 
 from broker.firstock.mapping.transform_data import map_order_type, map_product_type
@@ -100,7 +100,7 @@ def _apply_mpp(position, auth_token):
 
 
 def _build_order(position, auth_token):
-    """Build a single Firstock basketMargin leg from an OpenAlgo position."""
+    """Build a single Firstock basketMargin leg from an BTAlgo position."""
     oa_symbol = position["symbol"]
     exchange = position["exchange"]
     br_symbol = get_br_symbol(oa_symbol, exchange)
@@ -126,7 +126,7 @@ def _build_order(position, auth_token):
 
 def transform_margin_positions(positions, userid, auth_token=None):
     """
-    Transform a list of OpenAlgo positions into a Firstock basketMargin payload.
+    Transform a list of BTAlgo positions into a Firstock basketMargin payload.
 
     Firstock layout (per /V1/basketMargin docs):
       - First leg is flat at the top level of the request body
@@ -164,7 +164,7 @@ def transform_margin_positions(positions, userid, auth_token=None):
 
 def parse_margin_response(response_data):
     """
-    Parse Firstock /V1/basketMargin response into OpenAlgo's standard shape.
+    Parse Firstock /V1/basketMargin response into BTAlgo's standard shape.
 
     Firstock success shape:
       {

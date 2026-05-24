@@ -2,7 +2,7 @@ import logging
 
 
 class PaytmExchangeMapper:
-    """Maps OpenAlgo exchange codes to Paytm-specific exchange types"""
+    """Maps BTAlgo exchange codes to Paytm-specific exchange types"""
 
     # Exchange type mapping for Paytm broker
     # Based on Paytm API documentation

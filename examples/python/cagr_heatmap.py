@@ -2,12 +2,12 @@
 # Python Code to Compute Rolling CAGR Heatmap for NIFTY 50
 # Recommended to use Daily Historical Data more than 5 Years
 # Minor variations in Rolling Returns might occur due to data source differences
-# Coded by Rajandran R - Creator of OpenAlgo (https://openalgo.in)
+# Coded by Rajandran R - Creator of BTAlgo (https://billionairestechnologies.com)
 # Author - www.marketcalls.in
 # ---------------------------------------------------
-# NOTE: This code requires OpenAlgo to be running locally or on a server.
-# Get your API key from your self-hosted OpenAlgo platform.
-# OpenAlgo GitHub: https://github.com/marketcalls/openalgo
+# NOTE: This code requires BTAlgo to be running locally or on a server.
+# Get your API key from your self-hosted BTAlgo platform.
+# BTAlgo GitHub: https://github.com/billionairestechnologies/btalgo
 # ---------------------------------------------------
 
 from datetime import datetime, timedelta
@@ -18,11 +18,11 @@ import plotly.express as px
 from openalgo import api
 
 # ---------------------------------------------------
-# Initialize OpenAlgo Client
+# Initialize BTAlgo Client
 # ---------------------------------------------------
 client = api(api_key="your_api_key_here", host="http://127.0.0.1:5000")
 
-print("🔁 OpenAlgo Python Bot is running.")
+print("🔁 BTAlgo Python Bot is running.")
 
 # ---------------------------------------------------
 # NIFTY 50 SYMBOLS

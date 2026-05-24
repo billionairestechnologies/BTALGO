@@ -177,7 +177,7 @@ def _spawn_websocket_subprocess():
         logger.debug("WebSocket subprocess already running, skipping spawn")
         return
 
-    # Find the openalgo project root (parent of websocket_proxy/)
+    # Find the btalgo project root (parent of websocket_proxy/)
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     cmd = [sys.executable, "-u", "-m", "websocket_proxy.server"]

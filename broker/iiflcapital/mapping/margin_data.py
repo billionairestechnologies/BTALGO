@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping IIFL Capital SPAN and Exposure Margin API
 
 from broker.iiflcapital.mapping.transform_data import map_exchange
@@ -10,10 +10,10 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin positions to IIFL Capital span/exposure format.
+    Transform BTAlgo margin positions to IIFL Capital span/exposure format.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
 
     Returns:
         List of positions in IIFL Capital format
@@ -77,13 +77,13 @@ def transform_margin_positions(positions):
 
 def parse_margin_response(response_data):
     """
-    Parse IIFL Capital span/exposure response to OpenAlgo standard format.
+    Parse IIFL Capital span/exposure response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from IIFL Capital margin API
 
     Returns:
-        Standardized margin response matching OpenAlgo format
+        Standardized margin response matching BTAlgo format
     """
     try:
         if not response_data or not isinstance(response_data, dict):

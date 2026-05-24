@@ -147,11 +147,11 @@ LTP is currently below 1450 → trigger sits **above** LTP → use `triggerprice
 
 | Parameters | Description | Mandatory/Optional | Default Value |
 |------------|-------------|--------------------|---------------|
-| apikey | OpenAlgo API key (string) | Mandatory | - |
+| apikey | BTAlgo API key (string) | Mandatory | - |
 | strategy | Strategy identifier (string, used as broker correlation id where supported) | Mandatory | - |
 | trigger_type | `SINGLE` or `OCO` (string) | Mandatory | - |
 | exchange | NSE, BSE, NFO, BFO, CDS, BCD, MCX (string) | Mandatory | - |
-| symbol | Trading symbol in OpenAlgo format (string) | Mandatory | - |
+| symbol | Trading symbol in BTAlgo format (string) | Mandatory | - |
 | action | `BUY` or `SELL` (string). For OCO, applies to both legs. | Mandatory | - |
 | product | `CNC` (equity delivery) or `NRML` (F&O overnight). MIS is **not** supported — GTTs can sit for days. (string) | Mandatory | - |
 | quantity | Order quantity. Integer for equity/F&O; fractional float allowed for crypto (number). | Mandatory | - |
@@ -181,7 +181,7 @@ LTP is currently below 1450 → trigger sits **above** LTP → use `triggerprice
 
 - Numeric fields (`quantity`, `price`, `triggerprice_sl`, `triggerprice_tg`, `stoploss`, `target`) are JSON floats. Empty strings (`""`) for `stoploss`/`target`/`triggerprice_sl`/`triggerprice_tg` are also accepted and coerced to `null`/`0`.
 - **`last_price` is fetched server-side** from the broker's quotes endpoint. You don't need to send it.
-- **MARKET handling**: some brokers' GTT APIs only accept LIMIT child orders. When that's the case, OpenAlgo automatically converts a MARKET request into a Market-Price-Protected LIMIT (a slab-based buffer around LTP for SINGLE, or around each leg's trigger for OCO) so the submitted `pricetype=MARKET` works uniformly across brokers.
+- **MARKET handling**: some brokers' GTT APIs only accept LIMIT child orders. When that's the case, BTAlgo automatically converts a MARKET request into a Market-Price-Protected LIMIT (a slab-based buffer around LTP for SINGLE, or around each leg's trigger for OCO) so the submitted `pricetype=MARKET` works uniformly across brokers.
 - **OCO direction**: stoploss-leg trigger must be **below** target-leg trigger (`triggerprice_sl < triggerprice_tg`). The `action` (BUY or SELL) applies to both legs.
 - **Symbol format**:
   - Equity: `RELIANCE`

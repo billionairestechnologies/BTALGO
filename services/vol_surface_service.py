@@ -67,7 +67,7 @@ def get_vol_surface_data(
         exchange: Exchange for quotes (e.g., "NSE_INDEX")
         expiry_dates: List of expiry dates in DDMMMYY format
         strike_count: Number of strikes above and below ATM
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Tuple of (success, response_data, status_code)

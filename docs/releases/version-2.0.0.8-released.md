@@ -43,7 +43,7 @@ uv run python upgrade/migrate_gtt.py
 
 Adds `sandbox_gtt` and `sandbox_gtt_legs` tables and defaults. Sandbox / analyze-mode GTT execution is Phase 3 — analyze mode currently returns `501` for GTT calls until the in-progress sandbox integration ships.
 
-API docs: <https://docs.openalgo.in/api-documentation/v1/orders-api/placegttorder>
+API docs: <https://docs.billionairestechnologies.com/api-documentation/v1/orders-api/placegttorder>
 
 ***
 
@@ -109,7 +109,7 @@ No behaviour change for ordinary exception flows — call sites still catch `Exc
 v2.0.0.6 introduced an auto-rotation in `utils/env_check.py` that detects the publicly-known sample `APP_KEY` / `API_KEY_PEPPER` (which shipped in `.sample.env` up to v2.0.0.5, and which `install-docker.sh` did not rewrite until commit `0162ce3a5`) and replaces them with fresh secrets on first run. Under Docker, the rotation crashed the gunicorn worker:
 
 ```
-[OpenAlgo security]
+[BTAlgo security]
 Detected publicly-known APP_KEY/API_KEY_PEPPER in .env, but
 could not rewrite the file
 ([Errno 13] Permission denied: '/app/utils/../.env.tmp').
@@ -131,7 +131,7 @@ Fixes shipped:
 **Migration for users who hit the crash on Docker:**
 
 ```bash
-cd /path/to/openalgo
+cd /path/to/btalgo
 docker compose down
 git pull
 docker compose pull
@@ -165,11 +165,11 @@ After applying the APP_KEY-only migration, `_generate_keys_on_first_run` takes t
 
 **Links**
 
-* **Repository**: <https://github.com/marketcalls/openalgo>
-* **Documentation**: <https://docs.openalgo.in>
-* **Discord**: <https://www.openalgo.in/discord>
-* **YouTube**: <https://www.youtube.com/@openalgo>
-* **Issue tracker**: <https://github.com/marketcalls/openalgo/issues>
+* **Repository**: <https://github.com/billionairestechnologies/btalgo>
+* **Documentation**: <https://docs.billionairestechnologies.com>
+* **Discord**: <https://www.billionairestechnologies.com/discord>
+* **YouTube**: <https://www.youtube.com/@BTAlgo>
+* **Issue tracker**: <https://github.com/billionairestechnologies/btalgo/issues>
 
 ***
 
@@ -183,7 +183,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/change-log/release/version-2.0.0.8-released.md?ask=<question>
+GET https://docs.billionairestechnologies.com/change-log/release/version-2.0.0.8-released.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

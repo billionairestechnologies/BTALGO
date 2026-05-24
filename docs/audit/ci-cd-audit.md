@@ -46,7 +46,7 @@
 - name: Trivy vulnerability scan
   uses: aquasecurity/trivy-action@master
   with:
-    image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/openalgo:latest
+    image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/btalgo:latest
 ```
 
 **Problem:** `DOCKERHUB_USERNAME` may be empty on PRs from forks, causing scan to fail silently.
@@ -56,7 +56,7 @@
 - name: Trivy vulnerability scan
   uses: aquasecurity/trivy-action@master
   with:
-    image-ref: openalgo:ci
+    image-ref: btalgo:ci
   if: github.event_name == 'pull_request'
 ```
 

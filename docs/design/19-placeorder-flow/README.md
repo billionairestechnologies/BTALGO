@@ -2,7 +2,7 @@
 
 ## Overview
 
-The PlaceOrder API is the core order execution endpoint in OpenAlgo. It handles order validation, authentication, broker routing, and response processing through multiple layers.
+The PlaceOrder API is the core order execution endpoint in BTAlgo. It handles order validation, authentication, broker routing, and response processing through multiple layers.
 
 ## Complete Flow Diagram
 
@@ -105,7 +105,7 @@ The PlaceOrder API is the core order execution endpoint in OpenAlgo. It handles 
 │  │  broker_module.place_order_api(order_data, auth_token)               │    │
 │  │                                                                      │    │
 │  │  A. Transform Data                                                   │    │
-│  │     OpenAlgo Format → Broker Format                                  │    │
+│  │     BTAlgo Format → Broker Format                                  │    │
 │  │                                                                      │    │
 │  │     Input:                          Output:                          │    │
 │  │     {"symbol": "SBIN",              {"tradingsymbol": "SBIN-EQ",    │    │
@@ -213,7 +213,7 @@ The PlaceOrder API is the core order execution endpoint in OpenAlgo. It handles 
 
 | Field | Type | Description |
 |-------|------|-------------|
-| apikey | string | OpenAlgo API key |
+| apikey | string | BTAlgo API key |
 | strategy | string | Strategy identifier |
 | symbol | string | Trading symbol |
 | exchange | string | Exchange code |
@@ -312,7 +312,7 @@ def place_order_api(data, auth):
 |-------|-----------|----------|
 | Missing field | 400 | `{"status": "error", "message": "Missing mandatory field(s): symbol"}` |
 | Invalid exchange | 400 | `{"status": "error", "message": "Invalid exchange"}` |
-| Invalid API key | 403 | `{"status": "error", "message": "Invalid openalgo apikey"}` |
+| Invalid API key | 403 | `{"status": "error", "message": "Invalid btalgo apikey"}` |
 | Broker not found | 404 | `{"status": "error", "message": "Broker module not found"}` |
 | Broker API error | 500 | `{"status": "error", "message": "Failed to place order"}` |
 | Rate limit | 429 | Rate limiter response |

@@ -80,7 +80,7 @@ def init_db():
     except Exception as e:
         logger.error(
             f"contract_value migration FAILED — master contract insert will fail until "
-            f"the column is added. Run: sqlite3 db/openalgo.db "
+            f"the column is added. Run: sqlite3 db/btalgo.db "
             f"\"ALTER TABLE symtoken ADD COLUMN contract_value REAL DEFAULT 1.0\" | Error: {e}"
         )
 
@@ -178,7 +178,7 @@ def copy_from_dataframe(df):
 
 def _to_canonical_symbol(delta_symbol: str, instrument_type: str, expiry: str) -> str:
     """
-    Convert a Delta Exchange native symbol to the OpenAlgo canonical CRYPTO format.
+    Convert a Delta Exchange native symbol to the BTAlgo canonical CRYPTO format.
 
     Canonical formats (standard Indian F&O-style symbology — no dashes):
         Perpetual future : BTCUSD.P             (delta: BTCUSD  — TradingView .P suffix)
@@ -193,7 +193,7 @@ def _to_canonical_symbol(delta_symbol: str, instrument_type: str, expiry: str) -
                          or "" for perpetuals.
 
     Returns:
-        OpenAlgo canonical symbol string.
+        BTAlgo canonical symbol string.
     """
     # ── Options: C-BTC-80000-280225 + expiry "28-FEB-25" → BTC28FEB2580000CE ─
     if instrument_type in ("CE", "TCE", "SYNCE", "PE", "TPE", "SYNPE"):
@@ -252,7 +252,7 @@ def _to_canonical_symbol(delta_symbol: str, instrument_type: str, expiry: str) -
     return delta_symbol
 
 
-# Maps Delta Exchange contract_type values to OpenAlgo instrument type codes
+# Maps Delta Exchange contract_type values to BTAlgo instrument type codes
 CONTRACT_TYPE_MAP = {
     "perpetual_futures": "PERPFUT",
     "futures": "FUT",
@@ -381,14 +381,14 @@ def fetch_delta_products():
 def process_delta_products(products):
     """
     Convert a list of Delta Exchange product dicts to a DataFrame matching the
-    OpenAlgo SymToken schema.  Only live + operational products are included.
+    BTAlgo SymToken schema.  Only live + operational products are included.
 
     Field mapping (from GET /v2/products response):
         token          ← id                    (int → str)
         brsymbol       ← symbol                (Delta-native, e.g. "C-BTC-80000-280225")
-        symbol         ← canonical             (OpenAlgo format, e.g. "BTC28FEB2580000CE")
+        symbol         ← canonical             (BTAlgo format, e.g. "BTC28FEB2580000CE")
         name           ← description
-        exchange       ← "CRYPTO"              (OpenAlgo exchange abstraction)
+        exchange       ← "CRYPTO"              (BTAlgo exchange abstraction)
         brexchange     ← "DELTAIN"             (broker identifier — Delta Exchange India)
         expiry         ← settlement_time       (None → "" for perpetuals;
                                                 ISO string → "DD-MON-YY" for futures/options)
@@ -469,16 +469,16 @@ def process_delta_products(products):
         except (ValueError, TypeError):
             lotsize = 1.0
 
-        # Build OpenAlgo canonical symbol (exchange = CRYPTO, broker-agnostic format)
+        # Build BTAlgo canonical symbol (exchange = CRYPTO, broker-agnostic format)
         canonical_symbol = _to_canonical_symbol(symbol_str, instrument_type, expiry)
 
         rows.append(
             {
                 "token": str(p["id"]),
-                "symbol": canonical_symbol,   # OpenAlgo canonical (e.g. BTC28FEB2580000CE)
+                "symbol": canonical_symbol,   # BTAlgo canonical (e.g. BTC28FEB2580000CE)
                 "brsymbol": symbol_str,        # Delta-native (e.g. C-BTC-80000-280225)
                 "name": p.get("description", symbol_str),
-                "exchange": "CRYPTO",          # OpenAlgo exchange abstraction
+                "exchange": "CRYPTO",          # BTAlgo exchange abstraction
                 "brexchange": "DELTAIN",       # Broker identifier (Delta Exchange India)
                 "expiry": expiry,
                 "strike": strike_val,

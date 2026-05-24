@@ -1,5 +1,5 @@
 # api/funds.py
-# Delta Exchange wallet balance → OpenAlgo margin format
+# Delta Exchange wallet balance → BTAlgo margin format
 # Endpoints:
 #   GET /v2/wallet/balances      → available cash, blocked margin
 #   GET /v2/positions/margined   → realized + unrealized PnL per position
@@ -78,7 +78,7 @@ def _get_positions_pnl(api_key, api_secret):
 
 def get_margin_data(auth_token):
     """
-    Fetch wallet balance from Delta Exchange and return it in OpenAlgo margin format.
+    Fetch wallet balance from Delta Exchange and return it in BTAlgo margin format.
 
     Endpoint: GET /v2/wallet/balances
     Authentication: HMAC-SHA256 signed headers (api-key + timestamp + signature)
@@ -91,16 +91,16 @@ def get_margin_data(auth_token):
         m2mrealized    ← sum of realized_pnl across all open positions
         m2munrealized  ← sum of unrealized_pnl across all open positions
 
-    OpenAlgo field mapping:
+    BTAlgo field mapping:
         availablecash  ← sum of balance_inr across all wallets (spot + FNO combined in INR)
         collateral     ← sum of cross_locked_collateral across all wallets
         utiliseddebits ← blocked_margin
 
     Args:
-        auth_token (str): api_key stored in OpenAlgo auth DB after login.
+        auth_token (str): api_key stored in BTAlgo auth DB after login.
 
     Returns:
-        dict: OpenAlgo standard margin dict, or DEFAULT_MARGIN_RESPONSE on failure.
+        dict: BTAlgo standard margin dict, or DEFAULT_MARGIN_RESPONSE on failure.
     """
     api_key = auth_token
     api_secret = os.getenv("BROKER_API_SECRET", "")

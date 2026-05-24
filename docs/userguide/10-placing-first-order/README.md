@@ -2,12 +2,12 @@
 
 ## Introduction
 
-This is the exciting part - placing your first order through OpenAlgo! We'll start with the Analyzer (sandbox testing) mode to practice safely, then show you how to go live.
+This is the exciting part - placing your first order through BTAlgo! We'll start with the Analyzer (sandbox testing) mode to practice safely, then show you how to go live.
 
 ## Before You Begin
 
 Ensure you have:
-- [ ] OpenAlgo running
+- [ ] BTAlgo running
 - [ ] Logged into your broker
 - [ ] API key generated
 - [ ] Understand order types (review [Module 02](../02-key-concepts/README.md) if needed)
@@ -112,7 +112,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/placeorder \
 ```python
 from openalgo import api
 
-# Connect to OpenAlgo
+# Connect to BTAlgo
 client = api(
     api_key="YOUR_API_KEY",
     host="http://127.0.0.1:5000"
@@ -175,7 +175,7 @@ Common error messages:
 │  1. You submit order                                                        │
 │         │                                                                    │
 │         ▼                                                                    │
-│  2. OpenAlgo validates                                                      │
+│  2. BTAlgo validates                                                      │
 │         │                                                                    │
 │         ├──→ Invalid? Return error                                          │
 │         │                                                                    │

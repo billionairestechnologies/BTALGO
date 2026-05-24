@@ -132,7 +132,7 @@ def get_depth(
     Args:
         symbol: Trading symbol
         exchange: Exchange (e.g., NSE, BSE)
-        api_key: OpenAlgo API key (for API-based calls)
+        api_key: BTAlgo API key (for API-based calls)
         auth_token: Direct broker authentication token (for internal calls)
         feed_token: Direct broker feed token (for internal calls)
         broker: Direct broker name (for internal calls)
@@ -150,7 +150,7 @@ def get_depth(
         if len(auth_info) == 3:
             AUTH_TOKEN, FEED_TOKEN, broker_name = auth_info
         else:
-            return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
 
         # Get user_id from auth database
         extracted_user_id = None

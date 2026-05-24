@@ -224,7 +224,7 @@ def test_file_modifications():
 
 def main():
     """Run all tests"""
-    print("\nOpenAlgo Rate Limit Tests (Simple)")
+    print("\nBTAlgo Rate Limit Tests (Simple)")
     print("=" * 70)
     print(f"Test Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 70)

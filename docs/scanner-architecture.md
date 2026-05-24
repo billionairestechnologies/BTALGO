@@ -1,10 +1,10 @@
-# OpenAlgo Real-Time Scanner Service — Architecture & Implementation Guide
+# BTAlgo Real-Time Scanner Service — Architecture & Implementation Guide
 
 ## Overview
 
 A standalone, external scanner service that monitors 500+ symbols in real-time on any timeframe, running multiple independent scanners (RSI, EMA crossover, volume spike, custom conditions) without hitting broker API rate limits.
 
-The service builds candles from OpenAlgo's live WebSocket tick stream, bootstraps indicator state from Historify (DuckDB) at startup, and distributes candle events to multiple scanner processes via Redis Streams.
+The service builds candles from BTAlgo's live WebSocket tick stream, bootstraps indicator state from Historify (DuckDB) at startup, and distributes candle events to multiple scanner processes via Redis Streams.
 
 ---
 
@@ -28,7 +28,7 @@ Most Indian brokers restrict historical data API calls to 1-10 requests per seco
 │                         PRE-MARKET BOOTSTRAP                        │
 │                                                                     │
 │  Historify (DuckDB) — stores 1m candle history for all symbols      │
-│  └── OpenAlgo API: GET /history (source="Db", interval="1m")        │
+│  └── BTAlgo API: GET /history (source="Db", interval="1m")        │
 │      └── Fetch last N 1-minute candles per symbol                   │
 │      └── Local database — zero rate limits, completes in seconds    │
 │      └── Seeds indicator state so scanners are ready at 9:15 AM     │
@@ -38,7 +38,7 @@ Most Indian brokers restrict historical data API calls to 1-10 requests per seco
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         REAL-TIME TICK LAYER                        │
 │                                                                     │
-│  OpenAlgo WebSocket Proxy (port 8765)                               │
+│  BTAlgo WebSocket Proxy (port 8765)                               │
 │  └── Authenticate with API key                                     │
 │  └── Subscribe to 500+ symbols in LTP or Quote mode                │
 │  └── Receive ~500-2000 ticks/second                                │
@@ -90,7 +90,7 @@ Most Indian brokers restrict historical data API calls to 1-10 requests per seco
                     │  Redis Stream: alerts          │
                     │  └── Dashboard WebSocket       │
                     │  └── Webhook notifications     │
-                    │  └── OpenAlgo PlaceOrder API   │
+                    │  └── BTAlgo PlaceOrder API   │
                     │  └── Telegram / Discord bot    │
                     └──────────────────────────────┘
                                     │
@@ -100,7 +100,7 @@ Most Indian brokers restrict historical data API calls to 1-10 requests per seco
                     │                               │
                     │  Write all 1m candles built    │
                     │  today back to Historify       │
-                    │  (via OpenAlgo API or direct   │
+                    │  (via BTAlgo API or direct   │
                     │   DuckDB write)                │
                     │                               │
                     │  Next morning's bootstrap      │
@@ -114,13 +114,13 @@ Most Indian brokers restrict historical data API calls to 1-10 requests per seco
 
 ### 1. Tick Receiver
 
-**Purpose:** Single point of connection to OpenAlgo WebSocket. Receives all ticks and publishes to Redis for downstream consumption.
+**Purpose:** Single point of connection to BTAlgo WebSocket. Receives all ticks and publishes to Redis for downstream consumption.
 
 **Why a separate process:** Isolates the WebSocket connection from processing logic. If a scanner crashes or the candle builder stalls, the tick receiver keeps running and buffering into Redis. No ticks are lost.
 
 **Connection details:**
 - WebSocket URL: `ws://127.0.0.1:8765`
-- Authentication: `{"action": "authenticate", "apikey": "<OPENALGO_API_KEY>"}`
+- Authentication: `{"action": "authenticate", "apikey": "<BTALGO_API_KEY>"}`
 - Subscribe: `{"action": "subscribe", "symbols": [{"symbol": "RELIANCE", "exchange": "NSE"}, ...], "mode": "LTP"}`
 - Incoming message format: `{"type": "market_data", "symbol": "RELIANCE", "exchange": "NSE", "mode": 1, "data": {"ltp": 2543.50, "volume": 1000000, ...}}`
 
@@ -137,7 +137,7 @@ Entry: {
 ```
 
 **Subscription strategy:**
-- OpenAlgo supports up to 3000 symbols via connection pooling (3 connections x 1000 symbols each)
+- BTAlgo supports up to 3000 symbols via connection pooling (3 connections x 1000 symbols each)
 - Subscribe in batches of 50-100 symbols to avoid overwhelming the initial connection
 - Use LTP mode for most scanners (lowest bandwidth). Use Quote mode only if scanners need bid/ask/open/high/low/close fields
 
@@ -333,7 +333,7 @@ Entry: {
 
 **Purpose:** Seed indicator state at startup so scanners produce valid signals from the first candle of the trading day. Without bootstrap, RSI(14) would be blind for the first 14 minutes.
 
-**Data source:** Historify (DuckDB) via OpenAlgo REST API with `source="Db"`.
+**Data source:** Historify (DuckDB) via BTAlgo REST API with `source="Db"`.
 
 **Why 1-minute data (not daily):**
 - 1-minute is the lowest granularity stored in Historify
@@ -422,7 +422,7 @@ DuckDB compressed = ~1-1.5 GB/year
 
 **Write strategy:**
 - Batch insert all candles in one transaction per symbol
-- Use OpenAlgo's Historify write API if available
+- Use BTAlgo's Historify write API if available
 - Alternatively, write directly to DuckDB file if the scanner runs on the same machine
 
 **Validation before write:**
@@ -448,9 +448,9 @@ DuckDB compressed = ~1-1.5 GB/year
 - Use for Telegram bots, Discord bots, custom notification systems
 - Include rate limiting to prevent alert spam (e.g., max 1 alert per symbol per 5 minutes)
 
-**OpenAlgo Order API:**
+**BTAlgo Order API:**
 - For automated execution based on scan results
-- Route through OpenAlgo's PlaceSmartOrder API
+- Route through BTAlgo's PlaceSmartOrder API
 - Requires additional risk checks before placing orders:
   - Maximum position size
   - Maximum number of open positions
@@ -533,8 +533,8 @@ Total: 6 lightweight Python processes. Each uses ~20-50 MB RAM.
 
 ```
 1. Redis server (must be running first)
-2. OpenAlgo application (WebSocket proxy must be available)
-3. tick_receiver (connects to OpenAlgo WebSocket, starts publishing ticks)
+2. BTAlgo application (WebSocket proxy must be available)
+3. tick_receiver (connects to BTAlgo WebSocket, starts publishing ticks)
 4. candle_builder (starts consuming ticks, building candles)
 5. scanners (bootstrap from Historify, then consume candles)
 6. results_aggregator (starts consuming alerts)
@@ -571,8 +571,8 @@ The results aggregator (or a separate monitor) checks these keys and alerts if a
 ### Main Config File: `scanner_config.yaml`
 
 ```yaml
-# OpenAlgo connection
-openalgo:
+# BTAlgo connection
+btalgo:
   host: "http://127.0.0.1:5000"
   websocket: "ws://127.0.0.1:8765"
   api_key: "your_api_key_here"
@@ -679,14 +679,14 @@ scanners:
 ```
 08:45  Scanner service starts
        └── Redis health check
-       └── OpenAlgo connectivity check
+       └── BTAlgo connectivity check
 
 08:50  Bootstrap phase
        └── Fetch 1m candle history from Historify for all 500 symbols
        └── Initialize indicator state for all scanners
        └── Total time: 1-3 seconds
 
-08:55  Tick receiver connects to OpenAlgo WebSocket
+08:55  Tick receiver connects to BTAlgo WebSocket
        └── Authenticate
        └── Subscribe to 500 symbols in batches
        └── Ready to receive ticks
@@ -746,7 +746,7 @@ The bottleneck is broker WebSocket latency, not the scanner pipeline.
 If WebSocket disconnects:
     1. Log disconnect reason
     2. Wait 1 second
-    3. Reconnect to OpenAlgo WebSocket
+    3. Reconnect to BTAlgo WebSocket
     4. Re-authenticate
     5. Re-subscribe to all symbols
     6. Resume publishing ticks to Redis
@@ -806,7 +806,7 @@ Redis: Single instance, < 100 MB memory
 
 ```
 Same architecture, just more symbols:
-- OpenAlgo WebSocket supports 3000 symbols (connection pooling)
+- BTAlgo WebSocket supports 3000 symbols (connection pooling)
 - Candle builder memory: 2000 x 200 candles x 100 bytes = ~40 MB
 - Scanner memory: ~40 MB per scanner
 - Redis throughput: ~8000 ticks/second — well within limits
@@ -869,7 +869,7 @@ scanner-service/
 │
 ├── utils/
 │   ├── redis_client.py              # Redis connection and stream helpers
-│   ├── openalgo_client.py           # OpenAlgo API wrapper
+│   ├── btalgo_client.py           # BTAlgo API wrapper
 │   ├── timeframe.py                 # Candle time bucket utilities
 │   └── logger.py                    # Structured logging
 │
@@ -885,7 +885,7 @@ scanner-service/
 
 ```
 # requirements.txt
-openalgo                    # OpenAlgo SDK — API and WebSocket
+btalgo                    # BTAlgo SDK — API and WebSocket
 redis>=5.0                  # Redis Streams support
 websockets>=12.0            # Async WebSocket client
 pyyaml                      # Configuration parsing

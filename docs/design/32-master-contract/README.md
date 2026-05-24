@@ -2,7 +2,7 @@
 
 ## Overview
 
-Master contracts contain symbol mappings between OpenAlgo's standardized format and broker-specific formats. They are downloaded daily and cached for fast symbol resolution.
+Master contracts contain symbol mappings between BTAlgo's standardized format and broker-specific formats. They are downloaded daily and cached for fast symbol resolution.
 
 ## Architecture Diagram
 
@@ -37,7 +37,7 @@ Master contracts contain symbol mappings between OpenAlgo's standardized format 
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │  1. Fetch from broker API or static URL                              │   │
 │  │  2. Parse CSV/JSON format                                            │   │
-│  │  3. Transform to OpenAlgo format                                     │   │
+│  │  3. Transform to BTAlgo format                                     │   │
 │  │  4. Store in symtoken table                                          │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -115,7 +115,7 @@ def download_master_contract():
 │ Column       │ Type         │ Description                      │
 ├──────────────┼──────────────┼──────────────────────────────────┤
 │ id           │ INTEGER PK   │ Auto-increment                   │
-│ symbol       │ VARCHAR      │ OpenAlgo symbol format           │
+│ symbol       │ VARCHAR      │ BTAlgo symbol format           │
 │ brsymbol     │ VARCHAR      │ Broker-specific symbol           │
 │ exchange     │ VARCHAR      │ Exchange code                    │
 │ token        │ VARCHAR      │ Broker instrument token          │
@@ -130,7 +130,7 @@ def download_master_contract():
 
 ## Symbol Mapping
 
-### OpenAlgo to Broker
+### BTAlgo to Broker
 
 ```python
 from database.token_db import get_br_symbol

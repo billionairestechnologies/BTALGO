@@ -23,8 +23,8 @@ def test_order_execution():
     print("PENDING ORDERS IN ACTION CENTER")
     print("=" * 80)
 
-    # Note: Replace 'openalgo' with your actual user_id
-    user_id = "openalgo"
+    # Note: Replace 'btalgo' with your actual user_id
+    user_id = "btalgo"
 
     orders = get_pending_orders(user_id, status="pending")
 

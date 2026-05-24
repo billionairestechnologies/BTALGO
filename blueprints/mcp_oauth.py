@@ -210,7 +210,7 @@ def discovery_authorization_server():
                 "client_secret_post",
                 "none",  # public clients (PKCE-only)
             ],
-            "service_documentation": "https://docs.openalgo.in/remote-mcp",
+            "service_documentation": "https://docs.billionairestechnologies.com/remote-mcp",
         }
     )
 
@@ -223,7 +223,7 @@ def _build_protected_resource_metadata():
             "authorization_servers": [base],
             "bearer_methods_supported": ["header"],
             "scopes_supported": _supported_scopes(),
-            "resource_documentation": "https://docs.openalgo.in/remote-mcp",
+            "resource_documentation": "https://docs.billionairestechnologies.com/remote-mcp",
         }
     )
 
@@ -233,7 +233,7 @@ def discovery_protected_resource():
     """RFC 9728 — protected-resource metadata at the host root.
 
     Tells a client where to find the authorization server when it sees
-    a 401 from /mcp. We point back at the same host since OpenAlgo is
+    a 401 from /mcp. We point back at the same host since BTAlgo is
     both AS and RS for this deployment.
     """
     return _build_protected_resource_metadata()
@@ -488,7 +488,7 @@ _CONSENT_TEMPLATE = """\
     third-party origin via Referer.
   -->
   <meta name="referrer" content="same-origin">
-  <title>Authorize {{ client_name }} — OpenAlgo</title>
+  <title>Authorize {{ client_name }} — BTAlgo</title>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; background: #f9fafb;
            color: #111827; margin: 0; padding: 0; min-height: 100vh; display: flex;
@@ -551,7 +551,7 @@ _CONSENT_TEMPLATE = """\
 <body>
   <div class="card">
     <h1>Authorize {{ client_name }}</h1>
-    <p>This MCP client is requesting access to your OpenAlgo install.</p>
+    <p>This MCP client is requesting access to your BTAlgo install.</p>
 
     <div class="scopes-label">Scopes requested:</div>
     <ul class="scopes">

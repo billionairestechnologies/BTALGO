@@ -227,7 +227,7 @@ class BrokerData:
 
             quote_data = fetched[0]
 
-            # Return in OpenAlgo standard format
+            # Return in BTAlgo standard format
             return {
                 "bid": 0,  # Not provided in OHLC mode
                 "ask": 0,  # Not provided in OHLC mode
@@ -703,7 +703,7 @@ class BrokerData:
             # Add OI column (0 for now, can be enhanced later for F&O)
             df["oi"] = 0
 
-            # Reorder columns to match OpenAlgo format
+            # Reorder columns to match BTAlgo format
             df = df[["close", "high", "low", "open", "timestamp", "volume", "oi"]]
 
             return df
@@ -718,7 +718,7 @@ class BrokerData:
         """
         Get intraday data for current day using mstock intraday endpoint
         Args:
-            symbol: Trading symbol (OpenAlgo format)
+            symbol: Trading symbol (BTAlgo format)
             br_symbol: Broker symbol
             exchange: Exchange
             interval: Candle interval
@@ -829,7 +829,7 @@ class BrokerData:
             # Add OI column
             df["oi"] = 0
 
-            # Reorder columns to match OpenAlgo format
+            # Reorder columns to match BTAlgo format
             df = df[["close", "high", "low", "open", "timestamp", "volume", "oi"]]
 
             return df
@@ -883,7 +883,7 @@ class BrokerData:
                 else:
                     asks.append({"price": 0, "quantity": 0})
 
-            # Return depth data in OpenAlgo standard format
+            # Return depth data in BTAlgo standard format
             return {
                 "bids": bids,
                 "asks": asks,

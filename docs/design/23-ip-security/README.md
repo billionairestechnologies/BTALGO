@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo implements IP-based security measures to protect against brute-force attacks, bot abuse, and unauthorized access through automatic detection and banning mechanisms.
+BTAlgo implements IP-based security measures to protect against brute-force attacks, bot abuse, and unauthorized access through automatic detection and banning mechanisms.
 
 ## Architecture Diagram
 

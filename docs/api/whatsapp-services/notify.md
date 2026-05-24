@@ -35,7 +35,7 @@ Custom Domain:  POST https://<your-custom-domain>/api/v1/whatsapp/notify
 }
 ```
 
-### Send to a linked OpenAlgo user
+### Send to a linked BTAlgo user
 
 ```json
 {
@@ -66,7 +66,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/whatsapp/notify \
   -d '{
     "apikey": "<your_app_apikey>",
     "self": true,
-    "message": "Alert from OpenAlgo"
+    "message": "Alert from BTAlgo"
   }'
 ```
 
@@ -100,9 +100,9 @@ curl -X POST http://127.0.0.1:5000/api/v1/whatsapp/notify \
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `apikey` | string | OpenAlgo API key. **Mandatory.** |
+| `apikey` | string | BTAlgo API key. **Mandatory.** |
 | `self` | boolean | If `true`, send to the paired device's own number. |
-| `username` | string | OpenAlgo username — resolves through the linked-users table. |
+| `username` | string | BTAlgo username — resolves through the linked-users table. |
 | `phone` | string | Single E.164 digit string (e.g. `919876543210`). |
 | `phones` | array of strings | Up to 5 E.164 digit strings (small broadcast). Anything beyond 5 is dropped. |
 | `message` | string | Text body. Optional if `image_path` or `document_path` is set. Max 4096 chars. |
@@ -139,12 +139,12 @@ Exactly one recipient form is required: `self`, `username`, `phone`, or
   disconnect lives on the `/whatsapp` admin web UI; this REST namespace
   intentionally does not expose those controls. If the bot is paused, the
   message is queued in `whatsapp_notification_queue` for a later retry.
-- Image / document paths are read from the OpenAlgo server's filesystem,
+- Image / document paths are read from the BTAlgo server's filesystem,
   not uploaded by the API call. Place files in a server-readable location
   first.
 - **Attachment path allowlist.** For security, only paths inside the
   directories listed in the `WHATSAPP_ATTACHMENT_ROOTS` env var are
-  accepted. The default (when unset) is `<openalgo>/db/attachments/` only.
+  accepted. The default (when unset) is `<btalgo>/db/attachments/` only.
   Anything outside the allowlist returns `400 image_path is not allowed`.
   Set `WHATSAPP_ATTACHMENT_ROOTS` to a comma-separated list of absolute
   directories to expand it. Paths containing `..`, paths under sensitive

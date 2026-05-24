@@ -189,7 +189,7 @@ def construct_option_symbol(
     base_symbol: str, expiry_date: str, strike: float, option_type: str
 ) -> str:
     """
-    Construct option symbol in OpenAlgo format.
+    Construct option symbol in BTAlgo format.
 
     Format: [Base Symbol][Expiry Date][Strike Price][Option Type]
 
@@ -221,7 +221,7 @@ def construct_crypto_option_symbol(
     base_symbol: str, expiry_date: str, strike: float, option_type: str
 ) -> str:
     """
-    Construct crypto option symbol in OpenAlgo canonical format.
+    Construct crypto option symbol in BTAlgo canonical format.
 
     Format is aligned with standard option symbols:
     [Base Symbol][Expiry Date][Strike Price][Option Type]
@@ -546,7 +546,7 @@ def get_option_symbol(
         strike_int: Strike interval (e.g., 50 for NIFTY). Optional - if not provided, will use actual strikes from database
         offset: Offset from ATM (e.g., "ATM", "ITM1", "OTM2")
         option_type: Option type ("CE" or "PE")
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
         underlying_ltp: Optional pre-fetched LTP to avoid redundant quote requests
 
     Returns:

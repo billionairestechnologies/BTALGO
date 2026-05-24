@@ -79,7 +79,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/timings \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|-------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 | date | Date in YYYY-MM-DD format | Mandatory | - |
 
 ## Response Fields

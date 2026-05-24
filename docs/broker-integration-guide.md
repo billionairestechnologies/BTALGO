@@ -1,6 +1,6 @@
 # New Broker Integration Guide
 
-This guide walks through every step required to add a new broker to OpenAlgo. It covers the directory structure, authentication patterns, order/data APIs, symbol mapping, WebSocket streaming, master contract database, rate limiting, and all registration points across the codebase.
+This guide walks through every step required to add a new broker to BTAlgo. It covers the directory structure, authentication patterns, order/data APIs, symbol mapping, WebSocket streaming, master contract database, rate limiting, and all registration points across the codebase.
 
 ---
 
@@ -61,7 +61,7 @@ broker/
     │   ├── data.py                    # Quotes, depth, historical data (required)
     │   └── funds.py                   # Account balance and margins (required)
     ├── mapping/
-    │   ├── transform_data.py          # OpenAlgo ↔ broker format mapping (required)
+    │   ├── transform_data.py          # BTAlgo ↔ broker format mapping (required)
     │   ├── order_data.py              # Order response mapping (required)
     │   └── margin_data.py             # Margin calculation data (optional)
     ├── database/
@@ -84,11 +84,11 @@ Create `broker/your_broker/plugin.json`:
 ```json
 {
     "Plugin Name": "your_broker",
-    "Plugin URI": "https://openalgo.in",
-    "Description": "YourBroker OpenAlgo Plugin",
+    "Plugin URI": "https://billionairestechnologies.com",
+    "Description": "YourBroker BTAlgo Plugin",
     "Version": "1.0",
     "Author": "Your Name",
-    "Author URI": "https://openalgo.in"
+    "Author URI": "https://billionairestechnologies.com"
 }
 ```
 
@@ -479,7 +479,7 @@ def get_margin_data(auth):
 
 ### transform_data.py
 
-This is the critical translation layer between OpenAlgo's unified format and the broker's API format.
+This is the critical translation layer between BTAlgo's unified format and the broker's API format.
 
 ```python
 # broker/your_broker/mapping/transform_data.py
@@ -488,9 +488,9 @@ from database.token_db import get_br_symbol
 
 def transform_data(data):
     """
-    Transform OpenAlgo order request to broker-specific format.
+    Transform BTAlgo order request to broker-specific format.
 
-    Input (OpenAlgo format):
+    Input (BTAlgo format):
         {
             "symbol": "SBIN",
             "exchange": "NSE",
@@ -525,28 +525,28 @@ def transform_modify_order_data(data):
     """Transform modify order request to broker format."""
 
 def map_order_type(pricetype):
-    """Map OpenAlgo price type to broker price type."""
+    """Map BTAlgo price type to broker price type."""
     mapping = {"MARKET": "MARKET", "LIMIT": "LIMIT", "SL": "SL", "SL-M": "SL-M"}
     return mapping.get(pricetype, "MARKET")
 
 def map_product_type(product):
-    """Map OpenAlgo product type to broker product type."""
+    """Map BTAlgo product type to broker product type."""
     mapping = {"CNC": "CNC", "NRML": "NRML", "MIS": "MIS"}
     return mapping.get(product, "MIS")
 
 def reverse_map_product_type(exchange, product):
-    """Reverse map broker product type to OpenAlgo product type."""
+    """Reverse map broker product type to BTAlgo product type."""
     mapping = {"CNC": "CNC", "NRML": "NRML", "MIS": "MIS"}
     return mapping.get(product)
 ```
 
 ### order_data.py
 
-Maps broker order response fields to OpenAlgo's standardized format:
+Maps broker order response fields to BTAlgo's standardized format:
 
 ```python
 def map_order_data(order):
-    """Map broker order data to OpenAlgo format."""
+    """Map broker order data to BTAlgo format."""
     return {
         "orderid": order.get("order_id"),
         "symbol": order.get("tradingsymbol"),
@@ -565,7 +565,7 @@ def map_order_data(order):
 
 Create `broker/your_broker/database/master_contract_db.py`.
 
-This module downloads the broker's instrument/symbol master file and populates the `symtoken` table, which maps OpenAlgo symbols to broker-specific symbols.
+This module downloads the broker's instrument/symbol master file and populates the `symtoken` table, which maps BTAlgo symbols to broker-specific symbols.
 
 ```python
 import os
@@ -623,7 +623,7 @@ def master_contract_download():
     This function:
     1. Downloads the instrument list from the broker API
     2. Transforms it to match the SymToken schema
-    3. Maps broker-specific symbols to OpenAlgo's standardized format
+    3. Maps broker-specific symbols to BTAlgo's standardized format
     4. Bulk inserts into the database
     5. Emits a SocketIO event when complete
 
@@ -659,10 +659,10 @@ def master_contract_download():
 
 | SymToken Column | Description | Example |
 |----------------|-------------|---------|
-| `symbol` | OpenAlgo standardized symbol | `SBIN-EQ`, `NIFTY24JAN24000CE` |
+| `symbol` | BTAlgo standardized symbol | `SBIN-EQ`, `NIFTY24JAN24000CE` |
 | `brsymbol` | Broker's native symbol | `SBIN`, `NIFTY24JAN24000CE` |
 | `name` | Human-readable name | `State Bank of India` |
-| `exchange` | OpenAlgo exchange | `NSE`, `NFO`, `BSE`, `BFO`, `CDS`, `MCX` |
+| `exchange` | BTAlgo exchange | `NSE`, `NFO`, `BSE`, `BFO`, `CDS`, `MCX` |
 | `brexchange` | Broker's exchange code | Varies per broker |
 | `token` | Broker's instrument token | `779` |
 | `expiry` | Expiry date (derivatives) | `2024-01-25` |
@@ -939,7 +939,7 @@ class YourBrokerWebSocket:
 
 def map_feed_data(raw_data):
     """
-    Normalize broker-specific tick data to OpenAlgo's unified format.
+    Normalize broker-specific tick data to BTAlgo's unified format.
 
     Returns:
         dict: {
@@ -1160,7 +1160,7 @@ The route `/broker/your_broker/totp` must be handled by the React router.
 
 ## 13. Authentication Patterns Reference
 
-OpenAlgo supports five distinct authentication patterns:
+BTAlgo supports five distinct authentication patterns:
 
 ### Pattern A: OAuth2 Redirect Flow
 

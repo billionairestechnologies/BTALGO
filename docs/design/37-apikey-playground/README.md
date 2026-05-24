@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo provides a secure API key management system and an interactive API Playground for testing REST API and WebSocket endpoints. API keys are hashed using Argon2 with pepper for storage and encrypted using Fernet for retrieval.
+BTAlgo provides a secure API key management system and an interactive API Playground for testing REST API and WebSocket endpoints. API keys are hashed using Argon2 with pepper for storage and encrypted using Fernet for retrieval.
 
 ## Architecture Diagram
 

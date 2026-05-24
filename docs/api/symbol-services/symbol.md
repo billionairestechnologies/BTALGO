@@ -91,8 +91,8 @@ curl -X POST http://127.0.0.1:5000/api/v1/symbol \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|-------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
-| symbol | Trading symbol in OpenAlgo format | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
+| symbol | Trading symbol in BTAlgo format | Mandatory | - |
 | exchange | Exchange code: NSE, BSE, NFO, BFO, CDS, BCD, MCX | Mandatory | - |
 
 ## Response Fields
@@ -108,9 +108,9 @@ curl -X POST http://127.0.0.1:5000/api/v1/symbol \
 |-------|------|-------------|
 | id | number | Internal symbol ID |
 | name | string | Symbol name/underlying |
-| symbol | string | OpenAlgo standard symbol |
+| symbol | string | BTAlgo standard symbol |
 | brsymbol | string | Broker-specific symbol |
-| exchange | string | OpenAlgo exchange code |
+| exchange | string | BTAlgo exchange code |
 | brexchange | string | Broker-specific exchange code |
 | instrumenttype | string | Instrument type (EQ, FUT, CE, PE) |
 | expiry | string | Expiry date for F&O (DD-MMM-YY) |

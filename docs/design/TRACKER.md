@@ -1,4 +1,4 @@
-# OpenAlgo Developer Documentation Tracker
+# BTAlgo Developer Documentation Tracker
 
 ## Progress Overview
 

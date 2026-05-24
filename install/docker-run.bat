@@ -1,14 +1,14 @@
 @echo off
 REM ============================================================================
-REM OpenAlgo Docker Runner for Windows
+REM BTAlgo Docker Runner for Windows
 REM ============================================================================
 REM
 REM Quick Start (2 commands):
-REM   1. Download: curl.exe -O https://raw.githubusercontent.com/marketcalls/openalgo/main/install/docker-run.bat
+REM   1. Download: curl.exe -O https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/docker-run.bat
 REM   2. Run:      docker-run.bat
 REM
 REM Commands:
-REM   start    - Start OpenAlgo container (default, runs setup if needed)
+REM   start    - Start BTAlgo container (default, runs setup if needed)
 REM   stop     - Stop and remove container
 REM   restart  - Restart container
 REM   logs     - View container logs (live)
@@ -26,14 +26,14 @@ REM ============================================================================
 setlocal enabledelayedexpansion
 
 REM Configuration
-set IMAGE=marketcalls/openalgo:latest
-set CONTAINER=openalgo
+set IMAGE=marketcalls/btalgo:latest
+set CONTAINER=btalgo
 set ENV_FILE=.env
-set SAMPLE_ENV_URL=https://raw.githubusercontent.com/marketcalls/openalgo/main/.sample.env
+set SAMPLE_ENV_URL=https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/.sample.env
 REM Use the directory where the script is located
-set OPENALGO_DIR=%~dp0
+set BTALGO_DIR=%~dp0
 REM Remove trailing backslash
-if "%OPENALGO_DIR:~-1%"=="\" set OPENALGO_DIR=%OPENALGO_DIR:~0,-1%
+if "%BTALGO_DIR:~-1%"=="\" set BTALGO_DIR=%BTALGO_DIR:~0,-1%
 set SETUP_FAILED=0
 
 REM XTS Brokers that require market data credentials
@@ -45,7 +45,7 @@ set VALID_BROKERS=fivepaisa,fivepaisaxts,aliceblue,angel,compositedge,definedge,
 REM Banner
 echo.
 echo   ========================================
-echo        OpenAlgo Docker Runner
+echo        BTAlgo Docker Runner
 echo        Windows Desktop Edition
 echo   ========================================
 echo.
@@ -81,13 +81,13 @@ if /i "%CMD%"=="help" goto help
 goto help
 
 :setup
-echo [INFO] Setting up OpenAlgo in %OPENALGO_DIR%...
+echo [INFO] Setting up BTAlgo in %BTALGO_DIR%...
 echo.
 
 REM Create db directory
-if not exist "%OPENALGO_DIR%\db\" (
+if not exist "%BTALGO_DIR%\db\" (
     echo [INFO] Creating database directory...
-    md "%OPENALGO_DIR%\db" 2>nul
+    md "%BTALGO_DIR%\db" 2>nul
     if errorlevel 1 (
         echo [ERROR] Failed to create database directory
         set SETUP_FAILED=1
@@ -96,8 +96,8 @@ if not exist "%OPENALGO_DIR%\db\" (
 )
 
 REM Check if .env already exists
-if exist "%OPENALGO_DIR%\%ENV_FILE%" (
-    echo [WARNING] .env file already exists at %OPENALGO_DIR%\%ENV_FILE%
+if exist "%BTALGO_DIR%\%ENV_FILE%" (
+    echo [WARNING] .env file already exists at %BTALGO_DIR%\%ENV_FILE%
     set /p OVERWRITE="Do you want to overwrite it? (y/n): "
     if /i not "!OVERWRITE!"=="y" (
         echo [INFO] Setup cancelled. Using existing .env file.
@@ -112,19 +112,19 @@ REM Try curl.exe first (Windows 10/11 has this)
 where curl.exe >nul 2>&1
 if errorlevel 1 (
     echo [INFO] curl.exe not found, trying PowerShell...
-    powershell -Command "Invoke-WebRequest -Uri '%SAMPLE_ENV_URL%' -OutFile '%OPENALGO_DIR%\%ENV_FILE%'" 2>nul
+    powershell -Command "Invoke-WebRequest -Uri '%SAMPLE_ENV_URL%' -OutFile '%BTALGO_DIR%\%ENV_FILE%'" 2>nul
 ) else (
-    curl.exe -sL "%SAMPLE_ENV_URL%" -o "%OPENALGO_DIR%\%ENV_FILE%" 2>nul
+    curl.exe -sL "%SAMPLE_ENV_URL%" -o "%BTALGO_DIR%\%ENV_FILE%" 2>nul
 )
 
 REM Check if download succeeded
-if not exist "%OPENALGO_DIR%\%ENV_FILE%" (
+if not exist "%BTALGO_DIR%\%ENV_FILE%" (
     echo [ERROR] Failed to download configuration template!
     echo Please check your internet connection.
     echo.
     echo Manual setup:
-    echo   1. Download .sample.env from https://github.com/marketcalls/openalgo
-    echo   2. Save it as %OPENALGO_DIR%\.env
+    echo   1. Download .sample.env from https://github.com/billionairestechnologies/btalgo
+    echo   2. Save it as %BTALGO_DIR%\.env
     echo   3. Run this script again
     set SETUP_FAILED=1
     goto setup_end
@@ -145,8 +145,8 @@ if errorlevel 1 (
 
 REM Update .env file with generated keys
 echo [INFO] Updating configuration with secure keys...
-powershell -Command "(Get-Content '%OPENALGO_DIR%\%ENV_FILE%') -replace 'OPENALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE', '%APP_KEY%' | Set-Content '%OPENALGO_DIR%\%ENV_FILE%'"
-powershell -Command "(Get-Content '%OPENALGO_DIR%\%ENV_FILE%') -replace 'OPENALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE', '%API_KEY_PEPPER%' | Set-Content '%OPENALGO_DIR%\%ENV_FILE%'"
+powershell -Command "(Get-Content '%BTALGO_DIR%\%ENV_FILE%') -replace 'BTALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE', '%APP_KEY%' | Set-Content '%BTALGO_DIR%\%ENV_FILE%'"
+powershell -Command "(Get-Content '%BTALGO_DIR%\%ENV_FILE%') -replace 'BTALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE', '%API_KEY_PEPPER%' | Set-Content '%BTALGO_DIR%\%ENV_FILE%'"
 echo [OK] Secure keys generated and saved.
 
 REM Get broker configuration
@@ -222,16 +222,16 @@ echo.
 echo [INFO] Updating broker configuration...
 
 REM Update broker credentials
-powershell -Command "(Get-Content '%OPENALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_KEY = ''YOUR_BROKER_API_KEY''', 'BROKER_API_KEY = ''%BROKER_API_KEY%''' | Set-Content '%OPENALGO_DIR%\%ENV_FILE%'"
-powershell -Command "(Get-Content '%OPENALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_SECRET = ''YOUR_BROKER_API_SECRET''', 'BROKER_API_SECRET = ''%BROKER_API_SECRET%''' | Set-Content '%OPENALGO_DIR%\%ENV_FILE%'"
+powershell -Command "(Get-Content '%BTALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_KEY = ''YOUR_BROKER_API_KEY''', 'BROKER_API_KEY = ''%BROKER_API_KEY%''' | Set-Content '%BTALGO_DIR%\%ENV_FILE%'"
+powershell -Command "(Get-Content '%BTALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_SECRET = ''YOUR_BROKER_API_SECRET''', 'BROKER_API_SECRET = ''%BROKER_API_SECRET%''' | Set-Content '%BTALGO_DIR%\%ENV_FILE%'"
 
 REM Update redirect URL with broker name (replace <broker> placeholder)
-powershell -Command "(Get-Content '%OPENALGO_DIR%\%ENV_FILE%') -replace '<broker>', '%BROKER_NAME%' | Set-Content '%OPENALGO_DIR%\%ENV_FILE%'"
+powershell -Command "(Get-Content '%BTALGO_DIR%\%ENV_FILE%') -replace '<broker>', '%BROKER_NAME%' | Set-Content '%BTALGO_DIR%\%ENV_FILE%'"
 
 REM Update XTS market data credentials if applicable
 if "%IS_XTS%"=="1" (
-    powershell -Command "(Get-Content '%OPENALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_KEY_MARKET = ''YOUR_BROKER_MARKET_API_KEY''', 'BROKER_API_KEY_MARKET = ''!BROKER_API_KEY_MARKET!''' | Set-Content '%OPENALGO_DIR%\%ENV_FILE%'"
-    powershell -Command "(Get-Content '%OPENALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_SECRET_MARKET = ''YOUR_BROKER_MARKET_API_SECRET''', 'BROKER_API_SECRET_MARKET = ''!BROKER_API_SECRET_MARKET!''' | Set-Content '%OPENALGO_DIR%\%ENV_FILE%'"
+    powershell -Command "(Get-Content '%BTALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_KEY_MARKET = ''YOUR_BROKER_MARKET_API_KEY''', 'BROKER_API_KEY_MARKET = ''!BROKER_API_KEY_MARKET!''' | Set-Content '%BTALGO_DIR%\%ENV_FILE%'"
+    powershell -Command "(Get-Content '%BTALGO_DIR%\%ENV_FILE%') -replace 'BROKER_API_SECRET_MARKET = ''YOUR_BROKER_MARKET_API_SECRET''', 'BROKER_API_SECRET_MARKET = ''!BROKER_API_SECRET_MARKET!''' | Set-Content '%BTALGO_DIR%\%ENV_FILE%'"
 )
 
 echo [OK] Broker configuration saved.
@@ -244,70 +244,70 @@ echo   Broker:         %BROKER_NAME%
 if "%IS_XTS%"=="1" (
     echo   Type:           XTS API [with market data]
 )
-echo   Data directory: %OPENALGO_DIR%
-echo   Config file:    %OPENALGO_DIR%\%ENV_FILE%
-echo   Database:       %OPENALGO_DIR%\db\
-echo   Strategies:     %OPENALGO_DIR%\strategies\
-echo   Logs:           %OPENALGO_DIR%\log\
+echo   Data directory: %BTALGO_DIR%
+echo   Config file:    %BTALGO_DIR%\%ENV_FILE%
+echo   Database:       %BTALGO_DIR%\db\
+echo   Strategies:     %BTALGO_DIR%\strategies\
+echo   Logs:           %BTALGO_DIR%\log\
 echo.
 echo   Redirect URL for broker portal:
 echo   http://127.0.0.1:5000/%BROKER_NAME%/callback
 echo.
-echo   Documentation: https://docs.openalgo.in
+echo   Documentation: https://docs.billionairestechnologies.com
 echo.
 set /p OPEN_ENV="Open .env in Notepad for review? (y/n): "
 if /i "%OPEN_ENV%"=="y" (
-    start notepad "%OPENALGO_DIR%\%ENV_FILE%"
+    start notepad "%BTALGO_DIR%\%ENV_FILE%"
 )
 echo.
-echo [OK] Setup complete! Run 'docker-run.bat start' to launch OpenAlgo.
+echo [OK] Setup complete! Run 'docker-run.bat start' to launch BTAlgo.
 
 :setup_end
 exit /b %SETUP_FAILED%
 
 :start
-echo [INFO] Starting OpenAlgo...
+echo [INFO] Starting BTAlgo...
 echo.
 
 REM Check if setup is needed
-if not exist "%OPENALGO_DIR%\%ENV_FILE%" (
+if not exist "%BTALGO_DIR%\%ENV_FILE%" (
     echo [INFO] First time setup detected. Running setup...
     echo.
     call :setup
     if errorlevel 1 (
         echo.
-        echo [ERROR] Setup failed. Cannot start OpenAlgo.
+        echo [ERROR] Setup failed. Cannot start BTAlgo.
         echo Please fix the issues above and try again.
         goto end
     )
     echo.
-    echo [INFO] Starting OpenAlgo after setup...
+    echo [INFO] Starting BTAlgo after setup...
     echo.
 )
 
 REM Create db, strategies, log, keys, and tmp directories if not exist
-if not exist "%OPENALGO_DIR%\db\" (
+if not exist "%BTALGO_DIR%\db\" (
     echo [INFO] Creating database directory...
-    md "%OPENALGO_DIR%\db" 2>nul
+    md "%BTALGO_DIR%\db" 2>nul
 )
-if not exist "%OPENALGO_DIR%\strategies\" (
+if not exist "%BTALGO_DIR%\strategies\" (
     echo [INFO] Creating strategies directory...
-    md "%OPENALGO_DIR%\strategies" 2>nul
-    md "%OPENALGO_DIR%\strategies\scripts" 2>nul
-    md "%OPENALGO_DIR%\strategies\examples" 2>nul
+    md "%BTALGO_DIR%\strategies" 2>nul
+    md "%BTALGO_DIR%\strategies\scripts" 2>nul
+    md "%BTALGO_DIR%\strategies\examples" 2>nul
 )
-if not exist "%OPENALGO_DIR%\log\" (
+if not exist "%BTALGO_DIR%\log\" (
     echo [INFO] Creating log directory...
-    md "%OPENALGO_DIR%\log" 2>nul
-    md "%OPENALGO_DIR%\log\strategies" 2>nul
+    md "%BTALGO_DIR%\log" 2>nul
+    md "%BTALGO_DIR%\log\strategies" 2>nul
 )
-if not exist "%OPENALGO_DIR%\keys\" (
+if not exist "%BTALGO_DIR%\keys\" (
     echo [INFO] Creating keys directory...
-    md "%OPENALGO_DIR%\keys" 2>nul
+    md "%BTALGO_DIR%\keys" 2>nul
 )
-if not exist "%OPENALGO_DIR%\tmp\" (
+if not exist "%BTALGO_DIR%\tmp\" (
     echo [INFO] Creating temp directory...
-    md "%OPENALGO_DIR%\tmp" 2>nul
+    md "%BTALGO_DIR%\tmp" 2>nul
 )
 
 REM Pull latest image
@@ -336,7 +336,7 @@ if %SHM_SIZE_MB% GTR 2048 set SHM_SIZE_MB=2048
 
 REM Thread limits based on RAM (prevents RLIMIT_NPROC exhaustion)
 REM Less than 3GB: 1 thread | 3-6GB: 2 threads | 6GB+: min(4, cores)
-REM See: https://github.com/marketcalls/openalgo/issues/822
+REM See: https://github.com/billionairestechnologies/btalgo/issues/822
 if %TOTAL_RAM_MB% LSS 3000 (
     set THREAD_LIMIT=1
 ) else if %TOTAL_RAM_MB% LSS 6000 (
@@ -376,12 +376,12 @@ docker run -d ^
     -e "NUMBA_NUM_THREADS=%THREAD_LIMIT%" ^
     -e "STRATEGY_MEMORY_LIMIT_MB=%STRATEGY_MEM_LIMIT%" ^
     -e "TZ=Asia/Kolkata" ^
-    -v "%OPENALGO_DIR%\db:/app/db" ^
-    -v "%OPENALGO_DIR%\strategies:/app/strategies" ^
-    -v "%OPENALGO_DIR%\log:/app/log" ^
-    -v "%OPENALGO_DIR%\keys:/app/keys" ^
-    -v "%OPENALGO_DIR%\tmp:/app/tmp" ^
-    -v "%OPENALGO_DIR%\.env:/app/.env" ^
+    -v "%BTALGO_DIR%\db:/app/db" ^
+    -v "%BTALGO_DIR%\strategies:/app/strategies" ^
+    -v "%BTALGO_DIR%\log:/app/log" ^
+    -v "%BTALGO_DIR%\keys:/app/keys" ^
+    -v "%BTALGO_DIR%\tmp:/app/tmp" ^
+    -v "%BTALGO_DIR%\.env:/app/.env" ^
     --restart unless-stopped ^
     %IMAGE%
 
@@ -392,40 +392,40 @@ if errorlevel 1 (
     echo Troubleshooting:
     echo   1. Check if ports 5000 and 8765 are available
     echo   2. Ensure Docker Desktop is running
-    echo   3. Check .env file: %OPENALGO_DIR%\%ENV_FILE%
+    echo   3. Check .env file: %BTALGO_DIR%\%ENV_FILE%
     echo.
     goto end
 )
 
 echo.
-echo [SUCCESS] OpenAlgo started successfully!
+echo [SUCCESS] BTAlgo started successfully!
 echo.
 echo   ========================================
 echo   Web UI:     http://127.0.0.1:5000
 echo   WebSocket:  ws://127.0.0.1:8765
 echo   ========================================
 echo.
-echo   Data directory: %OPENALGO_DIR%
+echo   Data directory: %BTALGO_DIR%
 echo.
 echo   Useful commands:
 echo     docker-run.bat logs     - View logs
-echo     docker-run.bat stop     - Stop OpenAlgo
-echo     docker-run.bat restart  - Restart OpenAlgo
+echo     docker-run.bat stop     - Stop BTAlgo
+echo     docker-run.bat restart  - Restart BTAlgo
 echo.
 goto end
 
 :stop
-echo [INFO] Stopping OpenAlgo...
+echo [INFO] Stopping BTAlgo...
 docker stop %CONTAINER% >nul 2>&1
 docker rm %CONTAINER% >nul 2>&1
-echo [OK] OpenAlgo stopped.
+echo [OK] BTAlgo stopped.
 goto end
 
 :restart
-echo [INFO] Restarting OpenAlgo...
+echo [INFO] Restarting BTAlgo...
 docker stop %CONTAINER% >nul 2>&1
 docker rm %CONTAINER% >nul 2>&1
-echo [OK] OpenAlgo stopped.
+echo [OK] BTAlgo stopped.
 echo.
 goto start
 
@@ -454,14 +454,14 @@ echo.
 REM Check if container is running
 docker ps --filter "name=%CONTAINER%" --filter "status=running" | findstr %CONTAINER% >nul
 if errorlevel 1 (
-    echo [STATUS] OpenAlgo is NOT running.
+    echo [STATUS] BTAlgo is NOT running.
 ) else (
-    echo [STATUS] OpenAlgo is running.
+    echo [STATUS] BTAlgo is running.
     echo.
     echo   Web UI: http://127.0.0.1:5000
 )
 echo.
-echo   Data directory: %OPENALGO_DIR%
+echo   Data directory: %BTALGO_DIR%
 goto end
 
 :shell
@@ -484,7 +484,7 @@ echo.
 echo Usage: docker-run.bat [command]
 echo.
 echo Commands:
-echo   start    Start OpenAlgo (runs setup if needed, default)
+echo   start    Start BTAlgo (runs setup if needed, default)
 echo   stop     Stop and remove container
 echo   restart  Restart container
 echo   logs     View container logs (live)
@@ -498,14 +498,14 @@ echo.
 echo Quick Start:
 echo   1. Install Docker Desktop: https://www.docker.com/products/docker-desktop
 echo   2. Download this script (use PowerShell):
-echo      curl.exe -O https://raw.githubusercontent.com/marketcalls/openalgo/main/install/docker-run.bat
+echo      curl.exe -O https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/docker-run.bat
 echo   3. Run: docker-run.bat
 echo.
-echo Data Location: %OPENALGO_DIR%
-echo   - Config:     %OPENALGO_DIR%\.env
-echo   - Database:   %OPENALGO_DIR%\db\
-echo   - Strategies: %OPENALGO_DIR%\strategies\
-echo   - Logs:       %OPENALGO_DIR%\log\
+echo Data Location: %BTALGO_DIR%
+echo   - Config:     %BTALGO_DIR%\.env
+echo   - Database:   %BTALGO_DIR%\db\
+echo   - Strategies: %BTALGO_DIR%\strategies\
+echo   - Logs:       %BTALGO_DIR%\log\
 echo.
 echo XTS Brokers (require market data credentials):
 echo   fivepaisaxts, compositedge, ibulls, iifl, jainamxts, rmoney, wisdom

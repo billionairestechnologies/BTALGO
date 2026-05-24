@@ -2,13 +2,13 @@
 
 ## Introduction
 
-The Action Center is OpenAlgo's order approval system for managed trading environments. It allows you to review, approve, modify, or reject orders before they're sent to your broker.
+The Action Center is BTAlgo's order approval system for managed trading environments. It allows you to review, approve, modify, or reject orders before they're sent to your broker.
 
 ## When to Use Action Center
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    Trading Modes in OpenAlgo                                │
+│                    Trading Modes in BTAlgo                                │
 │                                                                              │
 │  AUTO MODE                              SEMI-AUTO MODE (Action Center)      │
 │  ─────────                              ─────────────────────────────       │
@@ -40,7 +40,7 @@ The Action Center is OpenAlgo's order approval system for managed trading enviro
 
 ### Step 1: Access Settings
 
-1. Go to **Settings** in OpenAlgo
+1. Go to **Settings** in BTAlgo
 2. Find **Order Mode** section
 
 ### Step 2: Select Semi-Auto Mode

@@ -2,10 +2,10 @@ import logging
 
 
 class IiflExchangeMapper:
-    """Maps between OpenAlgo exchange codes and Iifl XTS specific exchange types"""
+    """Maps between BTAlgo exchange codes and Iifl XTS specific exchange types"""
 
     # Exchange type mapping for Iifl XTS broker
-    # Format: {OpenAlgo_Exchange: Iifl_Exchange_Code}
+    # Format: {BTAlgo_Exchange: Iifl_Exchange_Code}
     # Based on Iifl API documentation:
     # "NSECM": 1, "NSEFO": 2, "NSECD": 3, "BSECM": 11, "BSEFO": 12, "MCXFO": 51
     EXCHANGE_TYPES = {
@@ -29,8 +29,8 @@ class IiflExchangeMapper:
         "MCXFO": 51,  # MCX F&O
     }
 
-    # Reverse mapping for converting Iifl exchange codes to OpenAlgo format
-    # Format: {Iifl_Exchange_Code: OpenAlgo_Exchange}
+    # Reverse mapping for converting Iifl exchange codes to BTAlgo format
+    # Format: {Iifl_Exchange_Code: BTAlgo_Exchange}
     REVERSE_EXCHANGE_TYPES = {
         1: "NSE",  # NSECM
         2: "NFO",  # NSEFO
@@ -43,7 +43,7 @@ class IiflExchangeMapper:
     @staticmethod
     def get_exchange_type(exchange):
         """
-        Convert OpenAlgo exchange code to Iifl XTS specific exchange type
+        Convert BTAlgo exchange code to Iifl XTS specific exchange type
 
         Args:
             exchange: Exchange code (e.g., 'NSE', 'BSE', 'NSEFO')
@@ -62,7 +62,7 @@ class IiflExchangeMapper:
         # Mapping based on Iifl API documentation:
         # "NSECM": 1, "NSEFO": 2, "NSECD": 3, "BSECM": 11, "BSEFO": 12, "MCXFO": 51
         all_exchange_mappings = {
-            # OpenAlgo standard codes
+            # BTAlgo standard codes
             "NSE": 1,  # NSE Cash Market
             "NFO": 2,  # NSE F&O
             "CDS": 3,  # NSE Currency Derivatives
@@ -100,15 +100,15 @@ class IiflExchangeMapper:
         return 1
 
     @staticmethod
-    def get_openalgo_exchange(iifl_code):
+    def get_btalgo_exchange(iifl_code):
         """
-        Convert Iifl XTS exchange code to OpenAlgo exchange code
+        Convert Iifl XTS exchange code to BTAlgo exchange code
 
         Args:
             iifl_code (int): Iifl exchange code
 
         Returns:
-            str: OpenAlgo exchange code
+            str: BTAlgo exchange code
         """
         return IiflExchangeMapper.REVERSE_EXCHANGE_TYPES.get(
             iifl_code, "NSE"

@@ -46,7 +46,7 @@ def get_underlying_ltp(
     Args:
         underlying: Underlying symbol (e.g., "NIFTY", "NIFTY28OCT25FUT")
         exchange: Exchange (e.g., "NSE_INDEX", "NSE", "NFO")
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Tuple of (success, ltp, error_message)
@@ -144,7 +144,7 @@ def place_single_split_order_for_leg(
 
     Args:
         order_data: Order data with symbol, exchange, action, quantity, etc.
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
         order_num: Order number in the split sequence
         total_orders: Total number of split orders
         auth_token: Direct broker auth token (optional)
@@ -208,7 +208,7 @@ def resolve_and_place_leg(
     Args:
         leg_data: Leg-specific data (offset, option_type, action, quantity, splitsize, etc.)
         common_data: Common data (underlying, exchange, expiry_date, strike_int, strategy)
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
         leg_index: Index of this leg
         total_legs: Total number of legs
         auth_token: Direct broker auth token (optional)
@@ -581,7 +581,7 @@ def place_options_multiorder(
 
     Args:
         multiorder_data: Multi-order data containing underlying, exchange, legs, etc.
-        api_key: OpenAlgo API key (for API-based calls)
+        api_key: BTAlgo API key (for API-based calls)
         auth_token: Direct broker auth token (for internal calls)
         broker: Broker name (for internal calls)
 
@@ -614,7 +614,7 @@ def place_options_multiorder(
 
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
-            error_response = {"status": "error", "message": "Invalid openalgo apikey"}
+            error_response = {"status": "error", "message": "Invalid btalgo apikey"}
             return False, error_response, 403
 
         return process_multiorder_with_auth(

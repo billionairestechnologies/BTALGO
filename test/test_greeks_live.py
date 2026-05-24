@@ -1,16 +1,16 @@
 """
 Live test for Multi Option Greeks API.
 
-Tests the /api/v1/multioptiongreeks endpoint against a running OpenAlgo
+Tests the /api/v1/multioptiongreeks endpoint against a running BTAlgo
 instance with any connected broker.
 
 Prerequisites:
-    1. OpenAlgo must be running at http://127.0.0.1:5000
+    1. BTAlgo must be running at http://127.0.0.1:5000
     2. Any broker must be connected
     3. Markets should be open
 
 Usage:
-    cd openalgo
+    cd btalgo
     uv run python test/test_greeks_live.py
 """
 
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     print("\n  Fetching underlying LTP...")
     ltp, atm = get_atm_strike()
     if not atm:
-        print("  FATAL: Cannot fetch LTP. Is OpenAlgo running and broker connected?")
+        print("  FATAL: Cannot fetch LTP. Is BTAlgo running and broker connected?")
         sys.exit(1)
     print(f"  {UNDERLYING} LTP: {ltp} | ATM: {atm}")
 

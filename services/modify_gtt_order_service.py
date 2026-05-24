@@ -153,7 +153,7 @@ def modify_gtt_order(
         order_data["apikey"] = api_key
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
-            return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
         return modify_gtt_order_with_auth(order_data, AUTH_TOKEN, broker_name, original_data)
 
     # Direct internal call

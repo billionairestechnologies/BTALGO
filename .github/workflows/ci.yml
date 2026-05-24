@@ -227,7 +227,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/openalgo
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/btalgo
 
       # PR path: build single-arch and load into the runner's local Docker
       # daemon for the smoke test. No push.
@@ -238,7 +238,7 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           load: true
-          tags: openalgo-ci:${{ matrix.suffix }}
+          tags: btalgo-ci:${{ matrix.suffix }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
@@ -253,7 +253,7 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
-          outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/openalgo,push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,name=${{ secrets.DOCKERHUB_USERNAME }}/btalgo,push-by-digest=true,name-canonical=true,push=true
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.suffix }}
           cache-to: type=gha,mode=max,scope=${{ matrix.suffix }}
@@ -273,8 +273,8 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           SUFFIX="${{ matrix.suffix }}"
-          echo "[smoke] Testing openalgo-ci:$SUFFIX"
-          docker run --rm --entrypoint /app/.venv/bin/python "openalgo-ci:$SUFFIX" -c '
+          echo "[smoke] Testing btalgo-ci:$SUFFIX"
+          docker run --rm --entrypoint /app/.venv/bin/python "btalgo-ci:$SUFFIX" -c '
           import plotly.graph_objects as go
           img = go.Figure(data=[go.Candlestick(
               x=[1, 2], open=[100, 102], high=[105, 106],
@@ -331,7 +331,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/openalgo
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/btalgo
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,prefix=
@@ -340,16 +340,16 @@ jobs:
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ secrets.DOCKERHUB_USERNAME }}/openalgo@sha256:%s ' *)
+            $(printf '${{ secrets.DOCKERHUB_USERNAME }}/btalgo@sha256:%s ' *)
 
       - name: Inspect assembled image
         run: |
-          docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/openalgo:${{ steps.meta.outputs.version }}
+          docker buildx imagetools inspect ${{ secrets.DOCKERHUB_USERNAME }}/btalgo:${{ steps.meta.outputs.version }}
 
       - name: Trivy vulnerability scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/openalgo:latest
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/btalgo:latest
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
           format: 'table'

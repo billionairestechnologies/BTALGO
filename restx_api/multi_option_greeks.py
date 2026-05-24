@@ -105,7 +105,7 @@ class MultiOptionGreeks(Resource):
             if not verify_api_key(api_key):
                 logger.warning(f"Invalid API key used for multi option greeks: {api_key[:10]}...")
                 return make_response(
-                    jsonify({"status": "error", "message": "Invalid openalgo apikey"}), 401
+                    jsonify({"status": "error", "message": "Invalid btalgo apikey"}), 401
                 )
 
             # Get multi option Greeks

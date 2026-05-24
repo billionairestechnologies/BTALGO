@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo provides Docker support for containerized deployment with **3-stage builds** (Python builder, Frontend builder, Production), IST timezone configuration, and proper security isolation. The Docker setup uses Python 3.12, Gunicorn with Eventlet workers, and runs as a non-root user. It includes Railway/cloud deployment support with automatic `.env` generation.
+BTAlgo provides Docker support for containerized deployment with **3-stage builds** (Python builder, Frontend builder, Production), IST timezone configuration, and proper security isolation. The Docker setup uses Python 3.12, Gunicorn with Eventlet workers, and runs as a non-root user. It includes Railway/cloud deployment support with automatic `.env` generation.
 
 ## Architecture Diagram
 
@@ -168,18 +168,18 @@ CMD ["/app/start.sh"]
 version: '3.8'
 
 services:
-  openalgo:
+  btalgo:
     build: .
     ports:
       - "5000:5000"
       - "8765:8765"
     volumes:
       # Named volumes for better persistence management
-      - openalgo_db:/app/db
-      - openalgo_log:/app/log
-      - openalgo_strategies:/app/strategies
-      - openalgo_keys:/app/keys
-      - openalgo_tmp:/app/tmp
+      - btalgo_db:/app/db
+      - btalgo_log:/app/log
+      - btalgo_strategies:/app/strategies
+      - btalgo_keys:/app/keys
+      - btalgo_tmp:/app/tmp
       - ./.env:/app/.env:ro       # Environment config (read-only)
     environment:
       - FLASK_HOST_IP=0.0.0.0
@@ -196,11 +196,11 @@ services:
     restart: unless-stopped
 
 volumes:
-  openalgo_db:
-  openalgo_log:
-  openalgo_strategies:
-  openalgo_keys:
-  openalgo_tmp:
+  btalgo_db:
+  btalgo_log:
+  btalgo_strategies:
+  btalgo_keys:
+  btalgo_tmp:
 ```
 
 ### Named Volumes vs Bind Mounts
@@ -218,7 +218,7 @@ Container /app/
 ├── frontend/
 │   └── dist/              # Built React frontend (from frontend-builder stage)
 ├── db/                    # SQLite databases (mounted volume)
-│   ├── openalgo.db
+│   ├── btalgo.db
 │   ├── logs.db
 │   ├── latency.db
 │   ├── sandbox.db
@@ -254,7 +254,7 @@ The `start.sh` script is a sophisticated 246-line entrypoint that handles:
 #!/bin/bash
 # start.sh (simplified overview - actual script is 246 lines)
 
-echo "[OpenAlgo] Starting up..."
+echo "[BTAlgo] Starting up..."
 
 # ============================================
 # RAILWAY/CLOUD ENVIRONMENT DETECTION
@@ -291,7 +291,7 @@ WEBSOCKET_PID=$!
 # SIGNAL HANDLING
 # ============================================
 cleanup() {
-    echo "[OpenAlgo] Shutting down..."
+    echo "[BTAlgo] Shutting down..."
     kill $WEBSOCKET_PID 2>/dev/null
     exit 0
 }
@@ -330,26 +330,26 @@ exec /app/.venv/bin/gunicorn \
 
 ```bash
 # Build image
-docker build -t openalgo .
+docker build -t btalgo .
 
 # Run container
 docker run -d \
-  --name openalgo \
+  --name btalgo \
   -p 5000:5000 \
   -p 8765:8765 \
   -v $(pwd)/db:/app/db \
   -v $(pwd)/log:/app/log \
   -v $(pwd)/.env:/app/.env:ro \
-  openalgo
+  btalgo
 
 # View logs
-docker logs -f openalgo
+docker logs -f btalgo
 
 # Stop container
-docker stop openalgo
+docker stop btalgo
 
 # Remove container
-docker rm openalgo
+docker rm btalgo
 ```
 
 ## Docker Compose Commands
@@ -383,7 +383,7 @@ WEBSOCKET_URL=ws://localhost:8765
 
 HOST_SERVER=http://your-domain.com  # External URL
 
-DATABASE_URL=sqlite:///db/openalgo.db
+DATABASE_URL=sqlite:///db/btalgo.db
 
 # Security (generate unique values)
 APP_KEY=your_32_byte_hex_key
@@ -419,7 +419,7 @@ OpenBLAS, NumPy, and other numerical libraries spawn threads by default. In cont
 
 ```yaml
 services:
-  openalgo:
+  btalgo:
     environment:
       # Thread limits (adjust based on container RAM)
       - OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-2}
@@ -449,7 +449,7 @@ else
 fi
 ```
 
-> **Reference**: See [GitHub Issue #822](https://github.com/marketcalls/openalgo/issues/822) for details on the RLIMIT_NPROC fix.
+> **Reference**: See [GitHub Issue #822](https://github.com/billionairestechnologies/btalgo/issues/822) for details on the RLIMIT_NPROC fix.
 
 ## Security Considerations
 

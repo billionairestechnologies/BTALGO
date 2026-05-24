@@ -370,7 +370,7 @@ def process_pocketful_bfo_csv(path):
 def process_pocketful_mcx_csv(path):
     """
     Processes the pocketful MCX CSV file to fit the existing database schema and performs exchange name mapping.
-    OpenAlgo MCX Symbol Format:
+    BTAlgo MCX Symbol Format:
     - Futures: [BaseSymbol][DDMMMYY]FUT (e.g., CRUDEOILM20MAY24FUT)
     - Options: [BaseSymbol][DDMMMYY][Strike][CE/PE] (e.g., SILVERM28JUL26227750PE)
     """
@@ -403,8 +403,8 @@ def process_pocketful_mcx_csv(path):
             return match.group(1)
         return trading_symbol_upper  # Return uppercased for consistency
 
-    # Define the function to build OpenAlgo symbol
-    def build_openalgo_symbol(row):
+    # Define the function to build BTAlgo symbol
+    def build_btalgo_symbol(row):
         try:
             # Extract base symbol from trading_symbol (e.g., SILVERM from SILVERM26MAR131500CE)
             base_symbol = extract_base_symbol(row["trading_symbol"])
@@ -425,7 +425,7 @@ def process_pocketful_mcx_csv(path):
             return row["trading_symbol"]  # fallback to broker symbol
 
     # Apply the symbol formatting for all rows based on option_type
-    df["symbol"] = df.apply(build_openalgo_symbol, axis=1)
+    df["symbol"] = df.apply(build_btalgo_symbol, axis=1)
 
     # Create token_df with required columns
     token_df = df[["symbol"]].copy()

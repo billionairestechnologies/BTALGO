@@ -16,7 +16,7 @@ That dropped three categories on the floor:
 
 This release maps NSEIX into GLOBAL_INDEX (one bucket for all index-only
 quote feeds) and renames the lone "GIFT NIFTY" tradingsymbol to "GIFTNIFTY"
-so it's a single-token symbol like every other OpenAlgo identifier.
+so it's a single-token symbol like every other BTAlgo identifier.
 
 What this migration does (idempotent)
 -------------------------------------
@@ -51,7 +51,7 @@ logger = get_logger(__name__)
 
 
 def _resolve_database_url() -> str:
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
     if DATABASE_URL.startswith("sqlite:///") and not DATABASE_URL.startswith("sqlite:////"):
         db_path = DATABASE_URL.replace("sqlite:///", "")
         parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -118,7 +118,7 @@ def migrate_zerodha_new_exchanges() -> bool:
 
 def main() -> int:
     logger.info("=" * 60)
-    logger.info("OpenAlgo Zerodha New Exchanges Migration")
+    logger.info("BTAlgo Zerodha New Exchanges Migration")
     logger.info("=" * 60)
     logger.info("Cleaning up stale NULL/NSEIX_INDEX symtoken rows so NCO and")
     logger.info("GLOBAL_INDEX (incl. GIFTNIFTY) populate correctly on next refresh.")

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers running OpenAlgo in development and production modes using the uv package manager, along with comprehensive testing strategies including unit tests, E2E tests, accessibility tests, and linting.
+This guide covers running BTAlgo in development and production modes using the uv package manager, along with comprehensive testing strategies including unit tests, E2E tests, accessibility tests, and linting.
 
 ## Running the Application
 
@@ -10,7 +10,7 @@ This guide covers running OpenAlgo in development and production modes using the
 
 ```bash
 # Navigate to project directory
-cd /path/to/openalgo
+cd /path/to/btalgo
 
 # Copy environment file (first time only)
 cp .sample.env .env
@@ -372,7 +372,7 @@ uv run pytest test/ --cov
 ### Test Structure
 
 ```
-openalgo/
+btalgo/
 └── test/
     ├── test_broker.py            # Broker integration tests
     ├── test_rate_limits_simple.py # Rate limit tests

@@ -1,5 +1,5 @@
-# Docker Development Setup for OpenAlgo Flask
-This guide focuses on setting up a development environment for OpenAlgo Flask using Docker.
+# Docker Development Setup for BTAlgo Flask
+This guide focuses on setting up a development environment for BTAlgo Flask using Docker.
 
 ## Prerequisites
 * Docker Engine 
@@ -64,7 +64,7 @@ services:
     environment:
       - FLASK_DEBUG=True
       - FLASK_ENV=development
-      - DATABASE_URL=sqlite:///db/openalgo.db
+      - DATABASE_URL=sqlite:///db/btalgo.db
     restart: unless-stopped
 ```
 
@@ -139,7 +139,7 @@ docker-compose ps
 
 ## Directory Structure
 ```
-openalgo/
+btalgo/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── .dockerignore
@@ -147,7 +147,7 @@ openalgo/
 ├── app.py
 ├── requirements-nginx.txt
 └── db/
-    └── openalgo.db
+    └── btalgo.db
 ```
 
 ## Development Tips

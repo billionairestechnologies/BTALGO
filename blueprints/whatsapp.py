@@ -4,7 +4,7 @@ React frontend.
 
 Mirrors blueprints/telegram.py: the REST namespace at /api/v1/whatsapp serves
 external API clients (auth via API key + rate limit), while these routes
-serve the logged-in OpenAlgo admin user (auth via Flask session cookie).
+serve the logged-in BTAlgo admin user (auth via Flask session cookie).
 The two share the same underlying service and database modules.
 """
 
@@ -102,7 +102,7 @@ def start_pair():
     frontend over SocketIO ('whatsapp_qr', 'whatsapp_pair_code',
     'whatsapp_paired', 'whatsapp_pair_status').
 
-    Captures the logged-in OpenAlgo admin's identity (user_id + username) and
+    Captures the logged-in BTAlgo admin's identity (user_id + username) and
     stores it with the encrypted session blob. The bot uses owner_user_id
     at command-dispatch time to look up the api_key for SDK calls — there
     is no /link flow because there is no second user to authorize."""
@@ -286,7 +286,7 @@ def broadcast():
 @check_session_validity
 @limiter.limit(WHATSAPP_MESSAGE_RATE_LIMIT)
 def test_message():
-    """Send a test message — to the linked-user for the logged-in OpenAlgo
+    """Send a test message — to the linked-user for the logged-in BTAlgo
     admin if one exists, else to the first available user. Mirrors the
     telegram test-message UX so the React 'Send Test' button works the
     same way on both channels."""
@@ -306,7 +306,7 @@ def test_message():
         wa_user = get_whatsapp_user_by_username(username)
         if wa_user:
             target_jid = wa_user["whatsapp_jid"]
-            test_msg = "*Test from OpenAlgo*\nYour WhatsApp integration is working."
+            test_msg = "*Test from BTAlgo*\nYour WhatsApp integration is working."
         else:
             all_users = get_all_whatsapp_users()
             if not all_users:
@@ -321,7 +321,7 @@ def test_message():
                 ), 404
             target_jid = all_users[0]["whatsapp_jid"]
             test_msg = (
-                f"*Test from OpenAlgo (admin: {username})*\n"
+                f"*Test from BTAlgo (admin: {username})*\n"
                 "Your WhatsApp integration is working."
             )
 

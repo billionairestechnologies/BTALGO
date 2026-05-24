@@ -155,8 +155,8 @@ export interface SystemHardware {
 }
 
 export interface SystemBuild {
-  openalgo_version?: string | null
-  openalgo_sdk_version?: string | null
+  btalgo_version?: string | null
+  btalgo_sdk_version?: string | null
   git_branch?: string | null
   git_commit?: string | null
   frontend_build_time?: string | null

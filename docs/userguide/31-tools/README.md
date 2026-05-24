@@ -2,7 +2,7 @@
 
 ## Introduction
 
-OpenAlgo ships with a complete suite of **twelve built-in analytical tools** for options trading and market analysis. They all live under the `/tools` page in the sidebar and stream live data from your connected broker via the unified WebSocket feed — no external subscriptions, no third-party data vendors.
+BTAlgo ships with a complete suite of **twelve built-in analytical tools** for options trading and market analysis. They all live under the `/tools` page in the sidebar and stream live data from your connected broker via the unified WebSocket feed — no external subscriptions, no third-party data vendors.
 
 All tools work identically across every supported broker. Switch brokers and the same tools keep working without any configuration change.
 

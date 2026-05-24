@@ -3,7 +3,7 @@
 This document explains how the Telegram bot's `/chart` command renders Plotly
 candlestick charts to PNG, why the implementation is more involved than a
 one-line `fig.to_image()` call, and what operators need to know when running
-openalgo on Docker, Ubuntu, Debian, RHEL/CentOS, Fedora, or Arch.
+btalgo on Docker, Ubuntu, Debian, RHEL/CentOS, Fedora, or Arch.
 
 It also covers the non-obvious interaction between **Plotly's Kaleido 1.x
 renderer**, **PTB's asyncio event loop**, and **gunicorn's eventlet worker** —
@@ -21,7 +21,7 @@ the command runs this pipeline:
 
 1. Parse `symbol`, `exchange`, `chart_type`, `interval`, and `days` from the
    user's message.
-2. Fetch OHLCV history via the OpenAlgo Python SDK
+2. Fetch OHLCV history via the BTAlgo Python SDK
    (`client.history(symbol=..., exchange=..., interval=..., start_date=..., end_date=...)`).
 3. Build a candlestick + volume figure with `plotly.graph_objects` and
    `plotly.subplots.make_subplots`.
@@ -36,9 +36,9 @@ interesting happens**, and the rest of this document is about that step.
 
 ## 2. Why Chromium must be installed on the host (or in the container)
 
-openalgo pins `kaleido==1.2.0` in `pyproject.toml`. Kaleido had a major
+btalgo pins `kaleido==1.2.0` in `pyproject.toml`. Kaleido had a major
 architectural change between v0.2.x and v1.x, and the switchover is the
-single most common reason new openalgo installs see `/chart` silently fail:
+single most common reason new btalgo installs see `/chart` silently fail:
 
 | Kaleido version      | Chromium binary ships inside the wheel? | Runtime requirement |
 | -------------------- | --------------------------------------- | ------------------- |
@@ -68,7 +68,7 @@ If Chromium isn't on the system, the subprocess spawn fails and
 On Docker:
 
 ```bash
-docker exec openalgo-web /usr/bin/chromium --version
+docker exec btalgo-web /usr/bin/chromium --version
 # -> Chromium 120.0.6099.224 built on Debian 11.8, running on Debian 11.11
 ```
 
@@ -83,7 +83,7 @@ You can also verify Kaleido's end-to-end path without touching Telegram at all:
 
 ```bash
 # Docker
-docker exec openalgo-web /app/.venv/bin/python -c '
+docker exec btalgo-web /app/.venv/bin/python -c '
 import plotly.graph_objects as go
 img = go.Figure(data=[go.Candlestick(
     x=[1,2], open=[100,102], high=[105,106], low=[99,101], close=[104,103]
@@ -93,7 +93,7 @@ print("PNG bytes:", len(img))
 # -> PNG bytes: ~16000
 
 # Bare metal
-cd /path/to/openalgo
+cd /path/to/btalgo
 uv run python -c '... same snippet ...'
 ```
 
@@ -140,7 +140,7 @@ when the bot thread later calls `fig.to_image()`.
 
 Each of these scripts installs Chromium non-fatally — if the install fails
 (e.g. the distro doesn't package it, network flake, snap not ready), the
-rest of openalgo still installs and everything except `/chart` works:
+rest of btalgo still installs and everything except `/chart` works:
 
 | Script | Target | Block |
 | --- | --- | --- |
@@ -155,7 +155,7 @@ Headless snap Chromium works — choreographer auto-detects `/snap/bin/chromium`
 
 These scripts install **Docker tooling on the host** (Docker Engine, nginx,
 certbot, UFW, git, …). They do **not** install Chromium on the host — the
-openalgo container itself is what runs Chromium, and the container gets it
+btalgo container itself is what runs Chromium, and the container gets it
 from the Dockerfile change described in §3.1. Do not add Chromium to the
 host from these scripts; it would be wasted space.
 
@@ -186,7 +186,7 @@ sudo pacman -S --needed chromium ttf-liberation
 followed by:
 
 ```bash
-sudo systemctl restart openalgo   # or whichever unit name install.sh created
+sudo systemctl restart btalgo   # or whichever unit name install.sh created
 ```
 
 The restart is only required so the existing gunicorn worker reloads
@@ -249,7 +249,7 @@ Three independent facts stack up to make this inevitable:
 
 3. **`loop.run_in_executor(None, ...)` does not save you under eventlet.**
    This is the non-obvious part, and where the original fix attempt failed.
-   openalgo runs gunicorn with `--worker-class eventlet -w 1` — both in Docker
+   btalgo runs gunicorn with `--worker-class eventlet -w 1` — both in Docker
    (`start.sh`) and bare metal (`install.sh` systemd unit at line 1013–1019).
    eventlet monkey-patches `socket`, `time`, `select`, and — crucially —
    `threading.Thread`. Any thread spawned via stdlib `threading.Thread(...)`
@@ -313,7 +313,7 @@ def _render_plotly_png(self, fig) -> bytes:
             result_q.put(("err", exc))
 
     t = original_threading.Thread(
-        target=_worker, daemon=True, name="openalgo-kaleido-render"
+        target=_worker, daemon=True, name="btalgo-kaleido-render"
     )
     t.start()
     t.join()
@@ -414,17 +414,17 @@ When `/chart RELIANCE` returns `❌ Failed to generate charts for RELIANCE`:
 1. **Container/host logs first.**
    ```bash
    # Docker
-   docker logs openalgo-web --since 5m | grep -E "telegram_bot_service|chart|kaleido|chromium"
+   docker logs btalgo-web --since 5m | grep -E "telegram_bot_service|chart|kaleido|chromium"
 
    # Bare metal
-   sudo journalctl -u openalgo --since "5 minutes ago" | grep -E "telegram_bot_service|chart|kaleido|chromium"
+   sudo journalctl -u btalgo --since "5 minutes ago" | grep -E "telegram_bot_service|chart|kaleido|chromium"
    ```
    The exact traceback will tell you which layer broke.
 
 2. **Is Chromium installed?**
    ```bash
    # Docker
-   docker exec openalgo-web /usr/bin/chromium --version
+   docker exec btalgo-web /usr/bin/chromium --version
 
    # Bare metal
    chromium --version || chromium-browser --version || /snap/bin/chromium --version
@@ -441,7 +441,7 @@ When `/chart RELIANCE` returns `❌ Failed to generate charts for RELIANCE`:
 
 4. **Does the standalone Kaleido smoke test pass?**
    ```bash
-   docker exec openalgo-web /app/.venv/bin/python -c '
+   docker exec btalgo-web /app/.venv/bin/python -c '
    import plotly.graph_objects as go
    img = go.Figure(data=[go.Candlestick(
        x=[1,2], open=[100,102], high=[105,106], low=[99,101], close=[104,103]
@@ -464,7 +464,7 @@ When `/chart RELIANCE` returns `❌ Failed to generate charts for RELIANCE`:
 
 5. **Check Kaleido and Plotly versions match what's in `pyproject.toml`.**
    ```bash
-   docker exec openalgo-web /app/.venv/bin/python -c '
+   docker exec btalgo-web /app/.venv/bin/python -c '
    import importlib.metadata as m
    print("plotly:", m.version("plotly"))
    print("kaleido:", m.version("kaleido"))
@@ -503,8 +503,8 @@ When `/chart RELIANCE` returns `❌ Failed to generate charts for RELIANCE`:
 
 - **Moving off eventlet.** The gunicorn maintainers have deprecated the
   eventlet worker class (`install.sh` and `start.sh` both still use it for
-  backward compatibility with how openalgo integrates Flask-SocketIO). If
-  openalgo ever migrates to `gthread`, `gevent`, or `uvicorn`, the
+  backward compatibility with how btalgo integrates Flask-SocketIO). If
+  btalgo ever migrates to `gthread`, `gevent`, or `uvicorn`, the
   `original_threading` dance becomes unnecessary and the `_render_plotly_png`
   helper can be replaced with a plain
   `await asyncio.get_running_loop().run_in_executor(None, ...)`. Do **not**

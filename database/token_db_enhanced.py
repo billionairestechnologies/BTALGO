@@ -17,7 +17,7 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Regex pattern to extract underlying from OpenAlgo symbol format
+# Regex pattern to extract underlying from BTAlgo symbol format
 # Format: [BaseSymbol][DDMMMYY][StrikePrice][CE/PE] or [BaseSymbol][DDMMMYY]FUT
 # Examples: NIFTY28MAR2420800CE, BANKNIFTY24APR24FUT, CRUDEOIL17APR246750CE
 _UNDERLYING_PATTERN = re.compile(
@@ -41,9 +41,9 @@ _CRYPTO_UNDERLYING_PATTERN = re.compile(
 
 def extract_underlying_from_symbol(symbol: str, exchange: str) -> str | None:
     """
-    Extract underlying name from OpenAlgo symbol format.
+    Extract underlying name from BTAlgo symbol format.
 
-    OpenAlgo symbol formats:
+    BTAlgo symbol formats:
     - Indian FNO / CRYPTO options+futures:
         [BaseSymbol][DDMMMYY][Strike][CE/PE]  e.g. NIFTY28MAR2420800CE  → NIFTY
         [BaseSymbol][DDMMMYY]FUT              e.g. BTC28FEB25FUT         → BTC
@@ -52,7 +52,7 @@ def extract_underlying_from_symbol(symbol: str, exchange: str) -> str | None:
       Underlying = strip trailing USDT or USD quote-currency suffix.
 
     Args:
-        symbol: OpenAlgo formatted symbol
+        symbol: BTAlgo formatted symbol
         exchange: Exchange code (NFO, BFO, MCX, CDS, CRYPTO, etc.)
 
     Returns:
@@ -131,7 +131,7 @@ class SymbolData:
     lotsize: int | None = None
     instrumenttype: str | None = None
     tick_size: float | None = None
-    underlying: str | None = None  # Extracted from OpenAlgo symbol format for F&O
+    underlying: str | None = None  # Extracted from BTAlgo symbol format for F&O
     contract_value: float | None = None  # Contract multiplier (e.g. 0.001 for BTCUSD.P)
 
 
@@ -225,7 +225,7 @@ class BrokerSymbolCache:
 
             # Build in-memory structures
             for sym in symbols:
-                # Extract underlying from OpenAlgo symbol format for FNO exchanges
+                # Extract underlying from BTAlgo symbol format for FNO exchanges
                 underlying = None
                 if sym.exchange in FNO_EXCHANGES:
                     underlying = extract_underlying_from_symbol(sym.symbol, sym.exchange)
@@ -374,7 +374,7 @@ class BrokerSymbolCache:
         return None
 
     def get_oa_symbol(self, brsymbol: str, exchange: str) -> str | None:
-        """Get OpenAlgo symbol for broker symbol and exchange - O(1) lookup"""
+        """Get BTAlgo symbol for broker symbol and exchange - O(1) lookup"""
         self.stats.hits += 1
         key = (brsymbol, exchange)
         if key in self.by_brsymbol_exchange:
@@ -568,7 +568,7 @@ class BrokerSymbolCache:
             symbols_to_search = self.symbols.values()
 
         for symbol_data in symbols_to_search:
-            # Underlying filter (use extracted underlying from OpenAlgo symbol format)
+            # Underlying filter (use extracted underlying from BTAlgo symbol format)
             if underlying_upper and (
                 not symbol_data.underlying or symbol_data.underlying != underlying_upper
             ):
@@ -753,7 +753,7 @@ def get_br_symbol(symbol: str, exchange: str) -> str | None:
 
 def get_oa_symbol(brsymbol: str, exchange: str) -> str | None:
     """
-    Get OpenAlgo symbol for a given broker symbol and exchange
+    Get BTAlgo symbol for a given broker symbol and exchange
     """
     cache = get_cache()
 
@@ -845,7 +845,7 @@ def get_br_symbol_dbquery(symbol: str, exchange: str) -> str | None:
 
 
 def get_oa_symbol_dbquery(brsymbol: str, exchange: str) -> str | None:
-    """Query database for OpenAlgo symbol"""
+    """Query database for BTAlgo symbol"""
     try:
         from database.symbol import SymToken
 

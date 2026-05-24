@@ -35,7 +35,7 @@ class BrokerData:
         logger.warning("Kotak Neo does not support historical data intervals")
 
     def _get_kotak_exchange(self, exchange):
-        """Map OpenAlgo exchange to Kotak exchange segment"""
+        """Map BTAlgo exchange to Kotak exchange segment"""
         exchange_map = {
             "NSE": "nse_cm",
             "BSE": "bse_cm",
@@ -49,7 +49,7 @@ class BrokerData:
         return exchange_map.get(exchange)
 
     def _get_index_symbol_candidates(self, symbol):
-        """Return candidate Neo API neoSymbol names for an OpenAlgo index symbol.
+        """Return candidate Neo API neoSymbol names for an BTAlgo index symbol.
 
         Kotak Neo's /quotes/neosymbol endpoint expects an exact name match. The
         canonical name differs per index and is not always derivable from the

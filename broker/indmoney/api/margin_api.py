@@ -17,7 +17,7 @@ def calculate_margin_api(positions, auth):
     This function processes each position separately and aggregates the results.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for IndMoney
 
     Returns:
@@ -125,7 +125,7 @@ def calculate_margin_api(positions, auth):
 
         return MockResponse(), error_response
 
-    # Create success response matching OpenAlgo standard format
+    # Create success response matching BTAlgo standard format
     final_response = {"status": "success", "data": aggregated_margin}
 
     # Create a mock response object for successful aggregation

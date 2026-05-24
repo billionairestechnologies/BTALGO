@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo integrates with TradingView and GoCharting platforms to receive trading signals via webhooks. These charting platforms can trigger automated trades when alert conditions are met.
+BTAlgo integrates with TradingView and GoCharting platforms to receive trading signals via webhooks. These charting platforms can trigger automated trades when alert conditions are met.
 
 ## Architecture Diagram
 
@@ -26,7 +26,7 @@ OpenAlgo integrates with TradingView and GoCharting platforms to receive trading
                               │ HTTP POST (Webhook)
                               ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                     OpenAlgo REST API                                        │
+│                     BTAlgo REST API                                        │
 │                                                                              │
 │  POST /api/v1/placeorder      (Simple orders)                               │
 │  POST /api/v1/placesmartorder (Position-based orders)                       │
@@ -45,7 +45,7 @@ http://your-domain.com/api/v1/placeorder
 
 ```json
 {
-    "apikey": "your_openalgo_api_key",
+    "apikey": "your_btalgo_api_key",
     "symbol": "{{ticker}}",
     "exchange": "NSE",
     "action": "{{strategy.order.action}}",
@@ -206,7 +206,7 @@ Same format as TradingView:
 
 ## JSON Generator Endpoints
 
-OpenAlgo provides JSON generators for easy webhook configuration:
+BTAlgo provides JSON generators for easy webhook configuration:
 
 ### TradingView JSON Generator
 

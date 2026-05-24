@@ -34,7 +34,7 @@ def get_api_response(endpoint, auth, method="GET", payload=""):
         "SourceId": "WEB",
         "OsName": "Windows",
         "OsVersion": "10",
-        "AppName": "OpenAlgo",
+        "AppName": "BTAlgo",
         "AppVersion": "1.0.0",
     }
 
@@ -246,7 +246,7 @@ class BrokerData:
         Get real-time quotes for given symbol from Motilal Oswal.
 
         Args:
-            symbol: Trading symbol (OpenAlgo format)
+            symbol: Trading symbol (BTAlgo format)
             exchange: Exchange (NSE, BSE, NFO, BFO, CDS, MCX)
 
         Returns:
@@ -279,7 +279,7 @@ class BrokerData:
             elif exchange == "MCX_INDEX":
                 exchange = "MCX"
 
-            # Map OpenAlgo exchange to Motilal exchange
+            # Map BTAlgo exchange to Motilal exchange
             from broker.motilal.mapping.transform_data import map_exchange
 
             motilal_exchange = map_exchange(exchange)
@@ -313,7 +313,7 @@ class BrokerData:
                     return 0.0
                 return float(value) / 100.0
 
-            # Return quote in OpenAlgo common format
+            # Return quote in BTAlgo common format
             return {
                 "bid": convert_paisa_to_rupees(data.get("bid", 0)),
                 "ask": convert_paisa_to_rupees(data.get("ask", 0)),
@@ -442,7 +442,7 @@ class BrokerData:
                 elif exchange == "MCX_INDEX":
                     api_exchange = "MCX"
 
-                # Map OpenAlgo exchange to Motilal exchange
+                # Map BTAlgo exchange to Motilal exchange
                 from broker.motilal.mapping.transform_data import map_exchange
 
                 motilal_exchange = map_exchange(api_exchange)
@@ -554,14 +554,14 @@ class BrokerData:
     def get_depth(self, symbol: str, exchange: str) -> dict:
         """
         Get market depth for given symbol from Motilal Oswal using WebSocket.
-        This follows the OpenAlgo standard structure matching Angel and other brokers.
+        This follows the BTAlgo standard structure matching Angel and other brokers.
 
         Args:
             symbol: Trading symbol (e.g., SBIN, NIFTY)
             exchange: Exchange (e.g., NSE, BSE, NFO, NSE_INDEX)
 
         Returns:
-            dict: Market depth data in OpenAlgo standard format
+            dict: Market depth data in BTAlgo standard format
         """
         logger.info(f"Getting market depth for: {symbol} on {exchange}")
 
@@ -640,7 +640,7 @@ class BrokerData:
             elif api_exchange == "MCX_INDEX":
                 api_exchange = "MCX"
 
-            # Map OpenAlgo exchange to Motilal exchange
+            # Map BTAlgo exchange to Motilal exchange
             from broker.motilal.mapping.transform_data import map_exchange
 
             motilal_exchange = map_exchange(api_exchange)
@@ -689,7 +689,7 @@ class BrokerData:
             logger.info(f"Unsubscribing from depth for {exchange}:{symbol} after retrieving data")
             websocket.unregister_scrip(motilal_exchange, exchange_type, int(token))
 
-            # Create a normalized depth structure in the OpenAlgo format
+            # Create a normalized depth structure in the BTAlgo format
             # If depth is not available (e.g., for indices), use empty lists
             if depth:
                 bids = depth.get("bids", [])
@@ -736,7 +736,7 @@ class BrokerData:
             total_buy_qty = sum(b.get("quantity", 0) for b in bids if b is not None)
             total_sell_qty = sum(a.get("quantity", 0) for a in asks if a is not None)
 
-            # Return in Angel's OpenAlgo standard format (matching lines 524-537 of angel/api/data.py)
+            # Return in Angel's BTAlgo standard format (matching lines 524-537 of angel/api/data.py)
             return {
                 "bids": formatted_bids,
                 "asks": formatted_asks,

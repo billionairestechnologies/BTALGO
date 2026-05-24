@@ -139,7 +139,7 @@ def process_upstox_json(path):
         "BSE_FO": "BFO",
         "BCD_FO": "BCD",
         "MCX_FO": "MCX",
-        # Upstox quote-only world feeds — folded into OpenAlgo's GLOBAL_INDEX
+        # Upstox quote-only world feeds — folded into BTAlgo's GLOBAL_INDEX
         # bucket (mirrors Zerodha). Without this, these rows would silently
         # land with exchange=NULL after the .map() call.
         "GLOBAL_INDEX": "GLOBAL_INDEX",
@@ -179,7 +179,7 @@ def process_upstox_json(path):
     df["symbol"] = df.apply(reformat_symbol, axis=1)
     df["brexchange"] = segment_copy
 
-    # NSE Index Symbol Mapping (Upstox trading_symbol → OpenAlgo format)
+    # NSE Index Symbol Mapping (Upstox trading_symbol → BTAlgo format)
     df["symbol"] = df["symbol"].replace({
         # Major NSE Indices
         "NIFTY 50": "NIFTY",
@@ -288,7 +288,7 @@ def process_upstox_json(path):
     })
 
     # GLOBAL_INDEX symbol normalisation (Upstox world indices & indicators).
-    # Mapped to OpenAlgo standard symbols listed in docs/prompt/symbol-format.md.
+    # Mapped to BTAlgo standard symbols listed in docs/prompt/symbol-format.md.
     global_idx_mask = df["exchange"] == "GLOBAL_INDEX"
     df.loc[global_idx_mask, "symbol"] = df.loc[global_idx_mask, "symbol"].replace({
         # World indices

@@ -29,7 +29,7 @@ def search_symbols(
             user_id = verify_api_key(api_key)
             if not user_id:
                 logger.warning("Invalid API key provided for search")
-                return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+                return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
 
         # Validate input
         if not query or not query.strip():

@@ -1,5 +1,5 @@
 """
-Kotak WebSocket streaming integration for OpenAlgo.
+Kotak WebSocket streaming integration for BTAlgo.
 Exposes the high-level adapter and core websocket client.
 """
 

@@ -2,7 +2,7 @@
 """
 Sandbox Mode - API Analyzer Environment
 
-OpenAlgo is an open-source application that provides Sandbox Mode (API Analyzer)
+BTAlgo is an open-source application that provides Sandbox Mode (API Analyzer)
 to make it easier for traders to test strategies in a realistic simulated
 environment without executing real trades through a broker.
 

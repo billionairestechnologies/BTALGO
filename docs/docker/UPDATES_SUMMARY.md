@@ -24,11 +24,11 @@ All installation scripts have been updated to include numba/llvmlite/scipy suppo
 #### BEFORE:
 ```bash
 # Directory creation - missing keys and tmp
-if [ ! -d "$OPENALGO_DIR/strategies" ]; then
-    mkdir -p "$OPENALGO_DIR/strategies/scripts"
+if [ ! -d "$BTALGO_DIR/strategies" ]; then
+    mkdir -p "$BTALGO_DIR/strategies/scripts"
 fi
-if [ ! -d "$OPENALGO_DIR/log" ]; then
-    mkdir -p "$OPENALGO_DIR/log/strategies"
+if [ ! -d "$BTALGO_DIR/log" ]; then
+    mkdir -p "$BTALGO_DIR/log/strategies"
 fi
 
 # Docker run - missing shm-size, keys, tmp volumes
@@ -36,10 +36,10 @@ docker run -d \
     --name "$CONTAINER" \
     -p 5000:5000 \
     -p 8765:8765 \
-    -v "$OPENALGO_DIR/db:/app/db" \
-    -v "$OPENALGO_DIR/strategies:/app/strategies" \
-    -v "$OPENALGO_DIR/log:/app/log" \
-    -v "$OPENALGO_DIR/.env:/app/.env:ro" \
+    -v "$BTALGO_DIR/db:/app/db" \
+    -v "$BTALGO_DIR/strategies:/app/strategies" \
+    -v "$BTALGO_DIR/log:/app/log" \
+    -v "$BTALGO_DIR/.env:/app/.env:ro" \
     --restart unless-stopped \
     "$IMAGE"
 ```
@@ -47,17 +47,17 @@ docker run -d \
 #### AFTER:
 ```bash
 # Directory creation - includes keys and tmp
-if [ ! -d "$OPENALGO_DIR/strategies" ]; then
-    mkdir -p "$OPENALGO_DIR/strategies/scripts"
+if [ ! -d "$BTALGO_DIR/strategies" ]; then
+    mkdir -p "$BTALGO_DIR/strategies/scripts"
 fi
-if [ ! -d "$OPENALGO_DIR/log" ]; then
-    mkdir -p "$OPENALGO_DIR/log/strategies"
+if [ ! -d "$BTALGO_DIR/log" ]; then
+    mkdir -p "$BTALGO_DIR/log/strategies"
 fi
-if [ ! -d "$OPENALGO_DIR/keys" ]; then
-    mkdir -p "$OPENALGO_DIR/keys"
+if [ ! -d "$BTALGO_DIR/keys" ]; then
+    mkdir -p "$BTALGO_DIR/keys"
 fi
-if [ ! -d "$OPENALGO_DIR/tmp" ]; then
-    mkdir -p "$OPENALGO_DIR/tmp"
+if [ ! -d "$BTALGO_DIR/tmp" ]; then
+    mkdir -p "$BTALGO_DIR/tmp"
 fi
 
 # Docker run - includes shm-size, keys, tmp volumes
@@ -66,12 +66,12 @@ docker run -d \
     --shm-size=2g \                                    # ← NEW
     -p 5000:5000 \
     -p 8765:8765 \
-    -v "$OPENALGO_DIR/db:/app/db" \
-    -v "$OPENALGO_DIR/strategies:/app/strategies" \
-    -v "$OPENALGO_DIR/log:/app/log" \
-    -v "$OPENALGO_DIR/keys:/app/keys" \                # ← NEW
-    -v "$OPENALGO_DIR/tmp:/app/tmp" \                  # ← NEW
-    -v "$OPENALGO_DIR/.env:/app/.env:ro" \
+    -v "$BTALGO_DIR/db:/app/db" \
+    -v "$BTALGO_DIR/strategies:/app/strategies" \
+    -v "$BTALGO_DIR/log:/app/log" \
+    -v "$BTALGO_DIR/keys:/app/keys" \                # ← NEW
+    -v "$BTALGO_DIR/tmp:/app/tmp" \                  # ← NEW
+    -v "$BTALGO_DIR/.env:/app/.env:ro" \
     --restart unless-stopped \
     "$IMAGE"
 ```
@@ -83,8 +83,8 @@ docker run -d \
 #### BEFORE:
 ```batch
 REM Missing keys and tmp directories
-if not exist "%OPENALGO_DIR%\log\" (
-    md "%OPENALGO_DIR%\log" 2>nul
+if not exist "%BTALGO_DIR%\log\" (
+    md "%BTALGO_DIR%\log" 2>nul
 )
 
 REM Missing shm-size, keys, tmp volumes
@@ -92,10 +92,10 @@ docker run -d ^
     --name %CONTAINER% ^
     -p 5000:5000 ^
     -p 8765:8765 ^
-    -v "%OPENALGO_DIR%\db:/app/db" ^
-    -v "%OPENALGO_DIR%\strategies:/app/strategies" ^
-    -v "%OPENALGO_DIR%\log:/app/log" ^
-    -v "%OPENALGO_DIR%\.env:/app/.env:ro" ^
+    -v "%BTALGO_DIR%\db:/app/db" ^
+    -v "%BTALGO_DIR%\strategies:/app/strategies" ^
+    -v "%BTALGO_DIR%\log:/app/log" ^
+    -v "%BTALGO_DIR%\.env:/app/.env:ro" ^
     --restart unless-stopped ^
     %IMAGE%
 ```
@@ -103,14 +103,14 @@ docker run -d ^
 #### AFTER:
 ```batch
 REM Includes keys and tmp directories
-if not exist "%OPENALGO_DIR%\log\" (
-    md "%OPENALGO_DIR%\log" 2>nul
+if not exist "%BTALGO_DIR%\log\" (
+    md "%BTALGO_DIR%\log" 2>nul
 )
-if not exist "%OPENALGO_DIR%\keys\" (
-    md "%OPENALGO_DIR%\keys" 2>nul
+if not exist "%BTALGO_DIR%\keys\" (
+    md "%BTALGO_DIR%\keys" 2>nul
 )
-if not exist "%OPENALGO_DIR%\tmp\" (
-    md "%OPENALGO_DIR%\tmp" 2>nul
+if not exist "%BTALGO_DIR%\tmp\" (
+    md "%BTALGO_DIR%\tmp" 2>nul
 )
 
 REM Includes shm-size, keys, tmp volumes
@@ -119,12 +119,12 @@ docker run -d ^
     --shm-size=2g ^                                         # ← NEW
     -p 5000:5000 ^
     -p 8765:8765 ^
-    -v "%OPENALGO_DIR%\db:/app/db" ^
-    -v "%OPENALGO_DIR%\strategies:/app/strategies" ^
-    -v "%OPENALGO_DIR%\log:/app/log" ^
-    -v "%OPENALGO_DIR%\keys:/app/keys" ^                    # ← NEW
-    -v "%OPENALGO_DIR%\tmp:/app/tmp" ^                      # ← NEW
-    -v "%OPENALGO_DIR%\.env:/app/.env:ro" ^
+    -v "%BTALGO_DIR%\db:/app/db" ^
+    -v "%BTALGO_DIR%\strategies:/app/strategies" ^
+    -v "%BTALGO_DIR%\log:/app/log" ^
+    -v "%BTALGO_DIR%\keys:/app/keys" ^                    # ← NEW
+    -v "%BTALGO_DIR%\tmp:/app/tmp" ^                      # ← NEW
+    -v "%BTALGO_DIR%\.env:/app/.env:ro" ^
     --restart unless-stopped ^
     %IMAGE%
 ```
@@ -136,18 +136,18 @@ docker run -d ^
 #### BEFORE:
 ```yaml
 services:
-  openalgo:
-    container_name: openalgo-web
+  btalgo:
+    container_name: btalgo-web
     ports:
       - "127.0.0.1:5000:5000"
       - "127.0.0.1:8765:8765"
 
     volumes:
-      - openalgo_db:/app/db
-      - openalgo_logs:/app/logs          # ← EXTRA, UNUSED
-      - openalgo_log:/app/log
-      - openalgo_strategies:/app/strategies
-      - openalgo_keys:/app/keys
+      - btalgo_db:/app/db
+      - btalgo_logs:/app/logs          # ← EXTRA, UNUSED
+      - btalgo_log:/app/log
+      - btalgo_strategies:/app/strategies
+      - btalgo_keys:/app/keys
       - ./.env:/app/.env:ro
 
     environment:
@@ -162,29 +162,29 @@ services:
     restart: unless-stopped
 
 volumes:
-  openalgo_db:
-  openalgo_logs:                         # ← EXTRA, UNUSED
-  openalgo_log:
-  openalgo_strategies:
-  openalgo_keys:
-  # MISSING: openalgo_tmp
+  btalgo_db:
+  btalgo_logs:                         # ← EXTRA, UNUSED
+  btalgo_log:
+  btalgo_strategies:
+  btalgo_keys:
+  # MISSING: btalgo_tmp
 ```
 
 #### AFTER:
 ```yaml
 services:
-  openalgo:
-    container_name: openalgo-web
+  btalgo:
+    container_name: btalgo-web
     ports:
       - "127.0.0.1:5000:5000"
       - "127.0.0.1:8765:8765"
 
     volumes:
-      - openalgo_db:/app/db
-      - openalgo_log:/app/log
-      - openalgo_strategies:/app/strategies
-      - openalgo_keys:/app/keys
-      - openalgo_tmp:/app/tmp              # ← NEW
+      - btalgo_db:/app/db
+      - btalgo_log:/app/log
+      - btalgo_strategies:/app/strategies
+      - btalgo_keys:/app/keys
+      - btalgo_tmp:/app/tmp              # ← NEW
       - ./.env:/app/.env:ro
 
     environment:
@@ -200,11 +200,11 @@ services:
     restart: unless-stopped
 
 volumes:
-  openalgo_db:
-  openalgo_log:
-  openalgo_strategies:
-  openalgo_keys:
-  openalgo_tmp:                            # ← NEW
+  btalgo_db:
+  btalgo_log:
+  btalgo_strategies:
+  btalgo_keys:
+  btalgo_tmp:                            # ← NEW
 ```
 
 ---
@@ -286,8 +286,8 @@ All changes are **100% backward compatible**:
 - [ ] Test docker-run.bat on Windows 10/11
 - [ ] Test install-docker.sh on clean Ubuntu 22.04
 - [ ] Test install-docker.sh on clean Debian 12
-- [ ] Verify numba import works: `docker exec openalgo python -c "import numba; print('OK')"`
-- [ ] Verify shared memory: `docker inspect openalgo --format='{{.HostConfig.ShmSize}}'` should show `2147483648`
+- [ ] Verify numba import works: `docker exec btalgo python -c "import numba; print('OK')"`
+- [ ] Verify shared memory: `docker inspect btalgo --format='{{.HostConfig.ShmSize}}'` should show `2147483648`
 - [ ] Run trading strategy with indicators
 - [ ] Check master contract download works
 
@@ -329,7 +329,7 @@ docker-run.bat start
 
 **Update Docker Compose Config:**
 ```bash
-cd /opt/openalgo
+cd /opt/btalgo
 sudo docker compose down
 # Update docker-compose.yaml manually or re-run installer
 sudo docker compose up -d
@@ -344,7 +344,7 @@ sudo docker compose up -d
 **Solution:**
 ```bash
 # macOS/Linux
-chmod 755 /path/to/openalgo
+chmod 755 /path/to/btalgo
 
 # Or run with sudo if necessary
 sudo ./docker-run.sh start
@@ -354,13 +354,13 @@ sudo ./docker-run.sh start
 
 **Verify shared memory:**
 ```bash
-docker inspect openalgo --format='{{.HostConfig.ShmSize}}'
+docker inspect btalgo --format='{{.HostConfig.ShmSize}}'
 # Should show: 2147483648 (2GB in bytes)
 ```
 
 **Verify volumes:**
 ```bash
-docker inspect openalgo --format='{{range .Mounts}}{{.Destination}} {{end}}'
+docker inspect btalgo --format='{{range .Mounts}}{{.Destination}} {{end}}'
 # Should include: /app/tmp
 ```
 

@@ -1,7 +1,7 @@
 """
-Motilal Oswal WebSocket adapter for OpenAlgo streaming proxy.
+Motilal Oswal WebSocket adapter for BTAlgo streaming proxy.
 
-This adapter integrates Motilal Oswal's WebSocket client with OpenAlgo's
+This adapter integrates Motilal Oswal's WebSocket client with BTAlgo's
 WebSocket proxy infrastructure to provide standardized market data streaming.
 """
 

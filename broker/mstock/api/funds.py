@@ -55,7 +55,7 @@ def get_margin_data(auth_token):
             }
 
             filtered_data = {}
-            for mstock_key, openalgo_key in key_mapping.items():
+            for mstock_key, btalgo_key in key_mapping.items():
                 value = data.get(mstock_key)
                 if value in (None, "None", ""):
                     value = 0
@@ -63,7 +63,7 @@ def get_margin_data(auth_token):
                     formatted_value = f"{float(value):.2f}"
                 except (ValueError, TypeError):
                     formatted_value = "0.00"
-                filtered_data[openalgo_key] = formatted_value
+                filtered_data[btalgo_key] = formatted_value
 
             logger.debug(f"filteredMargin Data: {filtered_data}")
             return filtered_data

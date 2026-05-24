@@ -2,7 +2,7 @@
 
 ## Overview
 
-Ngrok creates secure tunnels to expose your local OpenAlgo instance to the internet, enabling webhook integrations from TradingView, Chartink, and other external services.
+Ngrok creates secure tunnels to expose your local BTAlgo instance to the internet, enabling webhook integrations from TradingView, Chartink, and other external services.
 
 ## Architecture Diagram
 
@@ -41,7 +41,7 @@ Ngrok creates secure tunnels to expose your local OpenAlgo instance to the inter
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                       OpenAlgo (localhost:5000)                              │
+│                       BTAlgo (localhost:5000)                              │
 │                                                                              │
 │  POST /api/v1/placeorder                                                    │
 │  POST /api/v1/webhook/{strategy_id}                                         │
@@ -74,7 +74,7 @@ HOST_SERVER=https://your-custom-domain.ngrok.io
 2. Sign up for free account
 3. Copy your auth token
 
-### 2. Configure OpenAlgo
+### 2. Configure BTAlgo
 
 ```bash
 # .env
@@ -82,7 +82,7 @@ NGROK_ENABLED=True
 NGROK_AUTH_TOKEN=2abc123def456...
 ```
 
-### 3. Start OpenAlgo
+### 3. Start BTAlgo
 
 ```bash
 uv run app.py
@@ -91,7 +91,7 @@ uv run app.py
 Ngrok starts automatically and displays the public URL:
 
 ```
-╭─── OpenAlgo v2.0.0 ───────────────────────────────────────────╮
+╭─── BTAlgo v2.0.0 ───────────────────────────────────────────╮
 │                                                               │
 │ Endpoints                                                     │
 │ Web App    http://127.0.0.1:5000                             │
@@ -181,7 +181,7 @@ https://your-domain.ngrok.io/api/v1/placeorder
 
 ```json
 {
-    "apikey": "your_openalgo_api_key",
+    "apikey": "your_btalgo_api_key",
     "symbol": "SBIN",
     "exchange": "NSE",
     "action": "BUY",
@@ -198,7 +198,7 @@ https://your-domain.ngrok.io/api/v1/placeorder
 | Issue | Solution |
 |-------|----------|
 | Tunnel not starting | Check NGROK_AUTH_TOKEN |
-| Connection refused | Ensure OpenAlgo is running |
+| Connection refused | Ensure BTAlgo is running |
 | URL changes on restart | Use custom domain |
 | Rate limiting | Upgrade ngrok plan |
 

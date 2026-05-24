@@ -135,7 +135,7 @@ def download_and_unzip_zebu_data(output_path):
 
 def process_zebu_nse_data(output_path):
     """
-    Processes the Zebu NSE data (NSE_symbols.txt) to generate OpenAlgo symbols.
+    Processes the Zebu NSE data (NSE_symbols.txt) to generate BTAlgo symbols.
     Separates EQ, BE symbols, and Index symbols.
     """
     logger.info("Processing Zebu NSE Data")
@@ -164,19 +164,19 @@ def process_zebu_nse_data(output_path):
     # Add missing columns to ensure DataFrame matches the database structure
     df["symbol"] = df["brsymbol"]  # Initialize 'symbol' with 'brsymbol'
 
-    # Apply transformation for OpenAlgo symbols
-    def get_openalgo_symbol(broker_symbol):
+    # Apply transformation for BTAlgo symbols
+    def get_btalgo_symbol(broker_symbol):
         # Separate by hyphen and apply logic for EQ and BE
         if "-EQ" in broker_symbol:
             return broker_symbol.replace("-EQ", "")
         elif "-BE" in broker_symbol:
             return broker_symbol.replace("-BE", "")
         else:
-            # For other symbols (including index), OpenAlgo symbol remains the same as broker symbol
+            # For other symbols (including index), BTAlgo symbol remains the same as broker symbol
             return broker_symbol
 
     # Update the 'symbol' column
-    df["symbol"] = df["brsymbol"].apply(get_openalgo_symbol)
+    df["symbol"] = df["brsymbol"].apply(get_btalgo_symbol)
 
     # Define Exchange: 'NSE' for EQ and BE, 'NSE_INDEX' for indexes
     df["exchange"] = df.apply(
@@ -216,7 +216,7 @@ def process_zebu_nse_data(output_path):
     ]
     df_filtered = df[columns_to_keep]
 
-    # Map common NSE index symbols to OpenAlgo format
+    # Map common NSE index symbols to BTAlgo format
     nse_index_mapping = {
         "NIFTY INDEX": "NIFTY",
         "NIFTY BANK": "BANKNIFTY",
@@ -237,7 +237,7 @@ def process_zebu_nse_data(output_path):
 
 def process_zebu_nfo_data(output_path):
     """
-    Processes the Zebu NFO data (NFO_symbols.txt) to generate OpenAlgo symbols.
+    Processes the Zebu NFO data (NFO_symbols.txt) to generate BTAlgo symbols.
     Handles both futures and options formatting.
     """
     logger.info("Processing Zebu NFO Data")
@@ -355,7 +355,7 @@ def process_zebu_nfo_data(output_path):
 
 def process_zebu_cds_data(output_path):
     """
-    Processes the Zebu CDS data (CDS_symbols.txt) to generate OpenAlgo symbols.
+    Processes the Zebu CDS data (CDS_symbols.txt) to generate BTAlgo symbols.
     Handles both futures and options formatting.
     """
     logger.info("Processing Zebu CDS Data")
@@ -481,7 +481,7 @@ def process_zebu_cds_data(output_path):
 
 def process_zebu_mcx_data(output_path):
     """
-    Processes the Zebu MCX data (MCX_symbols.txt) to generate OpenAlgo symbols.
+    Processes the Zebu MCX data (MCX_symbols.txt) to generate BTAlgo symbols.
     Handles both futures and options formatting.
     """
     logger.info("Processing Zebu MCX Data")
@@ -605,7 +605,7 @@ def process_zebu_mcx_data(output_path):
 
 def process_zebu_bse_data(output_path):
     """
-    Processes the Zebu BSE data (BSE_symbols.txt) to generate OpenAlgo symbols.
+    Processes the Zebu BSE data (BSE_symbols.txt) to generate BTAlgo symbols.
     Ensures that the instrument type is always 'EQ' (no BSE index symbols available from Zebu).
     """
     logger.info("Processing Zebu BSE Data")
@@ -637,12 +637,12 @@ def process_zebu_bse_data(output_path):
     # Add missing columns to ensure DataFrame matches the database structure
     df["symbol"] = df["brsymbol"]  # Initialize 'symbol' with 'brsymbol'
 
-    # Apply transformation for OpenAlgo symbols (no special logic needed here)
-    def get_openalgo_symbol(broker_symbol):
+    # Apply transformation for BTAlgo symbols (no special logic needed here)
+    def get_btalgo_symbol(broker_symbol):
         return broker_symbol
 
     # Update the 'symbol' column
-    df["symbol"] = df["brsymbol"].apply(get_openalgo_symbol)
+    df["symbol"] = df["brsymbol"].apply(get_btalgo_symbol)
 
     # Set Exchange: 'BSE' for all rows (no BSE index symbols from Zebu)
     df["exchange"] = "BSE"
@@ -685,7 +685,7 @@ def process_zebu_bse_data(output_path):
 
 def process_zebu_bfo_data(output_path):
     """
-    Processes the Zebu BFO data (BFO_symbols.txt) to generate OpenAlgo symbols and correctly extract the name column.
+    Processes the Zebu BFO data (BFO_symbols.txt) to generate BTAlgo symbols and correctly extract the name column.
     Handles both futures and options formatting, ensuring strike prices are handled as either float or integer.
     """
     logger.info("Processing Zebu BFO Data")

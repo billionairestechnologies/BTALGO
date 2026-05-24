@@ -1,5 +1,5 @@
 """
-Dhan WebSocket Adapter for OpenAlgo
+Dhan WebSocket Adapter for BTAlgo
 Manages both 5-level and 20-level depth connections
 """
 

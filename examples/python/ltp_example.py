@@ -1,5 +1,5 @@
 """
-OpenAlgo WebSocket Feed Example
+BTAlgo WebSocket Feed Example
 """
 
 import time

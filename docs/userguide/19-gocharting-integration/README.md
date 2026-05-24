@@ -2,16 +2,16 @@
 
 ## Introduction
 
-GoCharting is a modern web-based charting platform designed specifically for Indian markets. It offers TradingView-style functionality with native support for Indian exchanges. OpenAlgo integrates seamlessly with GoCharting's webhook system for automated trading.
+GoCharting is a modern web-based charting platform designed specifically for Indian markets. It offers TradingView-style functionality with native support for Indian exchanges. BTAlgo integrates seamlessly with GoCharting's webhook system for automated trading.
 
 ## How It Works
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    GoCharting → OpenAlgo Flow                               │
+│                    GoCharting → BTAlgo Flow                               │
 │                                                                              │
 │  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌──────────┐  │
-│  │ GoCharting  │     │   Webhook   │     │  OpenAlgo   │     │  Broker  │  │
+│  │ GoCharting  │     │   Webhook   │     │  BTAlgo   │     │  Broker  │  │
 │  │   Alert     │────▶│   Request   │────▶│   Server    │────▶│   API    │  │
 │  │  Triggers   │     │             │     │             │     │          │  │
 │  └─────────────┘     └─────────────┘     └─────────────┘     └──────────┘  │
@@ -25,8 +25,8 @@ GoCharting is a modern web-based charting platform designed specifically for Ind
 ## Prerequisites
 
 1. GoCharting account (Pro plan for webhooks)
-2. OpenAlgo running and accessible via internet
-3. API key generated in OpenAlgo
+2. BTAlgo running and accessible via internet
+3. API key generated in BTAlgo
 4. Broker connected and logged in
 
 ## GoCharting Features
@@ -41,13 +41,13 @@ GoCharting is a modern web-based charting platform designed specifically for Ind
 | Alert System | Webhook support for automation |
 | Mobile App | Trade from anywhere |
 
-## Making OpenAlgo Accessible for Webhooks
+## Making BTAlgo Accessible for Webhooks
 
-GoCharting webhooks need to reach your OpenAlgo server from the internet.
+GoCharting webhooks need to reach your BTAlgo server from the internet.
 
 ### Recommended: Production Server with Domain
 
-Deploy OpenAlgo on an Ubuntu server using `install.sh` (see [Installation Guide](../04-installation/README.md)):
+Deploy BTAlgo on an Ubuntu server using `install.sh` (see [Installation Guide](../04-installation/README.md)):
 
 ```
 Webhook URL: https://yourdomain.com/api/v1/placeorder
@@ -84,7 +84,7 @@ cloudflared tunnel --url http://localhost:5000
 # Copy the https URL provided
 ```
 
-**Important**: Tunnel services are **only for webhooks**, not for running the full application. Always run OpenAlgo on your own server for production use
+**Important**: Tunnel services are **only for webhooks**, not for running the full application. Always run BTAlgo on your own server for production use
 
 ## Creating Alerts in GoCharting
 
@@ -105,7 +105,7 @@ cloudflared tunnel --url http://localhost:5000
 ### Step 3: Configure Webhook
 
 1. In alert dialog, select **Webhook**
-2. Enter URL: `https://your-openalgo-url/api/v1/placeorder`
+2. Enter URL: `https://your-btalgo-url/api/v1/placeorder`
 3. Configure the message body
 
 ## Webhook Message Templates
@@ -329,7 +329,7 @@ if (shortCondition)
 
 ### Equity Symbols
 
-| GoCharting | OpenAlgo |
+| GoCharting | BTAlgo |
 |------------|----------|
 | NSE:SBIN | SBIN (exchange: NSE) |
 | BSE:SBIN | SBIN (exchange: BSE) |
@@ -337,7 +337,7 @@ if (shortCondition)
 
 ### Index Symbols
 
-| GoCharting | OpenAlgo |
+| GoCharting | BTAlgo |
 |------------|----------|
 | NSE:NIFTY | NIFTY 50 |
 | NSE:BANKNIFTY | NIFTY BANK |
@@ -356,7 +356,7 @@ Format: `SYMBOL` + `EXPIRY` + `STRIKE` + `CE/PE`
 
 ### Step 1: Enable Analyzer Mode
 
-1. Go to **Analyzer** in OpenAlgo
+1. Go to **Analyzer** in BTAlgo
 2. Click **Enable Analyzer Mode**
 3. Orders route to sandbox
 
@@ -368,7 +368,7 @@ Format: `SYMBOL` + `EXPIRY` + `STRIKE` + `CE/PE`
 
 ### Step 3: Verify Execution
 
-1. Check **Order Book** in OpenAlgo
+1. Check **Order Book** in BTAlgo
 2. Verify order details
 3. Check **Positions**
 
@@ -437,13 +437,13 @@ Create separate alerts for different timeframes:
 
 ### 5. Monitor Regularly
 
-- Check OpenAlgo dashboard
+- Check BTAlgo dashboard
 - Review trade logs
 - Verify position accuracy
 
 ## Troubleshooting
 
-### Webhook Not Reaching OpenAlgo
+### Webhook Not Reaching BTAlgo
 
 | Issue | Solution |
 |-------|----------|
@@ -463,7 +463,7 @@ Create separate alerts for different timeframes:
 ### Debugging Steps
 
 1. Check GoCharting alert history
-2. Review OpenAlgo Traffic Logs
+2. Review BTAlgo Traffic Logs
 3. Verify webhook payload format
 4. Test API manually with Playground
 

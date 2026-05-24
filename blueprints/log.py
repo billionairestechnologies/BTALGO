@@ -286,7 +286,7 @@ def export_logs():
 
         # Generate filename with timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"openalgo_logs_{timestamp}.csv"
+        filename = f"btalgo_logs_{timestamp}.csv"
 
         logger.info(f"Generated CSV file: {filename}")
 

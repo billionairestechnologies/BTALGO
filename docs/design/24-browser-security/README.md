@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo implements browser-side security measures including session management, CSRF protection, secure cookies, and content security policies.
+BTAlgo implements browser-side security measures including session management, CSRF protection, secure cookies, and content security policies.
 
 ## Architecture Diagram
 
@@ -88,7 +88,7 @@ app.config.update(
     SESSION_COOKIE_SECURE=True,      # HTTPS only
     SESSION_COOKIE_HTTPONLY=True,    # No JavaScript access
     SESSION_COOKIE_SAMESITE='Lax',   # CSRF protection
-    SESSION_COOKIE_NAME='openalgo_session',
+    SESSION_COOKIE_NAME='btalgo_session',
     PERMANENT_SESSION_LIFETIME=timedelta(hours=24)
 )
 ```

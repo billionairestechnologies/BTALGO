@@ -1,5 +1,5 @@
 """
-Fixed Dhan WebSocket adapter for OpenAlgo.
+Fixed Dhan WebSocket adapter for BTAlgo.
 Implements the broker-specific WebSocket adapter for Dhan with proper mode mapping.
 """
 
@@ -21,7 +21,7 @@ from database.auth_db import get_auth_token
 from database.token_db import get_token
 from websocket_proxy.base_adapter import BaseBrokerWebSocketAdapter
 
-from .dhan_mapping import get_dhan_exchange, get_openalgo_exchange
+from .dhan_mapping import get_dhan_exchange, get_btalgo_exchange
 
 # Import the WebSocket client
 from .dhan_websocket import DhanWebSocket
@@ -41,7 +41,7 @@ def _get_dhan_client_id() -> str | None:
 class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
     """
     Dhan-specific implementation of the WebSocket adapter.
-    Implements OpenAlgo WebSocket proxy interface with proper mode mapping.
+    Implements BTAlgo WebSocket proxy interface with proper mode mapping.
     """
 
     # No fallback token mappings - using database lookups only
@@ -80,9 +80,9 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
         self.batch_timer: threading.Timer | None = None
         self.batch_delay = 0.5
 
-        # Extended mode mapping to handle all possible OpenAlgo modes
+        # Extended mode mapping to handle all possible BTAlgo modes
         self.mode_map = {
-            # Standard OpenAlgo modes
+            # Standard BTAlgo modes
             1: DhanWebSocket.MODE_LTP,  # LTP -> "ltp"
             2: DhanWebSocket.MODE_QUOTE,  # Quote -> "marketdata"
             3: DhanWebSocket.MODE_FULL,  # Map mode 8 to FULL
@@ -402,30 +402,30 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
             except (ValueError, TypeError):
                 self.logger.warning(f"DEBUG: Could not convert mode {mode} to int, using as is")
 
-            # Map OpenAlgo mode to Dhan mode with explicit handling of all possible modes
+            # Map BTAlgo mode to Dhan mode with explicit handling of all possible modes
             if mode == 1:
                 # Standard LTP mode
                 dhan_mode = DhanWebSocket.MODE_LTP
-                self.logger.info(f"Mapped OpenAlgo mode {mode} (LTP) to Dhan mode '{dhan_mode}'")
+                self.logger.info(f"Mapped BTAlgo mode {mode} (LTP) to Dhan mode '{dhan_mode}'")
             elif mode == 2:
                 # Standard QUOTE mode
                 dhan_mode = DhanWebSocket.MODE_QUOTE
-                self.logger.info(f"Mapped OpenAlgo mode {mode} (QUOTE) to Dhan mode '{dhan_mode}'")
+                self.logger.info(f"Mapped BTAlgo mode {mode} (QUOTE) to Dhan mode '{dhan_mode}'")
             elif mode == 3:
                 # Standard DEPTH mode
                 dhan_mode = DhanWebSocket.MODE_FULL
-                self.logger.info(f"Mapped OpenAlgo mode {mode} (DEPTH) to Dhan mode '{dhan_mode}'")
+                self.logger.info(f"Mapped BTAlgo mode {mode} (DEPTH) to Dhan mode '{dhan_mode}'")
             else:
                 # All other modes (4-8) map to FULL/DEPTH
                 dhan_mode = DhanWebSocket.MODE_FULL
                 self.logger.info(
-                    f"Mapped OpenAlgo mode {mode} (DEPTH/FULL) to Dhan mode '{dhan_mode}'"
+                    f"Mapped BTAlgo mode {mode} (DEPTH/FULL) to Dhan mode '{dhan_mode}'"
                 )
 
             # Add symbol to subscription tracking
             with self.lock:
                 self.subscribed_symbols[symbol] = {
-                    "exchange": exchange,  # Store original OpenAlgo exchange
+                    "exchange": exchange,  # Store original BTAlgo exchange
                     "dhan_exchange": dhan_exchange,  # Store Dhan exchange
                     "token": actual_token,
                     "mode": mode,
@@ -440,7 +440,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
                 )
                 self.logger.info(f"📝 Current token_to_symbol: {self.token_to_symbol}")
 
-            # Map OpenAlgo exchange to Dhan exchange code
+            # Map BTAlgo exchange to Dhan exchange code
             exchange_code = 1  # Default to NSE_EQ
             if exchange == "NSE":
                 exchange_code = 1  # NSE_EQ
@@ -746,7 +746,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
                 # Get original subscription exchange for topic generation
                 subscription_exchange = exchange
 
-                # Convert to OpenAlgo format for data field
+                # Convert to BTAlgo format for data field
                 data_exchange = self._map_data_exchange(subscription_exchange)
 
                 # Set the data exchange field in the tick
@@ -763,7 +763,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
                 # Map numeric mode to string format
                 mode_str = {1: "LTP", 2: "QUOTE", 3: "DEPTH"}.get(mode, "LTP")
 
-                # Normalize tick format to OpenAlgo standard
+                # Normalize tick format to BTAlgo standard
                 normalized_tick = self._normalize_tick(tick)
 
                 # Set mode based on packet type
@@ -816,7 +816,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
         Args:
             symbol: The trading symbol
-            exchange: The exchange code in OpenAlgo format
+            exchange: The exchange code in BTAlgo format
             mode_str: The subscription mode (LTP, QUOTE, DEPTH)
 
         Returns:
@@ -844,7 +844,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
     def _normalize_tick(self, tick: dict[str, Any]) -> dict[str, Any]:
         """
-        Normalize Dhan tick data to OpenAlgo format.
+        Normalize Dhan tick data to BTAlgo format.
 
         This method handles OHLC data that may come in different formats:
         - Nested under 'ohlc' dictionary
@@ -861,12 +861,12 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
             # Debug log for troubleshooting
             self.logger.debug(f"Raw tick data: {tick}")
 
-            # Ensure exchange is in OpenAlgo format
+            # Ensure exchange is in BTAlgo format
             exchange = tick.get("exchange")
             if exchange:
-                openalgo_exchange = get_openalgo_exchange(exchange)
+                btalgo_exchange = get_btalgo_exchange(exchange)
             else:
-                openalgo_exchange = exchange
+                btalgo_exchange = exchange
 
             # Safely get numeric values with validation
             def safe_float(value, default=0.0):
@@ -891,7 +891,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
             # Create base normalized tick
             normalized = {
                 "symbol": tick.get("symbol"),
-                "exchange": openalgo_exchange,
+                "exchange": btalgo_exchange,
                 "token": tick.get("token") or tick.get("instrument_token"),
                 "ltt": timestamp,
                 "timestamp": timestamp,
@@ -1134,7 +1134,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
             # Backup original callbacks
             original_callbacks = {}
-            for mode in [1, 2, 3, 4, 5]:  # OpenAlgo modes
+            for mode in [1, 2, 3, 4, 5]:  # BTAlgo modes
                 if mode in self.callbacks:
                     original_callbacks[mode] = self.callbacks[mode].copy()
                 else:

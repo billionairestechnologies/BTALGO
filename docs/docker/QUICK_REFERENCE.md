@@ -40,24 +40,24 @@
 
 ### Verify Shared Memory
 ```bash
-docker inspect openalgo --format='{{.HostConfig.ShmSize}}'
+docker inspect btalgo --format='{{.HostConfig.ShmSize}}'
 # Should show: 2147483648 (2GB)
 ```
 
 ### Verify Volumes
 ```bash
-docker inspect openalgo --format='{{range .Mounts}}{{.Destination}} {{end}}'
+docker inspect btalgo --format='{{range .Mounts}}{{.Destination}} {{end}}'
 # Should include: /app/tmp /app/keys
 ```
 
 ### Test numba/scipy
 ```bash
-docker exec openalgo python -c "import numba, llvmlite, scipy; print('✓ Working')"
+docker exec btalgo python -c "import numba, llvmlite, scipy; print('✓ Working')"
 ```
 
 ### Test Strategy Indicators
 ```bash
-docker exec openalgo python -c "
+docker exec btalgo python -c "
 from numba import jit
 import numpy as np
 @jit(nopython=True)
@@ -102,7 +102,7 @@ docker-run.bat start
 ### Update Existing Installation
 
 ```bash
-cd /opt/openalgo
+cd /opt/btalgo
 sudo docker compose down
 # Edit docker-compose.yaml to add shm_size and tmp volume
 sudo docker compose up -d
@@ -110,7 +110,7 @@ sudo docker compose up -d
 
 **Or re-run installer:**
 ```bash
-curl -O https://raw.githubusercontent.com/marketcalls/openalgo/main/install/install-docker.sh
+curl -O https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/install-docker.sh
 chmod +x install-docker.sh
 sudo ./install-docker.sh
 ```
@@ -152,10 +152,10 @@ Full details in:
 
 If issues persist:
 1. Check logs: `docker-compose logs -f`
-2. Verify volumes: `docker inspect openalgo`
-3. Test imports: `docker exec openalgo python -c "import numba, scipy"`
+2. Verify volumes: `docker inspect btalgo`
+3. Test imports: `docker exec btalgo python -c "import numba, scipy"`
 4. Join Discord: https://discord.com/invite/UPh7QPsNhP
-5. GitHub Issues: https://github.com/marketcalls/openalgo/issues
+5. GitHub Issues: https://github.com/billionairestechnologies/btalgo/issues
 
 ---
 

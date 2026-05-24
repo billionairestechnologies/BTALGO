@@ -332,10 +332,10 @@ def cleanup_pools_for_user(user_id: str, broker_name: str | None = None) -> int:
     pool from before the auth refresh — which still holds the stale token
     that initialised it — and the user sees ``Adapter initialization
     failed: No authentication token found`` until they restart the whole
-    process. See marketcalls/openalgo#1394 for the user-visible symptom.
+    process. See marketcalls/btalgo#1394 for the user-visible symptom.
 
     Args:
-        user_id: OpenAlgo username whose pools should be discarded.
+        user_id: BTAlgo username whose pools should be discarded.
         broker_name: Optional. When set, only that broker's pool is
             discarded; otherwise every pool keyed by this user is purged.
 

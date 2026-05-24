@@ -6,7 +6,7 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# openalgo Installation Banner
+# btalgo Installation Banner
 echo -e "${BLUE}"
 echo "  ██████╗ ██████╗ ███████╗███╗   ██╗ █████╗ ██╗      ██████╗  ██████╗ "
 echo " ██╔═══██╗██╔══██╗██╔════╝████╗  ██║██╔══██╗██║     ██╔════╝ ██╔═══██╗"
@@ -17,7 +17,7 @@ echo "  ╚═════╝ ╚═╝     ╚══════╝╚═╝  �
 echo "                                                                        "
 echo -e "${NC}"
 
-# OpenAlgo Installation and Configuration Script
+# BTAlgo Installation and Configuration Script
 
 
 
@@ -260,7 +260,7 @@ check_and_configure_swap() {
 }
 
 # Start logging
-log_message "Starting OpenAlgo installation log at: $LOG_FILE" "$BLUE"
+log_message "Starting BTAlgo installation log at: $LOG_FILE" "$BLUE"
 log_message "----------------------------------------" "$BLUE"
 
 # Detect OS type and version
@@ -339,7 +339,7 @@ check_and_configure_swap
 check_timezone
 
 # Collect installation parameters
-log_message "OpenAlgo Installation Configuration" "$BLUE"
+log_message "BTAlgo Installation Configuration" "$BLUE"
 log_message "----------------------------------------" "$BLUE"
 
 # Get domain name
@@ -419,7 +419,7 @@ fi
 # Same-domain mode — /mcp and /oauth/* are served from the same nginx
 # vhost as the dashboard, so the existing reverse-proxy config covers it.
 # Local stdio MCP (Claude Desktop / Cursor / Windsurf) works regardless.
-log_message "\nRemote MCP lets hosted AI clients (Claude.ai, ChatGPT) connect to OpenAlgo over HTTPS." "$BLUE"
+log_message "\nRemote MCP lets hosted AI clients (Claude.ai, ChatGPT) connect to BTAlgo over HTTPS." "$BLUE"
 log_message "Skip this if you only use the local MCP server with Claude Desktop / Cursor." "$YELLOW"
 read -p "Enable Remote MCP? (y/N): " enable_mcp_input
 ENABLE_REMOTE_MCP="false"
@@ -435,16 +435,16 @@ API_KEY_PEPPER=$(generate_hex)
 # Installation paths — single deployment per server. For 2+ deployments
 # side-by-side use install/install-multi.sh (different scheme).
 #
-#   App, venv, socket, .env all live under /var/python/openalgo
-#   systemd unit:  openalgo.service
-#   nginx vhost:   openalgo.conf
-DEPLOY_NAME="openalgo"
-OPENALGO_PATH="/var/python/openalgo"
-BASE_PATH="$OPENALGO_PATH"
-VENV_PATH="$OPENALGO_PATH/.venv"
-SOCKET_PATH="$OPENALGO_PATH"
-SOCKET_FILE="$SOCKET_PATH/openalgo.sock"
-SERVICE_NAME="openalgo"
+#   App, venv, socket, .env all live under /var/python/btalgo
+#   systemd unit:  btalgo.service
+#   nginx vhost:   btalgo.conf
+DEPLOY_NAME="btalgo"
+BTALGO_PATH="/var/python/btalgo"
+BASE_PATH="$BTALGO_PATH"
+VENV_PATH="$BTALGO_PATH/.venv"
+SOCKET_PATH="$BTALGO_PATH"
+SOCKET_FILE="$SOCKET_PATH/btalgo.sock"
+SERVICE_NAME="btalgo"
 
 # Set Nginx configuration paths based on OS
 case "$OS_TYPE" in
@@ -461,9 +461,9 @@ case "$OS_TYPE" in
         sudo mkdir -p "$NGINX_AVAILABLE"
         ;;
 esac
-NGINX_CONFIG_FILE="$NGINX_AVAILABLE/openalgo.conf"
+NGINX_CONFIG_FILE="$NGINX_AVAILABLE/btalgo.conf"
 
-log_message "\nStarting OpenAlgo installation for $DEPLOY_NAME..." "$YELLOW"
+log_message "\nStarting BTAlgo installation for $DEPLOY_NAME..." "$YELLOW"
 
 # Update system packages
 log_message "\nUpdating system packages..." "$BLUE"
@@ -505,7 +505,7 @@ case "$OS_TYPE" in
         # Kaleido 1.x ships no bundled browser; it drives a system Chromium via choreographer.
         # Debian/Raspbian have 'chromium' in main. Ubuntu 19.10+ renamed it to 'chromium-browser'
         # which is a transitional package that installs the Chromium snap (works headless).
-        # Non-fatal — if nothing sticks we just warn; the rest of openalgo still installs fine.
+        # Non-fatal — if nothing sticks we just warn; the rest of btalgo still installs fine.
         log_message "\nInstalling Chromium for Telegram /chart rendering..." "$BLUE"
         if sudo apt-get install -y chromium fonts-liberation 2>/dev/null; then
             log_message "Installed chromium (Debian package)" "$GREEN"
@@ -715,8 +715,8 @@ if ! command -v certbot >/dev/null 2>&1; then
 fi
 log_message "Certbot installed successfully" "$GREEN"
 
-# Check and handle existing OpenAlgo installation
-handle_existing "$BASE_PATH" "installation directory" "OpenAlgo directory for $DEPLOY_NAME"
+# Check and handle existing BTAlgo installation
+handle_existing "$BASE_PATH" "installation directory" "BTAlgo directory for $DEPLOY_NAME"
 
 # Create base directory
 log_message "\nCreating base directory..." "$BLUE"
@@ -724,9 +724,9 @@ sudo mkdir -p $BASE_PATH
 check_status "Failed to create base directory"
 
 # Clone repository
-log_message "\nCloning OpenAlgo repository..." "$BLUE"
-sudo git clone https://github.com/marketcalls/openalgo.git $OPENALGO_PATH
-check_status "Failed to clone OpenAlgo repository"
+log_message "\nCloning BTAlgo repository..." "$BLUE"
+sudo git clone https://github.com/billionairestechnologies/btalgo.git $BTALGO_PATH
+check_status "Failed to clone BTAlgo repository"
 
 # Create virtual environment using uv
 log_message "\nSetting up Python virtual environment with uv..." "$BLUE"
@@ -760,7 +760,7 @@ log_message "\nInstalling Python dependencies with uv..." "$BLUE"
 # First activate the virtual environment path for uv
 ACTIVATE_CMD="source $VENV_PATH/bin/activate"
 # Install dependencies using uv
-sudo $UV_CMD pip install --python $VENV_PATH/bin/python -r $OPENALGO_PATH/requirements-nginx.txt
+sudo $UV_CMD pip install --python $VENV_PATH/bin/python -r $BTALGO_PATH/requirements-nginx.txt
 check_status "Failed to install Python dependencies"
 
 # Verify gunicorn and eventlet installation
@@ -778,38 +778,38 @@ fi
 
 # Configure .env file
 log_message "\nConfiguring environment file..." "$BLUE"
-handle_existing "$OPENALGO_PATH/.env" "environment file" ".env file"
+handle_existing "$BTALGO_PATH/.env" "environment file" ".env file"
 
-sudo cp $OPENALGO_PATH/.sample.env $OPENALGO_PATH/.env
-sudo sed -i "s|YOUR_BROKER_API_KEY|$BROKER_API_KEY|g" $OPENALGO_PATH/.env
-sudo sed -i "s|YOUR_BROKER_API_SECRET|$BROKER_API_SECRET|g" $OPENALGO_PATH/.env
+sudo cp $BTALGO_PATH/.sample.env $BTALGO_PATH/.env
+sudo sed -i "s|YOUR_BROKER_API_KEY|$BROKER_API_KEY|g" $BTALGO_PATH/.env
+sudo sed -i "s|YOUR_BROKER_API_SECRET|$BROKER_API_SECRET|g" $BTALGO_PATH/.env
 
 # Update market data API credentials if the broker is XTS-based
 if is_xts_broker "$BROKER_NAME"; then
-    sudo sed -i "s|YOUR_BROKER_MARKET_API_KEY|$BROKER_API_KEY_MARKET|g" $OPENALGO_PATH/.env
-    sudo sed -i "s|YOUR_BROKER_MARKET_API_SECRET|$BROKER_API_SECRET_MARKET|g" $OPENALGO_PATH/.env
+    sudo sed -i "s|YOUR_BROKER_MARKET_API_KEY|$BROKER_API_KEY_MARKET|g" $BTALGO_PATH/.env
+    sudo sed -i "s|YOUR_BROKER_MARKET_API_SECRET|$BROKER_API_SECRET_MARKET|g" $BTALGO_PATH/.env
 fi
 
-sudo sed -i "s|http://127.0.0.1:5000|https://$DOMAIN|g" $OPENALGO_PATH/.env
+sudo sed -i "s|http://127.0.0.1:5000|https://$DOMAIN|g" $BTALGO_PATH/.env
 # Explicitly set HOST_SERVER in case the default value didn't match
-sudo sed -i "s|HOST_SERVER = '.*'|HOST_SERVER = 'https://$DOMAIN'|g" $OPENALGO_PATH/.env
-sudo sed -i "s|<broker>|$BROKER_NAME|g" $OPENALGO_PATH/.env
-sudo sed -i "s|OPENALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$APP_KEY|g" $OPENALGO_PATH/.env
-sudo sed -i "s|OPENALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$API_KEY_PEPPER|g" $OPENALGO_PATH/.env
+sudo sed -i "s|HOST_SERVER = '.*'|HOST_SERVER = 'https://$DOMAIN'|g" $BTALGO_PATH/.env
+sudo sed -i "s|<broker>|$BROKER_NAME|g" $BTALGO_PATH/.env
+sudo sed -i "s|BTALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$APP_KEY|g" $BTALGO_PATH/.env
+sudo sed -i "s|BTALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$API_KEY_PEPPER|g" $BTALGO_PATH/.env
 
 # This deployment runs gunicorn behind the nginx reverse proxy configured below
 # (Unix socket bind, not directly reachable from the internet). The proxy sets
 # X-Forwarded-For / X-Real-IP for IP-based features; trust those headers.
-sudo sed -i "s|TRUST_PROXY_HEADERS = 'FALSE'|TRUST_PROXY_HEADERS = 'TRUE'|g" $OPENALGO_PATH/.env
+sudo sed -i "s|TRUST_PROXY_HEADERS = 'FALSE'|TRUST_PROXY_HEADERS = 'TRUE'|g" $BTALGO_PATH/.env
 
 # Disable session expiry for crypto brokers (24/7 markets)
 if [ "$DISABLE_SESSION_EXPIRY" = "true" ]; then
-    sudo sed -i "s|DISABLE_SESSION_EXPIRY = 'false'|DISABLE_SESSION_EXPIRY = 'true'|g" $OPENALGO_PATH/.env
+    sudo sed -i "s|DISABLE_SESSION_EXPIRY = 'false'|DISABLE_SESSION_EXPIRY = 'true'|g" $BTALGO_PATH/.env
     log_message "Session auto-logout disabled for crypto broker" "$GREEN"
 fi
 
 # Update WebSocket URL for production
-sudo sed -i "s|WEBSOCKET_URL='.*'|WEBSOCKET_URL='wss://$DOMAIN/ws'|g" $OPENALGO_PATH/.env
+sudo sed -i "s|WEBSOCKET_URL='.*'|WEBSOCKET_URL='wss://$DOMAIN/ws'|g" $BTALGO_PATH/.env
 
 # Enable Remote MCP if the operator opted in. Same-domain mode: /mcp and
 # /oauth/* are served from the same nginx vhost as the dashboard, no
@@ -817,8 +817,8 @@ sudo sed -i "s|WEBSOCKET_URL='.*'|WEBSOCKET_URL='wss://$DOMAIN/ws'|g" $OPENALGO_
 # allowlist) inherit their defaults from .sample.env — flip them later
 # in .env if you want stricter behavior on a shared deployment.
 if [ "$ENABLE_REMOTE_MCP" = "true" ]; then
-    sudo sed -i "s|MCP_HTTP_ENABLED = 'False'|MCP_HTTP_ENABLED = 'True'|g" $OPENALGO_PATH/.env
-    sudo sed -i "s|MCP_PUBLIC_URL = ''|MCP_PUBLIC_URL = 'https://$DOMAIN'|g" $OPENALGO_PATH/.env
+    sudo sed -i "s|MCP_HTTP_ENABLED = 'False'|MCP_HTTP_ENABLED = 'True'|g" $BTALGO_PATH/.env
+    sudo sed -i "s|MCP_PUBLIC_URL = ''|MCP_PUBLIC_URL = 'https://$DOMAIN'|g" $BTALGO_PATH/.env
     log_message "Remote MCP enabled at https://$DOMAIN/mcp" "$GREEN"
 fi
 
@@ -950,13 +950,13 @@ fi
 
 # Configure final Nginx setup with SSL and socket
 log_message "\nConfiguring final Nginx setup..." "$BLUE"
-# Remove the existing openalgo nginx config and any legacy domain-keyed
+# Remove the existing btalgo nginx config and any legacy domain-keyed
 # files left over from older installs (pre-simple-paths) so the rewrite
-# below leaves exactly one openalgo vhost on disk.
+# below leaves exactly one btalgo vhost on disk.
 sudo rm -f $NGINX_CONFIG_FILE
 sudo rm -f ${NGINX_AVAILABLE}/${DOMAIN} ${NGINX_AVAILABLE}/${DOMAIN}.conf
 if [ "$NGINX_CONFIG_MODE" = "sites" ]; then
-    sudo rm -f /etc/nginx/sites-enabled/openalgo.conf
+    sudo rm -f /etc/nginx/sites-enabled/btalgo.conf
     sudo rm -f /etc/nginx/sites-enabled/${DOMAIN}
     sudo rm -f /etc/nginx/sites-enabled/${DOMAIN}.conf
 fi
@@ -1118,30 +1118,30 @@ sudo nginx -t
 check_status "Failed to validate Nginx configuration"
 
 # Check and handle existing systemd service
-handle_existing "/etc/systemd/system/$SERVICE_NAME.service" "systemd service" "OpenAlgo service file"
+handle_existing "/etc/systemd/system/$SERVICE_NAME.service" "systemd service" "BTAlgo service file"
 
 # Create systemd service with unique name
 log_message "\nCreating systemd service..." "$BLUE"
 sudo tee /etc/systemd/system/$SERVICE_NAME.service > /dev/null << EOL
 [Unit]
-Description=OpenAlgo Gunicorn Daemon ($DEPLOY_NAME)
+Description=BTAlgo Gunicorn Daemon ($DEPLOY_NAME)
 After=network.target
 
 [Service]
 User=$WEB_USER
 Group=$WEB_GROUP
-WorkingDirectory=$OPENALGO_PATH
+WorkingDirectory=$BTALGO_PATH
 # Set HOME so Kaleido/choreographer can write temp files for Telegram /chart.
 # Kaleido 1.x creates temp dirs in Path.home() (not TMPDIR); the default
 # www-data home /var/www/ is typically root-owned and not writable.
-Environment="HOME=$OPENALGO_PATH/tmp"
+Environment="HOME=$BTALGO_PATH/tmp"
 # Environment variables for numba/scipy support
-Environment="TMPDIR=$OPENALGO_PATH/tmp"
-Environment="NUMBA_CACHE_DIR=$OPENALGO_PATH/tmp/numba_cache"
-Environment="LLVMLITE_TMPDIR=$OPENALGO_PATH/tmp"
-Environment="MPLCONFIGDIR=$OPENALGO_PATH/tmp/matplotlib"
+Environment="TMPDIR=$BTALGO_PATH/tmp"
+Environment="NUMBA_CACHE_DIR=$BTALGO_PATH/tmp/numba_cache"
+Environment="LLVMLITE_TMPDIR=$BTALGO_PATH/tmp"
+Environment="MPLCONFIGDIR=$BTALGO_PATH/tmp/matplotlib"
 # Thread limits for OpenBLAS/NumPy to prevent RLIMIT_NPROC issues
-# See: https://github.com/marketcalls/openalgo/issues/822
+# See: https://github.com/billionairestechnologies/btalgo/issues/822
 Environment="OPENBLAS_NUM_THREADS=2"
 Environment="OMP_NUM_THREADS=2"
 Environment="MKL_NUM_THREADS=2"
@@ -1173,23 +1173,23 @@ sudo chown -R $WEB_USER:$WEB_GROUP $BASE_PATH
 sudo chmod -R 755 $BASE_PATH
 
 # Create and set permissions for required directories
-sudo mkdir -p $OPENALGO_PATH/db
-sudo mkdir -p $OPENALGO_PATH/tmp/numba_cache
-sudo mkdir -p $OPENALGO_PATH/tmp/matplotlib
+sudo mkdir -p $BTALGO_PATH/db
+sudo mkdir -p $BTALGO_PATH/tmp/numba_cache
+sudo mkdir -p $BTALGO_PATH/tmp/matplotlib
 # Create directories for Python strategy feature
-sudo mkdir -p $OPENALGO_PATH/strategies/scripts
-sudo mkdir -p $OPENALGO_PATH/strategies/examples
-sudo mkdir -p $OPENALGO_PATH/log/strategies
-sudo mkdir -p $OPENALGO_PATH/keys
+sudo mkdir -p $BTALGO_PATH/strategies/scripts
+sudo mkdir -p $BTALGO_PATH/strategies/examples
+sudo mkdir -p $BTALGO_PATH/log/strategies
+sudo mkdir -p $BTALGO_PATH/keys
 # Set ownership and permissions
-sudo chown -R $WEB_USER:$WEB_GROUP $OPENALGO_PATH
-sudo chmod -R 755 $OPENALGO_PATH
+sudo chown -R $WEB_USER:$WEB_GROUP $BTALGO_PATH
+sudo chmod -R 755 $BTALGO_PATH
 # Set more restrictive permissions for sensitive directories
-sudo chmod 700 $OPENALGO_PATH/keys
+sudo chmod 700 $BTALGO_PATH/keys
 # Restrict .env to the service account only — contains APP_KEY, API_KEY_PEPPER,
 # broker API credentials, and SMTP password. The recursive chmod 755 above
 # would otherwise leave it world-readable on shared boxes.
-sudo chmod 600 $OPENALGO_PATH/.env
+sudo chmod 600 $BTALGO_PATH/.env
 
 # Remove existing socket file if it exists
 [ -S "$SOCKET_FILE" ] && sudo rm -f $SOCKET_FILE
@@ -1199,7 +1199,7 @@ sudo chmod 755 $SOCKET_PATH
 
 # Verify permissions
 log_message "\nVerifying permissions..." "$BLUE"
-ls -la $OPENALGO_PATH
+ls -la $BTALGO_PATH
 check_status "Failed to set permissions"
 
 # Reload systemd and start services
@@ -1248,8 +1248,8 @@ log_message "Operating System: $OS_TYPE $OS_VERSION" "$BLUE"
 log_message "Deployment Name: $DEPLOY_NAME" "$BLUE"
 log_message "Domain: $DOMAIN" "$BLUE"
 log_message "Broker: $BROKER_NAME" "$BLUE"
-log_message "Installation Directory: $OPENALGO_PATH" "$BLUE"
-log_message "Environment File: $OPENALGO_PATH/.env" "$BLUE"
+log_message "Installation Directory: $BTALGO_PATH" "$BLUE"
+log_message "Environment File: $BTALGO_PATH/.env" "$BLUE"
 log_message "Socket File: $SOCKET_FILE" "$BLUE"
 log_message "Service Name: $SERVICE_NAME" "$BLUE"
 log_message "Nginx Config: $NGINX_CONFIG_FILE" "$BLUE"
@@ -1267,13 +1267,13 @@ fi
 log_message "Installation Log: $LOG_FILE" "$BLUE"
 
 log_message "\nNext Steps:" "$YELLOW"
-log_message "1. Visit https://$DOMAIN to access your OpenAlgo instance" "$GREEN"
+log_message "1. Visit https://$DOMAIN to access your BTAlgo instance" "$GREEN"
 log_message "2. Configure your broker settings in the web interface" "$GREEN"
 log_message "3. Review the logs using: sudo journalctl -u $SERVICE_NAME" "$GREEN"
 log_message "4. Monitor the application status: sudo systemctl status $SERVICE_NAME" "$GREEN"
 
 log_message "\nUseful Commands:" "$YELLOW"
-log_message "Restart OpenAlgo: sudo systemctl restart $SERVICE_NAME" "$BLUE"
+log_message "Restart BTAlgo: sudo systemctl restart $SERVICE_NAME" "$BLUE"
 log_message "View Logs: sudo journalctl -u $SERVICE_NAME" "$BLUE"
 log_message "Check Status: sudo systemctl status $SERVICE_NAME" "$BLUE"
 log_message "View Installation Log: cat $LOG_FILE" "$BLUE"

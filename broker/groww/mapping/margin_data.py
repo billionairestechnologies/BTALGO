@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Groww Margin API
 
 from broker.groww.mapping.transform_data import (
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 def map_margin_exchange(exchange):
     """
-    Maps the OpenAlgo Exchange to Groww Exchange values for margin API.
+    Maps the BTAlgo Exchange to Groww Exchange values for margin API.
     Groww only accepts NSE/BSE - segment (CASH/FNO) is passed separately.
     """
     exchange_mapping = {
@@ -29,10 +29,10 @@ def map_margin_exchange(exchange):
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin positions to Groww margin format.
+    Transform BTAlgo margin positions to Groww margin format.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
 
     Returns:
         Tuple of (segment, transformed_positions_list)
@@ -96,7 +96,7 @@ def transform_margin_positions(positions):
 
 def parse_margin_response(response_data):
     """
-    Parse Groww margin response to OpenAlgo standard format.
+    Parse Groww margin response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from Groww API
@@ -123,7 +123,7 @@ def parse_margin_response(response_data):
         # Calculate total margin
         total_requirement = float(payload.get("total_requirement", 0))
 
-        # Return standardized format matching OpenAlgo API specification
+        # Return standardized format matching BTAlgo API specification
         return {
             "status": "success",
             "data": {

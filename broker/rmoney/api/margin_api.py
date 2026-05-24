@@ -16,12 +16,12 @@ def calculate_margin_api(positions, auth):
     """
     Calculate margin requirement for a basket of positions using RMoney XTS API.
 
-    The OpenAlgo framework calls this function with a list of positions and
+    The BTAlgo framework calls this function with a list of positions and
     an auth token.  We transform them into XTS format, POST to the
     /orders/margindetails endpoint, and return a standardised response.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for RMoney XTS
 
     Returns:

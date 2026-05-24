@@ -2,14 +2,14 @@
 
 ## Overview
 
-This assessment verifies that OpenAlgo is protected against SQL injection attacks.
+This assessment verifies that BTAlgo is protected against SQL injection attacks.
 
 **Risk Level**: Low
 **Status**: Protected
 
 ## Summary
 
-**No SQL injection vulnerabilities found.** OpenAlgo uses SQLAlchemy ORM consistently, which automatically parameterizes all queries.
+**No SQL injection vulnerabilities found.** BTAlgo uses SQLAlchemy ORM consistently, which automatically parameterizes all queries.
 
 ## Why This Matters (Even Single-User)
 
@@ -23,7 +23,7 @@ Even as the only user, protection matters if:
 - External services send crafted data
 - Debugging with test data
 
-## How OpenAlgo Prevents SQL Injection
+## How BTAlgo Prevents SQL Injection
 
 ### SQLAlchemy ORM
 
@@ -37,7 +37,7 @@ orders = Order.query.filter(Order.symbol == symbol).all()
 
 **Never** constructs SQL strings with user input:
 ```python
-# This pattern is NOT used in OpenAlgo
+# This pattern is NOT used in BTAlgo
 query = f"SELECT * FROM users WHERE username = '{username}'"  # DANGEROUS
 ```
 
@@ -127,12 +127,12 @@ SQLAlchemy enforces column types:
 If SQL injection existed (it doesn't), an attacker could:
 
 ```sql
--- Example malicious input (NOT possible in OpenAlgo)
+-- Example malicious input (NOT possible in BTAlgo)
 username: ' OR '1'='1
 -- Would return all users if vulnerable
 ```
 
-**In OpenAlgo**: This input is treated as a literal string, not SQL code.
+**In BTAlgo**: This input is treated as a literal string, not SQL code.
 
 ## Verification for Users
 
@@ -148,7 +148,7 @@ If you want to verify yourself:
 
 ## Conclusion
 
-OpenAlgo is **not vulnerable** to SQL injection because:
+BTAlgo is **not vulnerable** to SQL injection because:
 
 1. Uses SQLAlchemy ORM exclusively
 2. Never constructs SQL strings with user input

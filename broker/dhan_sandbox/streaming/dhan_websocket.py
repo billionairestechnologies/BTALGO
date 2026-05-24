@@ -1,5 +1,5 @@
 """
-Complete Dhan WebSocket client wrapper for OpenAlgo.
+Complete Dhan WebSocket client wrapper for BTAlgo.
 Based on Dhan V2 API documentation with proper binary packet parsing.
 """
 
@@ -39,7 +39,7 @@ else:
 class DhanWebSocket:
     """
     Complete Wrapper for Dhan's MarketFeed WebSocket client.
-    Bridges the async implementation with OpenAlgo's threading model.
+    Bridges the async implementation with BTAlgo's threading model.
     """
 
     # Message type constants (based on Dhan binary packet first byte)
@@ -765,7 +765,7 @@ class DhanWebSocket:
             dt = datetime.fromtimestamp(timestamp) if timestamp > 0 else datetime.now()
             formatted_time = dt.strftime("%Y-%m-%d %H:%M:%S")
 
-            # Create tick dictionary in OpenAlgo format
+            # Create tick dictionary in BTAlgo format
             tick = {
                 "token": token,
                 "instrument_token": token,
@@ -922,7 +922,7 @@ class DhanWebSocket:
                 "low": low_price,
                 "close": close_price,
                 "mode": "QUOTE",
-                # Additional fields for OpenAlgo compatibility
+                # Additional fields for BTAlgo compatibility
                 "instrument_token": unpacked[3],
                 "last_price": round(unpacked[4], 2),
                 "last_quantity": unpacked[5],
@@ -1470,7 +1470,7 @@ class DhanWebSocket:
                 "low": low_price,
                 "close": close_price,
                 "mode": "QUOTE",
-                # Additional fields for OpenAlgo compatibility
+                # Additional fields for BTAlgo compatibility
                 "instrument_token": unpacked[3],
                 "last_price": round(unpacked[4], 2),
                 "last_quantity": unpacked[5],
@@ -2868,7 +2868,7 @@ class DhanWebSocket:
             exchange_code = data.get("exchange_code", 1)
             exchange = self.EXCHANGE_MAP.get(exchange_code, "NSE_EQ")
 
-            # Format depth data to match the OpenAlgo standard
+            # Format depth data to match the BTAlgo standard
             formatted_bids = []
             if data.get("bids"):
                 for i, bid in enumerate(data["bids"][:20]):  # Ensure max 20 levels
@@ -2893,7 +2893,7 @@ class DhanWebSocket:
                         }
                     )
 
-            # Create tick data in OpenAlgo format with enhanced depth information
+            # Create tick data in BTAlgo format with enhanced depth information
             tick = {
                 "token": token,
                 "instrument_token": token,

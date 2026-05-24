@@ -10,7 +10,7 @@ def calculate_margin_api(positions, auth):
     Note: Pocketful does not provide a margin calculator API.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for Pocketful
 
     Raises:

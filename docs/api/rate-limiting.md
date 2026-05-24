@@ -1,10 +1,10 @@
 # Rate Limiting
 
-To protect OpenAlgo from abuse and ensure fair usage, rate limits are enforced at both login and API levels. These limits are configurable via the `.env` file and apply globally per IP address.
+To protect BTAlgo from abuse and ensure fair usage, rate limits are enforced at both login and API levels. These limits are configurable via the `.env` file and apply globally per IP address.
 
 ## UI Login Rate Limits
 
-OpenAlgo applies two login-specific rate limits:
+BTAlgo applies two login-specific rate limits:
 
 | Scope | Limit | Description |
 |-------|-------|-------------|
@@ -15,7 +15,7 @@ These limits help prevent brute-force login attempts and secure user accounts.
 
 ## API Rate Limits
 
-OpenAlgo implements differentiated rate limiting for various types of operations:
+BTAlgo implements differentiated rate limiting for various types of operations:
 
 ### Order Management APIs
 
@@ -141,7 +141,7 @@ The rate limiting implementation provides essential protection:
 
 ### Rate Limiting Strategy
 
-OpenAlgo uses the **moving-window** strategy for rate limiting, which provides more accurate rate limiting compared to fixed-window approaches.
+BTAlgo uses the **moving-window** strategy for rate limiting, which provides more accurate rate limiting compared to fixed-window approaches.
 
 ### Storage Backend
 

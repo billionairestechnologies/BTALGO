@@ -51,8 +51,8 @@ def start_strategy(strategy_id):
 
     # Prepare environment
     env = os.environ.copy()
-    env['OPENALGO_APIKEY'] = get_api_key()
-    env['OPENALGO_HOST'] = get_host_url()
+    env['BTALGO_APIKEY'] = get_api_key()
+    env['BTALGO_HOST'] = get_host_url()
     env['PYTHONUNBUFFERED'] = '1'  # Real-time output
 
     # Prepare log file
@@ -221,7 +221,7 @@ When running in Docker, numerical libraries (OpenBLAS, NumPy, Numba) must be thr
 | 4GB | 2 | 512MB | 5-8 |
 | 8GB+ | 2-4 | 1024MB | 10+ |
 
-> **Reference**: [GitHub Issue #822](https://github.com/marketcalls/openalgo/issues/822) documents the RLIMIT_NPROC fix.
+> **Reference**: [GitHub Issue #822](https://github.com/billionairestechnologies/btalgo/issues/822) documents the RLIMIT_NPROC fix.
 
 ## Process Monitoring
 
@@ -322,7 +322,7 @@ def setup_log_rotation(strategy_id):
 ## Directory Structure
 
 ```
-openalgo/
+btalgo/
 ├── strategies/
 │   ├── scripts/                    # User-uploaded strategies
 │   │   ├── ema_crossover.py

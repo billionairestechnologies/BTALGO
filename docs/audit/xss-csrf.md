@@ -133,7 +133,7 @@ Strict-Transport-Security: max-age=63072000
 
 ### Scenario 1: Clickjacking
 
-**Attack**: Embed OpenAlgo in hidden iframe, trick user into clicking
+**Attack**: Embed BTAlgo in hidden iframe, trick user into clicking
 **Protection**: `X-Frame-Options: DENY` - Browser refuses to render in iframe
 
 ### Scenario 2: XSS via Input
@@ -160,7 +160,7 @@ Strict-Transport-Security: max-age=63072000
 - [x] Strict-Transport-Security (HSTS)
 - [x] X-XSS-Protection header
 
-### Built into OpenAlgo
+### Built into BTAlgo
 
 - [x] CSRF protection on forms
 - [x] Template auto-escaping
@@ -171,7 +171,7 @@ Strict-Transport-Security: max-age=63072000
 ### Your Responsibility
 
 - [ ] Don't disable security features
-- [ ] Keep OpenAlgo updated
+- [ ] Keep BTAlgo updated
 
 ## Single-User Context
 
@@ -198,7 +198,7 @@ Protection is still valuable because:
 - Strict-Transport-Security
 - X-XSS-Protection
 
-**Built-in (OpenAlgo code)**:
+**Built-in (BTAlgo code)**:
 - CSRF tokens on forms
 - Auto-escaping templates
 - Content Security Policy

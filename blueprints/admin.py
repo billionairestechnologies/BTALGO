@@ -1235,8 +1235,8 @@ def _runtime_info():
 def _build_info():
     """Platform version, SDK version, git ref, frontend build mtime."""
     info = {
-        "openalgo_version": None,
-        "openalgo_sdk_version": None,
+        "btalgo_version": None,
+        "btalgo_sdk_version": None,
         "git_branch": None,
         "git_commit": None,
         "frontend_build_time": None,
@@ -1244,13 +1244,13 @@ def _build_info():
     try:
         from utils.version import get_version
 
-        info["openalgo_version"] = get_version()
+        info["btalgo_version"] = get_version()
     except Exception:
         pass
     try:
         from importlib import metadata as _metadata
 
-        info["openalgo_sdk_version"] = _metadata.version("openalgo")
+        info["btalgo_sdk_version"] = _metadata.version("btalgo")
     except Exception:
         pass
 
@@ -1277,11 +1277,11 @@ def _build_info():
     # read above always misses inside containers (issue #1388). Fall back to
     # build-time env vars that install scripts populate from `git rev-parse`.
     if not info["git_branch"]:
-        env_branch = os.getenv("OPENALGO_GIT_BRANCH")
+        env_branch = os.getenv("BTALGO_GIT_BRANCH")
         if env_branch:
             info["git_branch"] = env_branch.strip()[:64]
     if not info["git_commit"]:
-        env_commit = os.getenv("OPENALGO_GIT_COMMIT")
+        env_commit = os.getenv("BTALGO_GIT_COMMIT")
         if env_commit:
             info["git_commit"] = env_commit.strip()[:12]
 
@@ -1349,7 +1349,7 @@ def _broker_snapshot():
 def _database_snapshot():
     """File presence/size/mtime for each known DB. No live queries."""
     db_files = [
-        ("openalgo", "db/openalgo.db"),
+        ("btalgo", "db/btalgo.db"),
         ("logs", "db/logs.db"),
         ("latency", "db/latency.db"),
         ("health", "db/health.db"),
@@ -1465,9 +1465,9 @@ def _check_db_read():
     import sqlite3
     import time
 
-    db_path = Path("db/openalgo.db")
+    db_path = Path("db/btalgo.db")
     if not db_path.exists():
-        return {"name": "DB read (openalgo.db)", "ok": False, "ms": None, "detail": "Not found"}
+        return {"name": "DB read (btalgo.db)", "ok": False, "ms": None, "detail": "Not found"}
     started = time.perf_counter()
     try:
         conn = sqlite3.connect(str(db_path), timeout=2.0)
@@ -1476,9 +1476,9 @@ def _check_db_read():
         finally:
             conn.close()
         elapsed = round((time.perf_counter() - started) * 1000, 1)
-        return {"name": "DB read (openalgo.db)", "ok": True, "ms": elapsed, "detail": "OK"}
+        return {"name": "DB read (btalgo.db)", "ok": True, "ms": elapsed, "detail": "OK"}
     except Exception as e:
-        return {"name": "DB read (openalgo.db)", "ok": False, "ms": None, "detail": str(e)[:200]}
+        return {"name": "DB read (btalgo.db)", "ok": False, "ms": None, "detail": str(e)[:200]}
 
 
 def _check_loopback_http():
@@ -1488,7 +1488,7 @@ def _check_loopback_http():
 
     started = time.perf_counter()
     try:
-        # FLASK_PORT is the canonical OpenAlgo var; PORT is the Docker/Railway
+        # FLASK_PORT is the canonical BTAlgo var; PORT is the Docker/Railway
         # convention (gunicorn binds to ${PORT:-5000} in start.sh).
         port = os.getenv("FLASK_PORT") or os.getenv("PORT") or "5000"
         req = urllib.request.Request(f"http://127.0.0.1:{port}/", method="HEAD")
@@ -1650,7 +1650,7 @@ def _render_report(payload, errors_summary, errors_recent, fmt):
     code_close = "```\n" if is_md else ""
 
     lines = []
-    lines.append(f"{h1}OpenAlgo System Report")
+    lines.append(f"{h1}BTAlgo System Report")
     lines.append("")
     lines.append(_md_kv("Generated", datetime.now().strftime("%Y-%m-%d %H:%M:%S")) if is_md else f"Generated: {datetime.now()}")
     lines.append("")
@@ -1706,8 +1706,8 @@ def _render_report(payload, errors_summary, errors_recent, fmt):
 
     build = payload.get("build") or {}
     lines.append(f"{h2}Build")
-    lines.append(_md_kv("OpenAlgo", build.get("openalgo_version")))
-    lines.append(_md_kv("OpenAlgo SDK", build.get("openalgo_sdk_version")))
+    lines.append(_md_kv("BTAlgo", build.get("btalgo_version")))
+    lines.append(_md_kv("BTAlgo SDK", build.get("btalgo_sdk_version")))
     lines.append(_md_kv("Git branch", build.get("git_branch")))
     lines.append(_md_kv("Git commit", build.get("git_commit")))
     lines.append(_md_kv("Frontend build", build.get("frontend_build_time")))
@@ -1835,7 +1835,7 @@ def api_system_report():
             recent = recent[-50:]
 
         body = _render_report(payload, errors_summary, recent, fmt)
-        filename = f"openalgo-system-report-{datetime.now().strftime('%Y%m%d-%H%M%S')}.{fmt}"
+        filename = f"btalgo-system-report-{datetime.now().strftime('%Y%m%d-%H%M%S')}.{fmt}"
         mimetype = "text/markdown" if fmt == "md" else "text/plain"
 
         from flask import Response
@@ -2182,7 +2182,7 @@ def api_mcp_kill_switch():
 # posture from /admin/remote-mcp without SSH'ing into the server.
 #
 # IMPORTANT: changes are written to the .env file but require a service
-# restart (sudo systemctl restart openalgo) before they take effect —
+# restart (sudo systemctl restart btalgo) before they take effect —
 # MCP_HTTP_ENABLED is checked at app boot to register Flask blueprints,
 # and the per-request flags are read via os.getenv() at module level.
 # The PUT endpoint surfaces this clearly via restart_required=true.
@@ -2197,7 +2197,7 @@ _ENV_KEY_PATTERN = re.compile(r"^([A-Z][A-Z0-9_]*)$")
 def _resolve_env_path() -> Path:
     """Return the absolute Path to .env in the running app's working dir.
 
-    systemd's WorkingDirectory points at OPENALGO_PATH for the production
+    systemd's WorkingDirectory points at BTALGO_PATH for the production
     install, so cwd is the right anchor. Local dev runs uv from repo root,
     same answer. We resolve once and validate the file exists rather
     than trying multiple candidates — a missing .env is a deployment bug
@@ -2371,7 +2371,7 @@ def api_mcp_settings_put():
         {
             "status": "success",
             "restart_required": True,
-            "restart_command": "sudo systemctl restart openalgo",
+            "restart_command": "sudo systemctl restart btalgo",
             "settings_pending": _mcp_settings_payload(),  # what's in .env now
         }
     )

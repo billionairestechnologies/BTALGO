@@ -201,7 +201,7 @@ def download_csv_indmoney_data(output_path):
 
 def reformat_symbol(row, file_segment=None):
     """
-    Reformat symbols according to OpenAlgo standards based on Indmoney data structure
+    Reformat symbols according to BTAlgo standards based on Indmoney data structure
     """
     instrument_name = row["INSTRUMENT_NAME"]
     option_type = row.get("OPTION_TYPE", "")
@@ -210,7 +210,7 @@ def reformat_symbol(row, file_segment=None):
     expiry_date = row.get("EXPIRY_DATE", "")
     strike_price = row.get("STRIKE_PRICE", 0)
 
-    # Format expiry date for OpenAlgo format (DDMMMYY)
+    # Format expiry date for BTAlgo format (DDMMMYY)
     if expiry_date and expiry_date != "-1":
         expiry_formatted = expiry_date.replace("-", "").upper()
     else:
@@ -394,7 +394,7 @@ def process_indmoney_csv(path):
             lambda row: assign_values(row, segment), axis=1, result_type="expand"
         )
 
-        # Generate OpenAlgo formatted symbol
+        # Generate BTAlgo formatted symbol
         df["symbol"] = df.apply(lambda row: reformat_symbol(row, segment), axis=1)
 
         # Handle special cases

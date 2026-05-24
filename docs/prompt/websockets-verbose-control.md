@@ -36,7 +36,7 @@ client = api(api_key="...", host="...", ws_url="...", verbose=2)
 
 ```python
 """
-Test verbose control in OpenAlgo WebSocket Feed
+Test verbose control in BTAlgo WebSocket Feed
 """
 from openalgo import api
 import time
@@ -165,7 +165,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/trading-platform/python/websockets-verbose-control.md?ask=<question>
+GET https://docs.billionairestechnologies.com/trading-platform/python/websockets-verbose-control.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

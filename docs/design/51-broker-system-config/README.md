@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Profile section in OpenAlgo provides configuration interfaces for broker credentials and system settings. These settings are stored in the `.env` file and database, with security measures for sensitive data.
+The Profile section in BTAlgo provides configuration interfaces for broker credentials and system settings. These settings are stored in the `.env` file and database, with security measures for sensitive data.
 
 ## Architecture Diagram
 
@@ -183,7 +183,7 @@ def get_masked_credentials(broker):
 │                                                                             │
 │  Database                                                                   │
 │  ─────────────────                                                          │
-│  DATABASE_URL     = sqlite:///db/openalgo.db                               │
+│  DATABASE_URL     = sqlite:///db/btalgo.db                               │
 │  LOGS_DB_URL      = sqlite:///db/logs.db                                   │
 │                                                                             │
 │  Logging                                                                    │

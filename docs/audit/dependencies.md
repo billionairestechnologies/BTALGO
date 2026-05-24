@@ -2,7 +2,7 @@
 
 ## Overview
 
-This assessment reviews third-party packages used by OpenAlgo for security considerations.
+This assessment reviews third-party packages used by BTAlgo for security considerations.
 
 **Risk Level**: Low
 **Status**: Monitor
@@ -146,7 +146,7 @@ Lockfiles ensure reproducible builds:
 
 ### Packages to Monitor
 
-These packages historically have more vulnerabilities (not specific to OpenAlgo):
+These packages historically have more vulnerabilities (not specific to BTAlgo):
 
 | Package | Reason | Action |
 |---------|--------|--------|
@@ -154,7 +154,7 @@ These packages historically have more vulnerabilities (not specific to OpenAlgo)
 | cryptography | Crypto implementation | Keep updated |
 | Pillow | Image processing | N/A (not used) |
 
-### OpenAlgo Specific
+### BTAlgo Specific
 
 No known vulnerabilities in current dependency set as of this audit.
 
@@ -215,7 +215,7 @@ For single-user deployment:
 ## Quick Audit Commands
 
 ```bash
-# Full audit (run from openalgo directory)
+# Full audit (run from btalgo directory)
 
 # Python dependencies
 pip-audit 2>/dev/null || echo "Install with: pip install pip-audit"
@@ -226,7 +226,7 @@ cd frontend && npm audit 2>/dev/null || echo "Run: npm install first"
 
 ## Summary
 
-OpenAlgo uses **well-maintained, trusted packages**:
+BTAlgo uses **well-maintained, trusted packages**:
 - No known vulnerabilities at time of audit
 - Standard security libraries (cryptography, argon2)
 - Active maintenance on all major dependencies

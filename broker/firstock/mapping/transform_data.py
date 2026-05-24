@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Firstock V1 API Parameters https://api.firstock.in/V1/placeOrder
 
 import os
@@ -12,16 +12,16 @@ logger = get_logger(__name__)
 
 def transform_data(data, token, auth_token=None):
     """
-    Transforms the OpenAlgo API request to Firstock's V1 /placeOrder structure.
+    Transforms the BTAlgo API request to Firstock's V1 /placeOrder structure.
 
     For MARKET and SL-M orders, applies client-side Market Price Protection
-    (MPP): fetch LTP, compute a protected price via the OpenAlgo MPP slab,
+    (MPP): fetch LTP, compute a protected price via the BTAlgo MPP slab,
     convert the order type to LMT / SL-LMT. Also sets mkt_protection="0" so
     Firstock's server-side MPP (V1.7+) is a no-op on the already-protected
     price. Mirrors the pattern in broker/shoonya and broker/flattrade.
 
     Args:
-        data: Order data dictionary (OpenAlgo format).
+        data: Order data dictionary (BTAlgo format).
         token: Instrument token (accepted for signature parity).
         auth_token: Firstock jKey. Required for MPP — if absent, MARKET/SL-M
                     flows through unchanged and Firstock's server-side MPP
@@ -138,12 +138,12 @@ def transform_modify_order_data(data, token, auth_token=None):
 
     V1.7 extended server-side MPP to modifyOrder too; for MARKET/SL-M we
     attempt the same client-side MARKET -> LMT / SL-M -> SL-LMT conversion
-    used by transform_data so the price is owned by OpenAlgo. When we can't
+    used by transform_data so the price is owned by BTAlgo. When we can't
     safely determine direction (action missing — modify requests often omit
     it) we skip client-side MPP and let Firstock's server-side MPP handle it
     using the original order's direction (which the broker knows).
 
-    Expects data["symbol"] to be in OpenAlgo format; the broker symbol is
+    Expects data["symbol"] to be in BTAlgo format; the broker symbol is
     derived locally via get_br_symbol.
     """
     oa_symbol = data["symbol"]
@@ -256,7 +256,7 @@ def transform_modify_order_data(data, token, auth_token=None):
 
 def map_order_type(pricetype):
     """
-    Maps the OpenAlgo pricetype to Firstock's order type.
+    Maps the BTAlgo pricetype to Firstock's order type.
     """
     order_type_mapping = {"MARKET": "MKT", "LIMIT": "LMT", "SL": "SL-LMT", "SL-M": "SL-MKT"}
     return order_type_mapping.get(pricetype, "MKT")  # Default to MKT if not found
@@ -264,7 +264,7 @@ def map_order_type(pricetype):
 
 def map_product_type(product):
     """
-    Maps the OpenAlgo product type to Firstock's product type.
+    Maps the BTAlgo product type to Firstock's product type.
     """
     product_type_mapping = {"CNC": "C", "NRML": "M", "MIS": "I"}
     return product_type_mapping.get(product, "I")  # Default to I (MIS) if not found
@@ -272,7 +272,7 @@ def map_product_type(product):
 
 def reverse_map_product_type(product):
     """
-    Maps Firstock's product type to OpenAlgo product type.
+    Maps Firstock's product type to BTAlgo product type.
     """
     reverse_product_type_mapping = {"C": "CNC", "M": "NRML", "I": "MIS"}
     return reverse_product_type_mapping.get(product, "MIS")  # Default to MIS if not found

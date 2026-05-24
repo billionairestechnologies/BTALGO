@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Simple EMA Crossover Strategy Example
-This strategy demonstrates how to integrate with OpenAlgo API
+This strategy demonstrates how to integrate with BTAlgo API
 """
 from openalgo import api
 import pandas as pd
@@ -12,21 +12,21 @@ from datetime import datetime, timedelta
 import os
 
 # Read API credentials and endpoints from environment.
-# When this strategy is launched via OpenAlgo's /python runner,
-# OPENALGO_API_KEY is injected by the platform and HOST_SERVER /
-# WEBSOCKET_URL are inherited from OpenAlgo's .env file.
-api_key = os.getenv('OPENALGO_API_KEY')
+# When this strategy is launched via BTAlgo's /python runner,
+# BTALGO_API_KEY is injected by the platform and HOST_SERVER /
+# WEBSOCKET_URL are inherited from BTAlgo's .env file.
+api_key = os.getenv('BTALGO_API_KEY')
 host    = os.getenv('HOST_SERVER', 'http://127.0.0.1:5000')
 ws_url  = os.getenv('WEBSOCKET_URL', 'ws://127.0.0.1:8765')
 
 if not api_key:
-    print("Error: OPENALGO_API_KEY environment variable not set")
+    print("Error: BTALGO_API_KEY environment variable not set")
     exit(1)
 
 
 # Set the strategy details and trading parameters
 strategy = "EMA Crossover Python"
-symbol = 'NHPC'  # OpenAlgo Symbol
+symbol = 'NHPC'  # BTAlgo Symbol
 exchange = "NSE"
 product = "MIS"
 quantity = 1
@@ -83,7 +83,7 @@ def ema_strategy():
             end_date = datetime.now().strftime("%Y-%m-%d")
             start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
 
-            # Fetch 1-minute historical data using OpenAlgo
+            # Fetch 1-minute historical data using BTAlgo
             df = client.history(
                 symbol=symbol,
                 exchange=exchange,

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Latency Monitor tracks the time taken for various operations in OpenAlgo, from receiving signals to order execution. Understanding and optimizing latency is critical for algorithmic trading, especially for time-sensitive strategies.
+The Latency Monitor tracks the time taken for various operations in BTAlgo, from receiving signals to order execution. Understanding and optimizing latency is critical for algorithmic trading, especially for time-sensitive strategies.
 
 ## What is Latency?
 
@@ -10,7 +10,7 @@ The Latency Monitor tracks the time taken for various operations in OpenAlgo, fr
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                        Order Execution Latency                              │
 │                                                                              │
-│  Signal Source → OpenAlgo Processing → Broker API → Exchange → Execution   │
+│  Signal Source → BTAlgo Processing → Broker API → Exchange → Execution   │
 │       │               │                    │            │           │       │
 │       │←── Network ──▶│←── Processing ────▶│←─ Broker ─▶│←─ Exch ──▶│       │
 │       │    Latency    │     Latency        │   Latency  │  Latency  │       │
@@ -26,9 +26,9 @@ The Latency Monitor tracks the time taken for various operations in OpenAlgo, fr
 
 | Component | Description | Typical Range |
 |-----------|-------------|---------------|
-| Network Latency | Signal source to OpenAlgo | 50-500ms |
-| Processing Latency | OpenAlgo internal processing | 1-10ms |
-| API Latency | OpenAlgo to Broker API | 50-200ms |
+| Network Latency | Signal source to BTAlgo | 50-500ms |
+| Processing Latency | BTAlgo internal processing | 1-10ms |
+| API Latency | BTAlgo to Broker API | 50-200ms |
 | Broker Latency | Broker to Exchange | 10-50ms |
 | Exchange Latency | Order matching | 1-5ms |
 
@@ -234,10 +234,10 @@ Recommendation:
 
 ```
 Current Setup:
-Signal Source → Internet → OpenAlgo
+Signal Source → Internet → BTAlgo
 
 Optimized Setup:
-Signal Source → Same Network → OpenAlgo (Co-located)
+Signal Source → Same Network → BTAlgo (Co-located)
 
 Improvement: 50-100ms reduction
 ```

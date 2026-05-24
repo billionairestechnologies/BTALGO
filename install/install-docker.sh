@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# OpenAlgo Docker Installation Script
+# BTAlgo Docker Installation Script
 # Simplified installation for Docker deployment with custom domain
 
 # Colors for output
@@ -10,7 +10,7 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# OpenAlgo Banner
+# BTAlgo Banner
 echo -e "${BLUE}"
 echo "  ██████╗ ██████╗ ███████╗███╗   ██╗ █████╗ ██╗      ██████╗  ██████╗ "
 echo " ██╔═══██╗██╔══██╗██╔════╝████╗  ██║██╔══██╗██║     ██╔════╝ ██╔═══██╗"
@@ -54,7 +54,7 @@ is_xts_broker() {
 }
 
 # Start installation
-log "Starting OpenAlgo Docker Installation..." "$GREEN"
+log "Starting BTAlgo Docker Installation..." "$GREEN"
 log "========================================" "$GREEN"
 
 # Check if running as root
@@ -98,7 +98,7 @@ log "\n=== Installation Configuration ===" "$BLUE"
 
 # Get domain name
 while true; do
-    read -p "Enter your domain name (e.g., demo.openalgo.in): " DOMAIN
+    read -p "Enter your domain name (e.g., demo.billionairestechnologies.com): " DOMAIN
     if [ -z "$DOMAIN" ]; then
         log "Error: Domain name is required" "$RED"
         continue
@@ -166,7 +166,7 @@ fi
 # Same-domain mode — /mcp and /oauth/* are served from the same nginx
 # vhost as the dashboard, so the existing reverse-proxy config covers it.
 # Local stdio MCP (Claude Desktop / Cursor / Windsurf) works regardless.
-log "\nRemote MCP lets hosted AI clients (Claude.ai, ChatGPT) connect to OpenAlgo over HTTPS." "$BLUE"
+log "\nRemote MCP lets hosted AI clients (Claude.ai, ChatGPT) connect to BTAlgo over HTTPS." "$BLUE"
 log "Skip this if you only use the local MCP server with Claude Desktop / Cursor." "$YELLOW"
 read -p "Enable Remote MCP? (y/N): " enable_mcp_input
 ENABLE_REMOTE_MCP="false"
@@ -181,7 +181,7 @@ APP_KEY=$(generate_hex)
 API_KEY_PEPPER=$(generate_hex)
 
 # Set installation path
-INSTALL_PATH="/opt/openalgo"
+INSTALL_PATH="/opt/btalgo"
 
 log "\n=== Installation Summary ===" "$YELLOW"
 log "Domain: $DOMAIN" "$BLUE"
@@ -236,8 +236,8 @@ if ! docker compose version &> /dev/null; then
 fi
 log "Docker Compose version: $(docker compose version --short)" "$GREEN"
 
-# Clone OpenAlgo repository
-log "\n=== Cloning OpenAlgo Repository ===" "$BLUE"
+# Clone BTAlgo repository
+log "\n=== Cloning BTAlgo Repository ===" "$BLUE"
 if [ -d "$INSTALL_PATH" ]; then
     log "Warning: $INSTALL_PATH already exists" "$YELLOW"
     read -p "Remove existing installation? (y/n): " remove_existing
@@ -249,7 +249,7 @@ if [ -d "$INSTALL_PATH" ]; then
     fi
 fi
 
-$SUDO git clone https://github.com/marketcalls/openalgo.git $INSTALL_PATH
+$SUDO git clone https://github.com/billionairestechnologies/btalgo.git $INSTALL_PATH
 check_status "Git clone failed"
 
 cd $INSTALL_PATH
@@ -271,8 +271,8 @@ $SUDO sed -i "s|YOUR_BROKER_API_KEY|$BROKER_API_KEY|g" .env
 $SUDO sed -i "s|YOUR_BROKER_API_SECRET|$BROKER_API_SECRET|g" .env
 $SUDO sed -i "s|http://127.0.0.1:5000|https://$DOMAIN|g" .env
 $SUDO sed -i "s|<broker>|$BROKER_NAME|g" .env
-$SUDO sed -i "s|OPENALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$APP_KEY|g" .env
-$SUDO sed -i "s|OPENALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$API_KEY_PEPPER|g" .env
+$SUDO sed -i "s|BTALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$APP_KEY|g" .env
+$SUDO sed -i "s|BTALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$API_KEY_PEPPER|g" .env
 
 # Capture build-time git info for the diagnostics page (issue #1388).
 # .git/ is dockerignored, so the running container has no .git/HEAD to read —
@@ -280,11 +280,11 @@ $SUDO sed -i "s|OPENALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$API_K
 # already present so re-runs of this script don't accumulate duplicates.
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
 GIT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "")
-if ! grep -qE "^OPENALGO_GIT_BRANCH\s*=" .env 2>/dev/null; then
-    echo "OPENALGO_GIT_BRANCH = '${GIT_BRANCH}'" | $SUDO tee -a .env > /dev/null
+if ! grep -qE "^BTALGO_GIT_BRANCH\s*=" .env 2>/dev/null; then
+    echo "BTALGO_GIT_BRANCH = '${GIT_BRANCH}'" | $SUDO tee -a .env > /dev/null
 fi
-if ! grep -qE "^OPENALGO_GIT_COMMIT\s*=" .env 2>/dev/null; then
-    echo "OPENALGO_GIT_COMMIT = '${GIT_COMMIT}'" | $SUDO tee -a .env > /dev/null
+if ! grep -qE "^BTALGO_GIT_COMMIT\s*=" .env 2>/dev/null; then
+    echo "BTALGO_GIT_COMMIT = '${GIT_COMMIT}'" | $SUDO tee -a .env > /dev/null
 fi
 
 # Container is published only on 127.0.0.1:5000 with nginx in front; trust the
@@ -333,7 +333,7 @@ if ! grep "CORS_ALLOWED_ORIGINS" .env | grep -q "https://$DOMAIN"; then
 fi
 
 # CSP: Set connect sources with domain (delete-and-append avoids sed regex issues with nested quotes)
-# See: https://github.com/marketcalls/openalgo/issues/938
+# See: https://github.com/billionairestechnologies/btalgo/issues/938
 $SUDO sed -i '/^CSP_CONNECT_SRC/d' .env
 echo "CSP_CONNECT_SRC = \"'self' wss: ws: https://cdn.socket.io https://$DOMAIN wss://$DOMAIN\"" | $SUDO tee -a .env > /dev/null
 
@@ -386,13 +386,13 @@ log "Config: shm=${SHM_SIZE_MB}MB, threads=${THREAD_LIMIT}, strategy_mem=${STRAT
 log "\n=== Creating Docker Compose Configuration ===" "$BLUE"
 $SUDO tee docker-compose.yaml > /dev/null << EOF
 services:
-  openalgo:
-    image: openalgo:latest
+  btalgo:
+    image: btalgo:latest
     build:
       context: .
       dockerfile: Dockerfile
 
-    container_name: openalgo-web
+    container_name: btalgo-web
 
     ports:
       - "127.0.0.1:5000:5000"
@@ -400,11 +400,11 @@ services:
 
     # Use named volumes to avoid permission issues with non-root container user
     volumes:
-      - openalgo_db:/app/db
-      - openalgo_log:/app/log
-      - openalgo_strategies:/app/strategies
-      - openalgo_keys:/app/keys
-      - openalgo_tmp:/app/tmp
+      - btalgo_db:/app/db
+      - btalgo_log:/app/log
+      - btalgo_strategies:/app/strategies
+      - btalgo_keys:/app/keys
+      - btalgo_tmp:/app/tmp
       - ./.env:/app/.env
 
     environment:
@@ -413,7 +413,7 @@ services:
       - APP_MODE=standalone
       - TZ=Asia/Kolkata
       # Resource limits auto-calculated based on system specs
-      # See: https://github.com/marketcalls/openalgo/issues/822
+      # See: https://github.com/billionairestechnologies/btalgo/issues/822
       - OPENBLAS_NUM_THREADS=${THREAD_LIMIT}
       - OMP_NUM_THREADS=${THREAD_LIMIT}
       - MKL_NUM_THREADS=${THREAD_LIMIT}
@@ -435,15 +435,15 @@ services:
 
 # Named volumes for data persistence with proper permissions
 volumes:
-  openalgo_db:
+  btalgo_db:
     driver: local
-  openalgo_log:
+  btalgo_log:
     driver: local
-  openalgo_strategies:
+  btalgo_strategies:
     driver: local
-  openalgo_keys:
+  btalgo_keys:
     driver: local
-  openalgo_tmp:
+  btalgo_tmp:
     driver: local
 EOF
 
@@ -500,12 +500,12 @@ limit_req_zone \$binary_remote_addr zone=api_limit:10m rate=50r/s;
 limit_req_zone \$binary_remote_addr zone=general_limit:10m rate=10r/s;
 
 # Upstream definitions
-upstream openalgo_flask {
+upstream btalgo_flask {
     server 127.0.0.1:5000;
     keepalive 64;
 }
 
-upstream openalgo_websocket {
+upstream btalgo_websocket {
     server 127.0.0.1:8765;
     keepalive 64;
 }
@@ -566,7 +566,7 @@ server {
 
     # WebSocket Proxy Server (Port 8765)
     location = /ws {
-        proxy_pass http://openalgo_websocket;
+        proxy_pass http://btalgo_websocket;
         proxy_http_version 1.1;
         proxy_read_timeout 86400s;
         proxy_send_timeout 86400s;
@@ -585,7 +585,7 @@ server {
     }
 
     location /ws/ {
-        proxy_pass http://openalgo_websocket/;
+        proxy_pass http://btalgo_websocket/;
         proxy_http_version 1.1;
         proxy_read_timeout 86400s;
         proxy_send_timeout 86400s;
@@ -605,7 +605,7 @@ server {
 
     # Socket.IO WebSocket
     location /socket.io/ {
-        proxy_pass http://openalgo_flask/socket.io/;
+        proxy_pass http://btalgo_flask/socket.io/;
         proxy_http_version 1.1;
         proxy_read_timeout 86400s;
         proxy_send_timeout 86400s;
@@ -626,7 +626,7 @@ server {
     location /api/ {
         limit_req zone=api_limit burst=100 nodelay;
         limit_req_status 429;
-        proxy_pass http://openalgo_flask;
+        proxy_pass http://btalgo_flask;
         proxy_http_version 1.1;
         proxy_read_timeout 300s;
         proxy_connect_timeout 300s;
@@ -643,7 +643,7 @@ server {
 
     # Static Files
     location /static/ {
-        proxy_pass http://openalgo_flask;
+        proxy_pass http://btalgo_flask;
         proxy_http_version 1.1;
         proxy_cache_valid 200 1d;
         proxy_cache_bypass \$http_pragma \$http_authorization;
@@ -658,7 +658,7 @@ server {
     # Main Application
     location / {
         limit_req zone=general_limit burst=20 nodelay;
-        proxy_pass http://openalgo_flask;
+        proxy_pass http://btalgo_flask;
         proxy_http_version 1.1;
         proxy_read_timeout 300s;
         proxy_connect_timeout 300s;
@@ -721,7 +721,7 @@ log "\nWaiting for container to be healthy..." "$YELLOW"
 sleep 10
 
 # Check container status
-CONTAINER_STATUS=$(sudo docker ps --filter "name=openalgo-web" --format "{{.Status}}")
+CONTAINER_STATUS=$(sudo docker ps --filter "name=btalgo-web" --format "{{.Status}}")
 if [[ $CONTAINER_STATUS == *"Up"* ]]; then
     log "Container started successfully!" "$GREEN"
 else
@@ -733,55 +733,55 @@ fi
 log "\n=== Creating Management Scripts ===" "$BLUE"
 
 # Status script
-$SUDO tee /usr/local/bin/openalgo-status > /dev/null << 'EOFSCRIPT'
+$SUDO tee /usr/local/bin/btalgo-status > /dev/null << 'EOFSCRIPT'
 #!/bin/bash
 echo "=========================================="
-echo "OpenAlgo Status"
+echo "BTAlgo Status"
 echo "=========================================="
 echo ""
 echo "Container Status:"
-sudo docker ps --filter "name=openalgo-web" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+sudo docker ps --filter "name=btalgo-web" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 echo ""
 echo "Container Health:"
-sudo docker inspect openalgo-web --format='{{.State.Health.Status}}' 2>/dev/null || echo "Container not found"
+sudo docker inspect btalgo-web --format='{{.State.Health.Status}}' 2>/dev/null || echo "Container not found"
 echo ""
 echo "Recent Logs:"
-sudo docker compose -f /opt/openalgo/docker-compose.yaml logs --tail=30
+sudo docker compose -f /opt/btalgo/docker-compose.yaml logs --tail=30
 EOFSCRIPT
 
-$SUDO chmod +x /usr/local/bin/openalgo-status
+$SUDO chmod +x /usr/local/bin/btalgo-status
 
 # Restart script
-$SUDO tee /usr/local/bin/openalgo-restart > /dev/null << 'EOFSCRIPT'
+$SUDO tee /usr/local/bin/btalgo-restart > /dev/null << 'EOFSCRIPT'
 #!/bin/bash
-echo "Restarting OpenAlgo..."
-cd /opt/openalgo
+echo "Restarting BTAlgo..."
+cd /opt/btalgo
 sudo docker compose restart
 sleep 10
 echo "Container Status:"
-sudo docker ps --filter "name=openalgo-web"
+sudo docker ps --filter "name=btalgo-web"
 EOFSCRIPT
 
-$SUDO chmod +x /usr/local/bin/openalgo-restart
+$SUDO chmod +x /usr/local/bin/btalgo-restart
 
 # Logs script
-$SUDO tee /usr/local/bin/openalgo-logs > /dev/null << 'EOFSCRIPT'
+$SUDO tee /usr/local/bin/btalgo-logs > /dev/null << 'EOFSCRIPT'
 #!/bin/bash
-cd /opt/openalgo
+cd /opt/btalgo
 sudo docker compose logs -f --tail=100
 EOFSCRIPT
 
-$SUDO chmod +x /usr/local/bin/openalgo-logs
+$SUDO chmod +x /usr/local/bin/btalgo-logs
 
 # Backup script
-$SUDO tee /usr/local/bin/openalgo-backup > /dev/null << 'EOFSCRIPT'
+$SUDO tee /usr/local/bin/btalgo-backup > /dev/null << 'EOFSCRIPT'
 #!/bin/bash
-BACKUP_DIR="/opt/openalgo-backups"
+BACKUP_DIR="/opt/btalgo-backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_FILE="$BACKUP_DIR/openalgo_backup_$TIMESTAMP.tar.gz"
+BACKUP_FILE="$BACKUP_DIR/btalgo_backup_$TIMESTAMP.tar.gz"
 mkdir -p $BACKUP_DIR
 echo "Creating backup..."
-cd /opt/openalgo
+cd /opt/btalgo
 
 # Backup .env file and Docker volume data
 echo "Backing up configuration and volume data..."
@@ -791,8 +791,8 @@ sudo docker compose stop
 TEMP_DIR=$(mktemp -d)
 
 # Export data from Docker volumes
-sudo docker run --rm -v openalgo_db:/data -v $TEMP_DIR:/backup alpine tar -czf /backup/db.tar.gz -C /data . 2>/dev/null
-sudo docker run --rm -v openalgo_strategies:/data -v $TEMP_DIR:/backup alpine tar -czf /backup/strategies.tar.gz -C /data . 2>/dev/null
+sudo docker run --rm -v btalgo_db:/data -v $TEMP_DIR:/backup alpine tar -czf /backup/db.tar.gz -C /data . 2>/dev/null
+sudo docker run --rm -v btalgo_strategies:/data -v $TEMP_DIR:/backup alpine tar -czf /backup/strategies.tar.gz -C /data . 2>/dev/null
 
 # Create final backup
 sudo tar -czf $BACKUP_FILE .env -C $TEMP_DIR db.tar.gz strategies.tar.gz 2>/dev/null
@@ -805,11 +805,11 @@ echo "Backup created: $BACKUP_FILE"
 
 # Keep only last 7 backups
 cd $BACKUP_DIR
-ls -t openalgo_backup_*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm
+ls -t btalgo_backup_*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm
 echo "Backup completed!"
 EOFSCRIPT
 
-$SUDO chmod +x /usr/local/bin/openalgo-backup
+$SUDO chmod +x /usr/local/bin/btalgo-backup
 
 log "Management scripts created successfully!" "$GREEN"
 
@@ -824,14 +824,14 @@ $SUDO chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
 
 # Installation complete
 log "\n============================================" "$GREEN"
-log "OpenAlgo Docker Installation Complete!" "$GREEN"
+log "BTAlgo Docker Installation Complete!" "$GREEN"
 log "============================================" "$GREEN"
 
 log "\nInstallation Summary:" "$YELLOW"
 log "Domain: https://$DOMAIN" "$BLUE"
 log "Broker: $BROKER_NAME" "$BLUE"
 log "Installation Path: $INSTALL_PATH" "$BLUE"
-log "Container: openalgo-web" "$BLUE"
+log "Container: btalgo-web" "$BLUE"
 if [ "$ENABLE_REMOTE_MCP" = "true" ]; then
     log "Remote MCP: Enabled at https://$DOMAIN/mcp" "$BLUE"
 else
@@ -839,15 +839,15 @@ else
 fi
 
 log "\nNext Steps:" "$YELLOW"
-log "1. Visit https://$DOMAIN to access OpenAlgo" "$GREEN"
+log "1. Visit https://$DOMAIN to access BTAlgo" "$GREEN"
 log "2. Create your admin account and login" "$GREEN"
 log "3. Configure your broker settings" "$GREEN"
 
 log "\nUseful Commands:" "$YELLOW"
-log "View status:  openalgo-status" "$BLUE"
-log "View logs:    openalgo-logs" "$BLUE"
-log "Restart:      openalgo-restart" "$BLUE"
-log "Backup:       openalgo-backup" "$BLUE"
+log "View status:  btalgo-status" "$BLUE"
+log "View logs:    btalgo-logs" "$BLUE"
+log "Restart:      btalgo-restart" "$BLUE"
+log "Backup:       btalgo-backup" "$BLUE"
 
 log "\nDocker Commands:" "$YELLOW"
 log "Restart:      cd $INSTALL_PATH && sudo docker compose restart" "$BLUE"

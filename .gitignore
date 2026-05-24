@@ -1,7 +1,7 @@
-venopenalgo
+venbtalgo
 .venv/
 .env
-openalgo.db
+btalgo.db
 *.db-shm
 *.db-wal
 *.db-journal

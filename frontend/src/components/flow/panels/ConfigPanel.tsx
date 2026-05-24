@@ -2582,7 +2582,7 @@ export function ConfigPanel() {
             {nodeType === 'telegramAlert' && (
               <>
                 <div className="space-y-2">
-                  <Label className="text-xs">OpenAlgo Username</Label>
+                  <Label className="text-xs">BTAlgo Username</Label>
                   <Input
                     className="h-8"
                     placeholder="Your login ID"

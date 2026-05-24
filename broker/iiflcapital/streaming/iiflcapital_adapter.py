@@ -1,5 +1,5 @@
 """
-IIFL Capital WebSocket adapter — connects OpenAlgo's WebSocket proxy to the
+IIFL Capital WebSocket adapter — connects BTAlgo's WebSocket proxy to the
 IIFL Capital market-data feed over MQTT v3.1.1 (TLS port 8883).
 
 Replaces the earlier REST-polling stub. The on-wire protocol is implemented
@@ -38,7 +38,7 @@ logger = get_logger(__name__)
 
 class IiflcapitalWebSocketAdapter(BaseBrokerWebSocketAdapter):
     """
-    OpenAlgo broker adapter for IIFL Capital's MQTT market-data feed.
+    BTAlgo broker adapter for IIFL Capital's MQTT market-data feed.
 
     Mode contract (mirrors Zerodha):
         1 → LTP   (publish only `ltp` and `ltt`)
@@ -47,11 +47,11 @@ class IiflcapitalWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
     The IIFL broker only emits one packet shape per stream (188-byte
     MWBOCombined), so we subscribe once at the broker layer and slice the
-    decoded dict into three OpenAlgo-shaped payloads on the way out, exactly
+    decoded dict into three BTAlgo-shaped payloads on the way out, exactly
     like Zerodha's `full` → `ltp/quote/full` fan-out.
     """
 
-    # OpenAlgo mode ints → internal IIFL feed mode strings.
+    # BTAlgo mode ints → internal IIFL feed mode strings.
     _MODE_OA_TO_IIFL = {1: MODE_LTP, 2: MODE_QUOTE, 3: MODE_FULL}
 
     def __init__(self) -> None:
@@ -69,17 +69,17 @@ class IiflcapitalWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
         # Subscription tracking, keyed by f"{exchange}:{symbol}":
         # {
-        #   "exchange": str,           # OpenAlgo exchange (e.g. NSE_INDEX)
+        #   "exchange": str,           # BTAlgo exchange (e.g. NSE_INDEX)
         #   "symbol": str,
         #   "segment": str,            # IIFL brexchange (NSEEQ, NSEFO, …)
         #   "token": str,
-        #   "mode": int,               # OpenAlgo mode int (1/2/3)
+        #   "mode": int,               # BTAlgo mode int (1/2/3)
         #   "is_index": bool,
         # }
         self.subscribed_symbols: dict[str, dict] = {}
 
         # Reverse lookup: f"{segment}/{token}" → (symbol, exchange) — used to
-        # rebuild the OpenAlgo topic when a tick comes back from the broker.
+        # rebuild the BTAlgo topic when a tick comes back from the broker.
         self._key_to_symbol: dict[str, tuple[str, str]] = {}
 
     # ----------------------------------------------------------------- lifecycle
@@ -310,7 +310,7 @@ class IiflcapitalWebSocketAdapter(BaseBrokerWebSocketAdapter):
     def _handle_ticks(self, ticks: list[dict]) -> None:
         """
         Receive decoded ticks from the IIFL feed client and fan them out to
-        the OpenAlgo ZeroMQ bus, slicing the single broker packet into LTP /
+        the BTAlgo ZeroMQ bus, slicing the single broker packet into LTP /
         Quote / Depth topics as needed.
         """
         if not ticks:

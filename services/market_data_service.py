@@ -2,7 +2,7 @@
 Enhanced Market Data Service for Trade Management
 
 This service provides reliable real-time market data for:
-- OpenAlgo Flow (stoploss, target, price monitoring)
+- BTAlgo Flow (stoploss, target, price monitoring)
 - Watchlist Management
 - Dashboard displays
 - Future RMS Engine

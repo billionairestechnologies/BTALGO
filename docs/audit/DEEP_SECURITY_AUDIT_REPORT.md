@@ -1,11 +1,11 @@
-# OpenAlgo Deep Codebase Security Audit Report
+# BTAlgo Deep Codebase Security Audit Report
 
 ## Metadata
-- **Project:** OpenAlgo
-- **PR Context:** https://github.com/marketcalls/openalgo/pull/947 (Crypto Exchange Integration)
+- **Project:** BTAlgo
+- **PR Context:** https://github.com/billionairestechnologies/btalgo/pull/947 (Crypto Exchange Integration)
 - **Audit date:** 2026-03-03
 - **Auditor:** Claude Opus 4.6
-- **Scope:** Full codebase audit of `openalgo/services/`, `openalgo/blueprints/`, `openalgo/restx_api/`, `openalgo/database/`, `openalgo/sandbox/`, `openalgo/broker/`, `openalgo/upgrade/`
+- **Scope:** Full codebase audit of `btalgo/services/`, `btalgo/blueprints/`, `btalgo/restx_api/`, `btalgo/database/`, `btalgo/sandbox/`, `btalgo/broker/`, `btalgo/upgrade/`
 - **Focus:** SQL injection, input validation, security vulnerabilities, crypto integration impact on existing Indian broker functionality
 
 ---

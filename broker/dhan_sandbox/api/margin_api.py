@@ -20,7 +20,7 @@ def get_client_id(api_key=None):
     Get Dhan Sandbox client ID from BROKER_API_KEY or database.
 
     Args:
-        api_key: OpenAlgo API key (optional)
+        api_key: BTAlgo API key (optional)
 
     Returns:
         Client ID string or None
@@ -201,9 +201,9 @@ def calculate_margin_api(positions, auth, api_key=None):
         2. Fall back to looping /v2/margincalculator for each position if multi fails
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for Dhan Sandbox
-        api_key: OpenAlgo API key (optional, for client ID lookup)
+        api_key: BTAlgo API key (optional, for client ID lookup)
 
     Returns:
         Tuple of (response, response_data)

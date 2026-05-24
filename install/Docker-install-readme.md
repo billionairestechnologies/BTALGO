@@ -1,4 +1,4 @@
-# OpenAlgo Docker Installation
+# BTAlgo Docker Installation
 
 > **Advanced Users**: For multi-instance deployment with custom SSL (wildcard certificates) and Portainer, see [Docker-Multi-SSL-README.md](./Docker-Multi-SSL-README.md)
 
@@ -19,13 +19,13 @@ For **personal trading** on your desktop/laptop with Docker Desktop.
 
 #### Windows (PowerShell or Command Prompt)
 ```powershell
-curl.exe -O https://raw.githubusercontent.com/marketcalls/openalgo/main/install/docker-run.bat
+curl.exe -O https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/docker-run.bat
 docker-run.bat
 ```
 
 #### macOS / Linux (Terminal)
 ```bash
-curl -O https://raw.githubusercontent.com/marketcalls/openalgo/main/install/docker-run.sh
+curl -O https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/docker-run.sh
 chmod +x docker-run.sh
 ./docker-run.sh
 ```
@@ -54,8 +54,8 @@ chmod +x docker-run.sh
 
 ```bash
 # Windows
-docker-run.bat start     # Start OpenAlgo
-docker-run.bat stop      # Stop OpenAlgo
+docker-run.bat start     # Start BTAlgo
+docker-run.bat stop      # Stop BTAlgo
 docker-run.bat restart   # Restart (pulls latest + auto-migrates)
 docker-run.bat logs      # View live logs
 docker-run.bat status    # Check if running
@@ -76,7 +76,7 @@ docker-run.bat setup     # Re-run setup (regenerate keys)
 ./docker-run.sh setup
 ```
 
-### Updating OpenAlgo
+### Updating BTAlgo
 
 Database migrations run **automatically** when the container starts.
 
@@ -133,12 +133,12 @@ For **production deployment** on a cloud server with custom domain and SSL certi
 
 ### Quick Start
 
-This script provides a simplified, automated installation of OpenAlgo using Docker on Ubuntu/Debian systems with custom domain and SSL.
+This script provides a simplified, automated installation of BTAlgo using Docker on Ubuntu/Debian systems with custom domain and SSL.
 
 ### One-Line Installation
 
 ```bash
-wget https://raw.githubusercontent.com/marketcalls/openalgo/refs/heads/main/install/install-docker.sh && chmod +x install-docker.sh && ./install-docker.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/refs/heads/main/install/install-docker.sh && chmod +x install-docker.sh && ./install-docker.sh
 ```
 
 ### Prerequisites
@@ -154,12 +154,12 @@ wget https://raw.githubusercontent.com/marketcalls/openalgo/refs/heads/main/inst
 
 ```bash
 # If you're logged in as root, create a non-root user first
-adduser openalgo
-usermod -aG sudo openalgo
-su - openalgo
+adduser btalgo
+usermod -aG sudo btalgo
+su - btalgo
 
 # Download and run the script
-wget https://raw.githubusercontent.com/marketcalls/openalgo/refs/heads/main/install/install-docker.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/refs/heads/main/install/install-docker.sh
 chmod +x install-docker.sh
 ./install-docker.sh
 ```
@@ -168,7 +168,7 @@ chmod +x install-docker.sh
 
 ```bash
 # Download and run directly
-wget https://raw.githubusercontent.com/marketcalls/openalgo/refs/heads/main/install/install-docker.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/refs/heads/main/install/install-docker.sh
 chmod +x install-docker.sh
 ./install-docker.sh
 # (Confirm when prompted to proceed as root)
@@ -179,7 +179,7 @@ chmod +x install-docker.sh
 ### Follow the Prompts
 
 The script will ask you for:
-- Domain name (e.g., demo.openalgo.in)
+- Domain name (e.g., demo.billionairestechnologies.com)
 - Broker name from the supported list
 - Broker API credentials (key and secret)
 - Market data credentials (for XTS brokers only)
@@ -192,7 +192,7 @@ The script will ask you for:
 2. ✅ Installs Docker & Docker Compose
 3. ✅ Installs Nginx web server
 4. ✅ Installs Certbot for SSL
-5. ✅ Clones OpenAlgo repository to `/opt/openalgo`
+5. ✅ Clones BTAlgo repository to `/opt/btalgo`
 6. ✅ Configures environment variables
 7. ✅ Sets up firewall (UFW)
 8. ✅ Obtains SSL certificate from Let's Encrypt
@@ -206,7 +206,7 @@ The script will ask you for:
 
 1. Visit `https://yourdomain.com` in your browser
 2. Create your admin account
-3. Login to OpenAlgo
+3. Login to BTAlgo
 4. Complete broker authentication using OAuth
 
 ### Management Commands
@@ -215,23 +215,23 @@ The installation creates these helper commands:
 
 ```bash
 # View application status
-openalgo-status
+btalgo-status
 
 # View live logs (follow mode)
-openalgo-logs
+btalgo-logs
 
 # Restart application
-openalgo-restart
+btalgo-restart
 
 # Create backup
-openalgo-backup
+btalgo-backup
 ```
 
 ### Docker Commands
 
 ```bash
 # Navigate to installation directory
-cd /opt/openalgo
+cd /opt/btalgo
 
 # Restart container
 sudo docker compose restart
@@ -255,24 +255,24 @@ sudo docker compose up -d
 
 | Item | Location |
 |------|----------|
-| Installation | `/opt/openalgo` |
-| Configuration | `/opt/openalgo/.env` |
-| Database | Docker volume `openalgo_db` |
-| Strategies | Docker volume `openalgo_strategies` |
-| Application Logs | `/opt/openalgo/log` |
+| Installation | `/opt/btalgo` |
+| Configuration | `/opt/btalgo/.env` |
+| Database | Docker volume `btalgo_db` |
+| Strategies | Docker volume `btalgo_strategies` |
+| Application Logs | `/opt/btalgo/log` |
 | Nginx Config | `/etc/nginx/sites-available/yourdomain.com` |
 | SSL Certificates | `/etc/letsencrypt/live/yourdomain.com/` |
-| Backups | `/opt/openalgo-backups/` |
+| Backups | `/opt/btalgo-backups/` |
 
-### Updating OpenAlgo
+### Updating BTAlgo
 
 Database migrations run **automatically** when the container starts.
 
 ```bash
-cd /opt/openalgo
+cd /opt/btalgo
 
 # Create backup first
-openalgo-backup
+btalgo-backup
 
 # Stop container
 sudo docker compose down
@@ -285,7 +285,7 @@ sudo docker compose build --no-cache
 sudo docker compose up -d
 
 # Verify
-openalgo-status
+btalgo-status
 
 # Manual migration (if needed)
 sudo docker compose exec web python /app/upgrade/migrate_all.py
@@ -302,13 +302,13 @@ sudo docker ps -a
 sudo docker compose logs -f
 
 # Check container health
-sudo docker inspect openalgo-web --format='{{.State.Health.Status}}'
+sudo docker inspect btalgo-web --format='{{.State.Health.Status}}'
 ```
 
 **Permission errors with logs:**
 ```bash
 # Fix log directory permissions
-cd /opt/openalgo
+cd /opt/btalgo
 sudo chown -R 1000:1000 log
 sudo docker compose restart
 ```
@@ -378,15 +378,15 @@ The script automatically configures UFW:
    ```
 3. **Monitor logs regularly**:
    ```bash
-   openalgo-logs
+   btalgo-logs
    ```
 4. **Setup automated backups**: Create a cron job
    ```bash
    # Backup daily at 2 AM
    crontab -e
-   # Add: 0 2 * * * /usr/local/bin/openalgo-backup
+   # Add: 0 2 * * * /usr/local/bin/btalgo-backup
    ```
-5. **Use strong passwords** for your OpenAlgo account
+5. **Use strong passwords** for your BTAlgo account
 6. **Never share broker credentials** with anyone
 7. **Review firewall rules periodically**:
    ```bash
@@ -425,9 +425,9 @@ For additional security and CDN benefits:
 
 **Create Backup:**
 ```bash
-openalgo-backup
+btalgo-backup
 ```
-Backups are stored in `/opt/openalgo-backups/` and include:
+Backups are stored in `/opt/btalgo-backups/` and include:
 - Database
 - Configuration (.env file)
 - Strategy files
@@ -436,11 +436,11 @@ Backups are stored in `/opt/openalgo-backups/` and include:
 **Restore from Backup:**
 ```bash
 # Stop container
-cd /opt/openalgo
+cd /opt/btalgo
 sudo docker compose stop
 
 # Extract backup (replace TIMESTAMP with actual value)
-sudo tar -xzf /opt/openalgo-backups/openalgo_backup_TIMESTAMP.tar.gz -C /opt/openalgo
+sudo tar -xzf /opt/btalgo-backups/btalgo_backup_TIMESTAMP.tar.gz -C /opt/btalgo
 
 # Fix permissions
 sudo chown -R 1000:1000 log
@@ -449,21 +449,21 @@ sudo chown -R 1000:1000 log
 sudo docker compose start
 
 # Verify
-openalgo-status
+btalgo-status
 ```
 
 ### Complete Uninstallation
 
 ```bash
 # Stop and remove container
-cd /opt/openalgo
+cd /opt/btalgo
 sudo docker compose down -v
 
 # Remove installation directory
-sudo rm -rf /opt/openalgo
+sudo rm -rf /opt/btalgo
 
 # Remove backups (optional)
-sudo rm -rf /opt/openalgo-backups
+sudo rm -rf /opt/btalgo-backups
 
 # Remove Nginx configuration
 sudo rm /etc/nginx/sites-available/yourdomain.com
@@ -474,7 +474,7 @@ sudo systemctl reload nginx
 sudo certbot delete --cert-name yourdomain.com
 
 # Remove management scripts
-sudo rm /usr/local/bin/openalgo-*
+sudo rm /usr/local/bin/btalgo-*
 
 # Optional: Remove Docker (if not needed for other apps)
 sudo apt remove -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
@@ -483,11 +483,11 @@ sudo rm -rf /var/lib/docker
 
 ### Getting Help
 
-- **Documentation**: https://docs.openalgo.in
+- **Documentation**: https://docs.billionairestechnologies.com
 - **Discord Community**: https://discord.com/invite/UPh7QPsNhP
-- **GitHub Issues**: https://github.com/marketcalls/openalgo/issues
-- **YouTube Tutorials**: https://youtube.com/@openalgoHQ
-- **Website**: https://openalgo.in
+- **GitHub Issues**: https://github.com/billionairestechnologies/btalgo/issues
+- **YouTube Tutorials**: https://youtube.com/@BTAlgoHQ
+- **Website**: https://billionairestechnologies.com
 
 ### Supported Brokers
 
@@ -562,13 +562,13 @@ sudo rm -rf /var/lib/docker
     ▼         ▼
 ┌───────┐ ┌──────────┐
 │ Flask │ │WebSocket │ ← Docker Container
-│ :5000 │ │  :8765   │   (openalgo-web)
+│ :5000 │ │  :8765   │   (btalgo-web)
 └───────┘ └──────────┘
     │
     ▼
 ┌──────────┐
 │ SQLite   │ ← Docker Volume
-│ Database │   (openalgo_db)
+│ Database │   (btalgo_db)
 └──────────┘
 ```
 
@@ -583,11 +583,11 @@ A: Yes, but you'll need to modify the Nginx configuration manually.
 **Q: Will this work with a subdomain?**
 A: Yes, the script supports both root domains and subdomains.
 
-**Q: Can I run multiple OpenAlgo instances?**
+**Q: Can I run multiple BTAlgo instances?**
 A: Not with this script. Each installation assumes it's the only instance.
 
 **Q: How do I change my broker after installation?**
-A: Edit `/opt/openalgo/.env`, update broker credentials, then run `sudo docker compose restart`.
+A: Edit `/opt/btalgo/.env`, update broker credentials, then run `sudo docker compose restart`.
 
 **Q: Is my broker data secure?**
 A: Yes, all data is encrypted in transit (HTTPS/WSS) and stored locally on your server.
@@ -614,7 +614,7 @@ A: Wait for DNS propagation (usually 5-60 minutes) before running the script.
 
 ### License
 
-OpenAlgo is released under the **AGPL V3.0 License**.
+BTAlgo is released under the **AGPL V3.0 License**.
 
 ### Contributing
 
@@ -622,7 +622,7 @@ Contributions are welcome! Please see our [Contributing Guide](../CONTRIBUTING.m
 
 ---
 
-**Note**: This script is designed for fresh server installations. If you have an existing OpenAlgo installation or other applications on the server, please review the script and make necessary adjustments to avoid conflicts.
+**Note**: This script is designed for fresh server installations. If you have an existing BTAlgo installation or other applications on the server, please review the script and make necessary adjustments to avoid conflicts.
 
 For production deployments, we strongly recommend:
 1. Using a non-root user

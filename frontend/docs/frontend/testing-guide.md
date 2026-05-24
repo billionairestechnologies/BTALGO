@@ -1,6 +1,6 @@
 # Testing Guide
 
-This guide covers testing practices for the OpenAlgo frontend, including unit tests, E2E tests, and accessibility testing.
+This guide covers testing practices for the BTAlgo frontend, including unit tests, E2E tests, and accessibility testing.
 
 ## Testing Stack
 

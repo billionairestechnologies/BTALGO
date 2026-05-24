@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Fyers Broking Parameters
 
 from database.token_db import get_br_symbol
@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 
 def transform_data(data):
     """
-    Transforms the OpenAlgo Platform API request structure to the format expected by the Fyers API.
+    Transforms the BTAlgo Platform API request structure to the format expected by the Fyers API.
     """
     symbol = get_br_symbol(data["symbol"], data["exchange"])
 
@@ -31,7 +31,7 @@ def transform_data(data):
         "offlineOrder": False,
         "stopLoss": 0,
         "takeProfit": 0,
-        "orderTag": "openalgo",
+        "orderTag": "btalgo",
     }
 
     return transformed
@@ -78,7 +78,7 @@ def transform_modify_order_data(data):
 
 def map_order_type(pricetype):
     """
-    Maps the OpenAlgo pricetype to the Fyers order type.
+    Maps the BTAlgo pricetype to the Fyers order type.
     """
     order_type_mapping = {"MARKET": 2, "LIMIT": 1, "SL": 4, "SL-M": 3}
     order_type = order_type_mapping.get(pricetype)
@@ -90,7 +90,7 @@ def map_order_type(pricetype):
 
 def map_action(action):
     """
-    Maps the OpenAlgo action to the Fyers side.
+    Maps the BTAlgo action to the Fyers side.
     """
     action_mapping = {"BUY": 1, "SELL": -1}
     side = action_mapping.get(action)
@@ -101,7 +101,7 @@ def map_action(action):
 
 def map_product_type(product):
     """
-    Maps the OpenAlgo product type to the Fyers product type.
+    Maps the BTAlgo product type to the Fyers product type.
     """
     product_type_mapping = {
         "CNC": "CNC",
@@ -119,7 +119,7 @@ def map_product_type(product):
 
 def reverse_map_product_type(product):
     """
-    Reverse maps the Fyers product type to the OpenAlgo product type.
+    Reverse maps the Fyers product type to the BTAlgo product type.
     """
     reverse_product_mapping = {
         "CNC": "CNC",
@@ -131,6 +131,6 @@ def reverse_map_product_type(product):
     oa_product = reverse_product_mapping.get(product)
     if oa_product is None:
         logger.warning(
-            f"Unknown Fyers product type '{product}' received. Cannot map to OpenAlgo product type."
+            f"Unknown Fyers product type '{product}' received. Cannot map to BTAlgo product type."
         )
     return oa_product

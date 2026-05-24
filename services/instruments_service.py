@@ -29,7 +29,7 @@ def get_instruments(
             user_id = verify_api_key(api_key)
             if not user_id:
                 logger.warning("Invalid API key provided for instruments download")
-                return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403, {}
+                return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403, {}
         else:
             logger.warning("No API key provided for instruments download")
             return False, {"status": "error", "message": "API key is required"}, 401, {}

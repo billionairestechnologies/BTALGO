@@ -11,16 +11,16 @@ load_dotenv()
 class TestMstockBroker(unittest.TestCase):
     def setUp(self):
         """Set up for the test case."""
-        # The test assumes that the OpenAlgo server is running and
+        # The test assumes that the BTAlgo server is running and
         # the user is already logged into the mstock broker.
         self.api_key = os.getenv(
-            "OPENALGO_API_KEY", "3bb8d260915ff680a7258108c0483b9eb7675ced31309a36f5846366943ee9fa"
+            "BTALGO_API_KEY", "3bb8d260915ff680a7258108c0483b9eb7675ced31309a36f5846366943ee9fa"
         )
         self.client = OAClient(api_key=self.api_key, host="http://127.0.0.1:5000")
 
     def test_place_order(self):
         """Test placing a simple order."""
-        # This test requires an active mstock session in the OpenAlgo server
+        # This test requires an active mstock session in the BTAlgo server
         order_response = self.client.placeorder(
             strategy="TEST",
             symbol="TCS",

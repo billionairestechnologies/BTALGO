@@ -1,4 +1,4 @@
-# OpenAlgo Option Greeks — py_vollib → opengreeks migration report
+# BTAlgo Option Greeks — py_vollib → opengreeks migration report
 
 This document captures the parity validation and performance gain after replacing
 `py_vollib==1.0.1` with `opengreeks==0.1.0` as the Black-76 math backend for

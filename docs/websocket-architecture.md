@@ -1,4 +1,4 @@
-# OpenAlgo Websockets and ZMQ
+# BTAlgo Websockets and ZMQ
 
 **How websocket data is distributed across the UI, Risk Management, and External Websockets.**
 
@@ -8,11 +8,11 @@ This page is written for traders first, with developer details toward the end. I
 
 ## The 30-second version
 
-OpenAlgo connects to your broker's live market feed **once**. That single feed is then distributed locally to three different audiences:
+BTAlgo connects to your broker's live market feed **once**. That single feed is then distributed locally to three different audiences:
 
 1. **The UI** — the charts, quote panels, option chain etc. you see in the browser.
 2. **Risk Management** — the Flow engine that watches your stoplosses, targets, and price triggers in real time.
-3. **External Websockets** — your own Python, JavaScript, Excel, or AmiBroker scripts that connect to OpenAlgo to receive ticks.
+3. **External Websockets** — your own Python, JavaScript, Excel, or AmiBroker scripts that connect to BTAlgo to receive ticks.
 
 All three see the same ticks at the same time. They don't compete with each other, and adding a second consumer does **not** double the load on your broker.
 
@@ -28,9 +28,9 @@ Every Indian broker imposes hard limits on websockets:
 - Usually **1000–3000 symbols total** across those connections.
 - Some brokers will silently drop subscriptions if you exceed the cap.
 
-If every part of OpenAlgo opened its own websocket directly to the broker, you'd burn through that budget instantly — the GUI would fight your live algo, and your data-capture script would fight both.
+If every part of BTAlgo opened its own websocket directly to the broker, you'd burn through that budget instantly — the GUI would fight your live algo, and your data-capture script would fight both.
 
-So OpenAlgo runs **one connection to the broker per session**, demultiplexes it locally, and lets every consumer subscribe to whatever they need without anyone knowing about anyone else.
+So BTAlgo runs **one connection to the broker per session**, demultiplexes it locally, and lets every consumer subscribe to whatever they need without anyone knowing about anyone else.
 
 ---
 
@@ -73,13 +73,13 @@ The broker only ever sees one consumer (the pool). Everyone else taps in downstr
 
 ## Roles: who does what
 
-OpenAlgo's websocket layer is built from four distinct pieces. Each has one job. Understanding them separately makes the rest of this page (and most user questions) much easier.
+BTAlgo's websocket layer is built from four distinct pieces. Each has one job. Understanding them separately makes the rest of this page (and most user questions) much easier.
 
 ### 1. The Broker Websocket Adapter
 
-**Job:** speak the broker's proprietary websocket protocol and translate everything into a standard OpenAlgo tick format.
+**Job:** speak the broker's proprietary websocket protocol and translate everything into a standard BTAlgo tick format.
 
-Every broker has its own websocket — different login flow, different message shape, different way of expressing market depth, different reconnect rules. The adapter (`broker/<broker_name>/streaming/<broker>_adapter.py`) is the *only* code in OpenAlgo that knows about those quirks. Once a tick has been parsed and normalised, it leaves the adapter looking the same regardless of which broker it came from.
+Every broker has its own websocket — different login flow, different message shape, different way of expressing market depth, different reconnect rules. The adapter (`broker/<broker_name>/streaming/<broker>_adapter.py`) is the *only* code in BTAlgo that knows about those quirks. Once a tick has been parsed and normalised, it leaves the adapter looking the same regardless of which broker it came from.
 
 The adapter does **not** know who's listening. It just publishes.
 
@@ -110,7 +110,7 @@ The bus is bound to `127.0.0.1` (loopback) only. It is not exposed off the machi
 The proxy:
 
 - Listens on port 8765 for WSS clients (browsers, Python scripts, AmiBroker, etc.).
-- Authenticates them with their OpenAlgo API key.
+- Authenticates them with their BTAlgo API key.
 - Maintains the master subscription registry, keyed by `(symbol, exchange, mode)` → set of client IDs.
 - Subscribes to the ZeroMQ bus; for every incoming tick, it looks up who wants it and forwards to those clients only.
 - Throttles LTP updates to 50 ms per symbol so slow clients don't drown.
@@ -130,12 +130,12 @@ This is the piece most users have never heard of, but it's how Flow and the rest
 
 ### 1. UI — what you see in the browser
 
-When you open OpenAlgo in your browser and look at a live chart, a quote panel, or any ticking number, the browser is connected to the **Websocket Proxy on port 8765** behind the scenes. Each panel asks for the symbols it needs (e.g. NIFTY, BANKNIFTY) and unsubscribes automatically when you close the panel.
+When you open BTAlgo in your browser and look at a live chart, a quote panel, or any ticking number, the browser is connected to the **Websocket Proxy on port 8765** behind the scenes. Each panel asks for the symbols it needs (e.g. NIFTY, BANKNIFTY) and unsubscribes automatically when you close the panel.
 
 A few things worth knowing as a trader:
 
 - **Lazy subscription.** A symbol is only subscribed when a panel that needs it is actually open. Closing the panel releases it.
-- **Tab pause.** If you switch away from the OpenAlgo tab for more than 5 seconds, the UI automatically pauses its subscriptions to save bandwidth. It resumes when you come back.
+- **Tab pause.** If you switch away from the BTAlgo tab for more than 5 seconds, the UI automatically pauses its subscriptions to save bandwidth. It resumes when you come back.
 - **Snapshot vs. stream.** Many panels (option chain, GEX, vol surface, IV smile, OI tracker, straddle chart, etc.) **do not** use the websocket at all — they fetch snapshots from the broker REST API on a refresh interval. See "Which features stream vs. poll" below.
 
 ### 2. Risk Management — Flow
@@ -151,7 +151,7 @@ For a trader this means: **your live algo's risk management runs on the same sha
 
 ### 3. External Websockets — your own clients
 
-OpenAlgo exposes the Websocket Proxy as a public WSS endpoint at `ws://<host>:8765`. Any client in any language can connect, authenticate with an OpenAlgo API key, and subscribe to symbols.
+BTAlgo exposes the Websocket Proxy as a public WSS endpoint at `ws://<host>:8765`. Any client in any language can connect, authenticate with an BTAlgo API key, and subscribe to symbols.
 
 This is how you'd:
 
@@ -168,7 +168,7 @@ External clients are first-class citizens — they share the same broker subscri
 
 ## How Python services consume the feed: the Market Data Service
 
-External clients talk WSS to port 8765. The browser does too. But internally, OpenAlgo's own Python code (Flow, watchlists, dashboards, RMS) doesn't speak WSS to itself — that would be wasteful. It uses an in-process facade called **`MarketDataService`** (`services/market_data_service.py`).
+External clients talk WSS to port 8765. The browser does too. But internally, BTAlgo's own Python code (Flow, watchlists, dashboards, RMS) doesn't speak WSS to itself — that would be wasteful. It uses an in-process facade called **`MarketDataService`** (`services/market_data_service.py`).
 
 Think of it as a thin layer that sits inside the same Python process as the proxy and offers two things to other services:
 
@@ -218,7 +218,7 @@ This is the layer that makes "the algo missed my SL because the broker WS droppe
 ### How a typical Flow strategy uses it
 
 1. Flow service calls `subscribe_critical(callback, filter_symbols={"NSE:RELIANCE"}, name="sl_watcher_42")`.
-2. Behind the scenes, OpenAlgo also subscribes that symbol on the websocket if it isn't already subscribed (this is what the proxy's deduplication handles).
+2. Behind the scenes, BTAlgo also subscribes that symbol on the websocket if it isn't already subscribed (this is what the proxy's deduplication handles).
 3. Every tick for RELIANCE flows: broker → adapter → ZMQ → proxy → MarketDataService → callback → Flow's stoploss check.
 4. If the connection dies, the safety gate prevents `callback` from ever firing on stale data.
 5. When Flow shuts down, it calls `unsubscribe_priority(subscriber_id)` and the symbol is released (and ultimately unsubscribed from the broker if no one else cares).
@@ -227,7 +227,7 @@ This is the layer that makes "the algo missed my SL because the broker WS droppe
 
 If you're writing your own Python integration (a custom alert, a scanner, a recording bot), you have two reasonable choices:
 
-- **Use `MarketDataService` directly** if your code runs inside the same OpenAlgo process. It's the lightest path: one function call, no serialisation, automatic safety gates.
+- **Use `MarketDataService` directly** if your code runs inside the same BTAlgo process. It's the lightest path: one function call, no serialisation, automatic safety gates.
 - **Use the public WSS endpoint on port 8765** if your code runs in a separate process or different machine. Same data, slight serialisation overhead, but completely decoupled.
 
 For a trader, the takeaway is just: when Flow says "I'm watching your stoploss", that watching goes through this service, and it has guards built in.
@@ -268,7 +268,7 @@ Modes are hierarchical: if a symbol is already subscribed at Depth (the heaviest
 
 ## Which features stream vs. poll
 
-This is the question people ask the most. Not every OpenAlgo feature uses the websocket — many of them poll the broker's REST API instead. **Knowing which is which lets you reason about your websocket budget.**
+This is the question people ask the most. Not every BTAlgo feature uses the websocket — many of them poll the broker's REST API instead. **Knowing which is which lets you reason about your websocket budget.**
 
 ### Use the websocket (live stream)
 
@@ -301,11 +301,11 @@ This is the question we get most often once people start subscribing to a lot of
 
 ### What is "websocket pooling"?
 
-A **broker websocket** is the live TCP connection from OpenAlgo to your broker's market-data servers. Each broker imposes a cap on how many symbols a single such connection can carry — typically 1000 symbols, sometimes 3000 (Zerodha), occasionally less.
+A **broker websocket** is the live TCP connection from BTAlgo to your broker's market-data servers. Each broker imposes a cap on how many symbols a single such connection can carry — typically 1000 symbols, sometimes 3000 (Zerodha), occasionally less.
 
 If you need more symbols than one broker websocket can hold, your only option is to open a **second** broker websocket (and a third, and so on, up to whatever the broker allows on a single login).
 
-**Connection pooling** is the OpenAlgo feature that does this for you automatically. The `ConnectionPool` (in `websocket_proxy/connection_manager.py`) manages a small set of broker websocket sessions on your behalf, distributes new subscriptions across them, and presents the whole thing as one logical pipe to the rest of OpenAlgo.
+**Connection pooling** is the BTAlgo feature that does this for you automatically. The `ConnectionPool` (in `websocket_proxy/connection_manager.py`) manages a small set of broker websocket sessions on your behalf, distributes new subscriptions across them, and presents the whole thing as one logical pipe to the rest of BTAlgo.
 
 You never have to think "I'm at 998/1000, I need to open a new connection". The pool does it.
 
@@ -355,11 +355,11 @@ Translation: a new subscriber wanted LTP for that strike. The pool noticed Depth
 |----------------------------------|---------|------------------------------------|
 | Symbols per broker connection    | 1000    | `MAX_SYMBOLS_PER_WEBSOCKET` in .env |
 | Max broker connections per user  | 3       | `MAX_WEBSOCKET_CONNECTIONS` in .env |
-| Total cap (OpenAlgo side)        | 3000    | derived                            |
+| Total cap (BTAlgo side)        | 3000    | derived                            |
 | LTP throttle                     | 50 ms   | hard-coded                         |
 | Connection pooling enabled       | yes     | `ENABLE_CONNECTION_POOLING=true`    |
 
-The actual ceiling is the **lower** of (OpenAlgo's cap) and (your broker's per-login cap):
+The actual ceiling is the **lower** of (BTAlgo's cap) and (your broker's per-login cap):
 
 - **Most brokers** allow exactly 1 websocket per login. Pooling is still on, but the pool will only ever spin up one connection — when it fills, you simply can't subscribe to more symbols on that account.
 - **Flattrade, Kotak, and a few others** allow 2 sessions per credential. The pool will use both when needed.
@@ -379,7 +379,7 @@ If you push the pool past its limit, you get a structured error rather than a si
 
 - It doesn't bypass broker limits. If your broker says 1 websocket, it stays 1 websocket.
 - It doesn't do load-balancing in any clever sense. Connections fill in order: first connection until full, then second, then third. (This works fine because all connections feed the same ZMQ bus anyway.)
-- It doesn't share connections *across users*. Pooling is per-(broker, user). Each OpenAlgo deployment is single-user, so in practice you have one pool.
+- It doesn't share connections *across users*. Pooling is per-(broker, user). Each BTAlgo deployment is single-user, so in practice you have one pool.
 - It doesn't persist subscriptions across restarts. On startup the pool is empty; clients re-subscribe as they reconnect.
 
 ### Tuning
@@ -389,7 +389,7 @@ The two knobs that matter, both via `.env`:
 - `MAX_SYMBOLS_PER_WEBSOCKET` — set this to whatever your broker actually allows per session. Most are 1000, Zerodha is 3000, some are smaller. Setting it higher than the broker allows just means subscriptions will fail at the broker level instead of being routed to a fresh connection.
 - `MAX_WEBSOCKET_CONNECTIONS` — set this to whatever your broker allows per login. 1 for most brokers, 2 for Flattrade/Kotak.
 
-Setting these correctly means OpenAlgo will reject "you've gone too far" cleanly instead of letting the broker cut you off mid-trade.
+Setting these correctly means BTAlgo will reject "you've gone too far" cleanly instead of letting the broker cut you off mid-trade.
 
 ---
 
@@ -402,12 +402,12 @@ No. The option chain uses the broker REST API, not the websocket. Your live algo
 No. The proxy deduplicates: one broker subscription, two consumers. Your broker still sees 50 symbols, not 100.
 
 **Q: Can I capture all websocket ticks to a file for backtesting?**
-Not built in. You'd write your own client against port 8765 (or, if you're comfortable, against the internal ZMQ bus) and persist the data yourself. There's no parquet/CSV recorder in OpenAlgo today.
+Not built in. You'd write your own client against port 8765 (or, if you're comfortable, against the internal ZMQ bus) and persist the data yourself. There's no parquet/CSV recorder in BTAlgo today.
 
 **Q: Some users on Discord mentioned exposing ZMQ to external scripts. Is that supported?**
 The internal ZMQ bus on `127.0.0.1:5555` is not a public, versioned API right now. The supported way to consume the feed is the WSS endpoint on port 8765. If you want to subscribe to ZMQ directly from a local script you can, but the topic format and message schema are not contractually stable across releases.
 
-**Q: My broker says I can have 2 websocket connections. Does OpenAlgo use both?**
+**Q: My broker says I can have 2 websocket connections. Does BTAlgo use both?**
 With pooling enabled (the default), yes — when the symbol cap on the first connection is reached, the proxy automatically opens a second one. You don't need to do anything.
 
 **Q: Does the Risk Management (Flow) feed have priority over the UI?**
@@ -478,7 +478,7 @@ The Flask app runs under Gunicorn with the `eventlet` worker (`-w 1`). The Webso
 
 ### Note on Flask-SocketIO vs. the Websocket Proxy
 
-OpenAlgo also uses **Flask-SocketIO** for control-plane events (order placed/filled/rejected, analyzer updates, master contract loaded, etc.). That is a separate websocket from the market-data Websocket Proxy described here. Don't confuse the two:
+BTAlgo also uses **Flask-SocketIO** for control-plane events (order placed/filled/rejected, analyzer updates, master contract loaded, etc.). That is a separate websocket from the market-data Websocket Proxy described here. Don't confuse the two:
 
 - **Flask-SocketIO** (Socket.IO protocol, app-internal) → order updates, UI notifications.
 - **Websocket Proxy on `:8765`** (raw WSS, JSON protocol) → market data ticks.
@@ -491,7 +491,7 @@ A trader using only the GUI doesn't need to think about this. A developer buildi
 |---|---|
 | Public WSS port | `8765` |
 | Internal ZMQ port | `127.0.0.1:5555` (loopback) |
-| Auth | OpenAlgo API key |
+| Auth | BTAlgo API key |
 | Default symbols per broker connection | 1000 (3000 for Zerodha) |
 | Max broker connections per user | 3 (with pooling enabled) |
 | LTP throttle | 50 ms per symbol |

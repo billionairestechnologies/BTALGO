@@ -119,7 +119,7 @@ def transform_order_data(orders):
             )
             continue
 
-        # Map Zebu status to OpenAlgo status
+        # Map Zebu status to BTAlgo status
         raw_status = order.get("status", "").upper()
         status_map = {
             "COMPLETE": "complete",

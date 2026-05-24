@@ -2,7 +2,7 @@ import logging
 
 
 class PocketfulExchangeMapper:
-    """Maps OpenAlgo exchange codes to Pocketful-specific exchange types"""
+    """Maps BTAlgo exchange codes to Pocketful-specific exchange types"""
 
     # Exchange type mapping for Pocketful broker
     # Based on Pocketful WebSocket API (matching data.py)

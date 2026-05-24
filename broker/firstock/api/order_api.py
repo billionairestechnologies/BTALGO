@@ -182,15 +182,15 @@ def get_open_position(tradingsymbol, exchange, producttype, auth):
     Get open position for a specific symbol
 
     Args:
-        tradingsymbol (str): Trading symbol in OpenAlgo format
+        tradingsymbol (str): Trading symbol in BTAlgo format
         exchange (str): Exchange (NSE, BSE, etc.)
-        producttype (str): Product type in OpenAlgo format (CNC, MIS, NRML)
+        producttype (str): Product type in BTAlgo format (CNC, MIS, NRML)
         auth (str): Authentication token (jKey)
 
     Returns:
         str: Net quantity as string, '0' if no position found
     """
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format
+    # Convert Trading Symbol from BTAlgo Format to Broker Format
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
     if "&" in tradingsymbol:
         tradingsymbol = tradingsymbol.replace("&", "%26")
@@ -403,7 +403,7 @@ def close_all_positions(current_api_key, auth):
             quantity = abs(int(net_qty))
             action = "SELL" if int(net_qty) > 0 else "BUY"
 
-            # Get OpenAlgo symbol
+            # Get BTAlgo symbol
             symbol = get_symbol(position.get("token"), position.get("exchange"))
             if not symbol:
                 positions_failed += 1
@@ -538,7 +538,7 @@ def modify_order(data, auth):
     Modify an existing order
 
     Args:
-        data (dict): Order modification data in OpenAlgo format
+        data (dict): Order modification data in BTAlgo format
         auth (str): Authentication token (jKey)
 
     Returns:
@@ -552,7 +552,7 @@ def modify_order(data, auth):
     api_key = api_key[:-4]  # Remove last 4 characters
 
     # Get token. Do NOT mutate data["symbol"] to the broker symbol — MPP
-    # inside transform_modify_order_data needs the OpenAlgo symbol for
+    # inside transform_modify_order_data needs the BTAlgo symbol for
     # get_quotes / get_instrument_type_from_symbol / get_symbol_info
     # lookups. transform_modify_order_data computes the broker symbol
     # itself via get_br_symbol, matching the transform_data pattern.
@@ -637,7 +637,7 @@ def placeorder(data, auth):
     Place an order through Firstock API
 
     Parameters:
-        data (dict): Order data in OpenAlgo format
+        data (dict): Order data in BTAlgo format
         auth (str): Authentication token (jKey)
 
     Returns:

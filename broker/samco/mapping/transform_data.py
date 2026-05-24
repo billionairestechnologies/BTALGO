@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Samco Parameters https://www.samco.in/stocknote-api-documentation
 
 from database.token_db import get_br_symbol, get_symbol_info
@@ -14,7 +14,7 @@ logger = get_logger(__name__)
 
 def transform_data(data, token, auth_token=None):
     """
-    Transforms the OpenAlgo API request structure to Samco expected structure.
+    Transforms the BTAlgo API request structure to Samco expected structure.
 
     For MARKET orders, fetches LTP and converts to LIMIT with MPP (Market Price Protection).
     For SL-M orders, converts to SL with protected limit price based on trigger price.
@@ -167,7 +167,7 @@ def transform_data(data, token, auth_token=None):
 
 def transform_modify_order_data(data):
     """
-    Transforms the OpenAlgo modify order request to Samco expected structure.
+    Transforms the BTAlgo modify order request to Samco expected structure.
     Only includes fields that can be modified (orderNumber goes in URL).
     """
     transformed = {
@@ -194,7 +194,7 @@ def transform_modify_order_data(data):
 
 def map_order_type(pricetype):
     """
-    Maps OpenAlgo pricetype to Samco order type.
+    Maps BTAlgo pricetype to Samco order type.
     """
     order_type_mapping = {"MARKET": "MKT", "LIMIT": "L", "SL": "SL", "SL-M": "SL-M"}
     return order_type_mapping.get(pricetype, "MKT")
@@ -202,7 +202,7 @@ def map_order_type(pricetype):
 
 def map_product_type(product):
     """
-    Maps OpenAlgo product type to Samco product type.
+    Maps BTAlgo product type to Samco product type.
     """
     product_type_mapping = {
         "CNC": "CNC",
@@ -214,7 +214,7 @@ def map_product_type(product):
 
 def reverse_map_product_type(product):
     """
-    Maps Samco product type back to OpenAlgo product type.
+    Maps Samco product type back to BTAlgo product type.
     """
     reverse_product_type_mapping = {
         "CNC": "CNC",

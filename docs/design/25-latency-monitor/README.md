@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo tracks order execution latency at multiple stages to help identify performance bottlenecks and ensure SLA compliance.
+BTAlgo tracks order execution latency at multiple stages to help identify performance bottlenecks and ensure SLA compliance.
 
 ## Architecture Diagram
 
@@ -56,7 +56,7 @@ OpenAlgo tracks order execution latency at multiple stages to help identify perf
 | rtt_ms | Broker API round-trip time |
 | validation_latency_ms | Pre-request validation |
 | response_latency_ms | Post-response processing |
-| overhead_ms | Total OpenAlgo overhead |
+| overhead_ms | Total BTAlgo overhead |
 | total_latency_ms | End-to-end time |
 
 ### Database Schema
@@ -77,7 +77,7 @@ OpenAlgo tracks order execution latency at multiple stages to help identify perf
 │ rtt_ms           │ FLOAT        │ Round-trip time  │
 │ validation_ms    │ FLOAT        │ Validation time  │
 │ response_ms      │ FLOAT        │ Response time    │
-│ overhead_ms      │ FLOAT        │ OpenAlgo overhead│
+│ overhead_ms      │ FLOAT        │ BTAlgo overhead│
 │ total_latency_ms │ FLOAT        │ Total time       │
 │ request_body     │ JSON         │ Original request │
 │ response_body    │ JSON         │ Broker response  │

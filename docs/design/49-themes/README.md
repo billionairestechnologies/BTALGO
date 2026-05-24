@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo's React frontend supports theme customization with light/dark modes and 12 base colors. Theme preferences persist across sessions using Zustand with localStorage. The theme system also manages "App Mode" (live vs analyzer) with distinct visual states.
+BTAlgo's React frontend supports theme customization with light/dark modes and 12 base colors. Theme preferences persist across sessions using Zustand with localStorage. The theme system also manages "App Mode" (live vs analyzer) with distinct visual states.
 
 ## Architecture Diagram
 
@@ -40,7 +40,7 @@ OpenAlgo's React frontend supports theme customization with light/dark modes and
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │  localStorage                                                        │   │
 │  │                                                                      │   │
-│  │  openalgo-theme: {                                                  │   │
+│  │  btalgo-theme: {                                                  │   │
 │  │    "state": {                                                       │   │
 │  │      "theme": "dark",                                               │   │
 │  │      "accentColor": "blue"                                          │   │
@@ -121,7 +121,7 @@ export const useThemeStore = create<ThemeState>()(
       }
     }),
     {
-      name: 'openalgo-theme',
+      name: 'btalgo-theme',
       partialize: (state) => ({
         theme: state.theme,
         accentColor: state.accentColor
@@ -466,7 +466,7 @@ function useSystemTheme() {
 
   useEffect(() => {
     // Check if user has set a preference
-    const stored = localStorage.getItem('openalgo-theme');
+    const stored = localStorage.getItem('btalgo-theme');
     if (stored) return; // User preference takes precedence
 
     // Use system preference

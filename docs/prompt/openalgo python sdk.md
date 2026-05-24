@@ -1,6 +1,6 @@
 # Python
 
-To install the OpenAlgo Python library, use pip:
+To install the BTAlgo Python library, use pip:
 
 ```bash
 # Trading API only  
@@ -10,15 +10,15 @@ pip install openalgo
 pip install openalgo[indicators]  
 ```
 
-### Get the OpenAlgo apikey
+### Get the BTAlgo apikey
 
-Make Sure that your OpenAlgo Application is running. Login to OpenAlgo Application with valid credentials and get the OpenAlgo apikey
+Make Sure that your BTAlgo Application is running. Login to BTAlgo Application with valid credentials and get the BTAlgo apikey
 
-For detailed function parameters refer to the [API Documentation](https://docs.openalgo.in/api-documentation/v1)
+For detailed function parameters refer to the [API Documentation](https://docs.billionairestechnologies.com/api-documentation/v1)
 
-### Getting Started with OpenAlgo
+### Getting Started with BTAlgo
 
-First, import the `api` class from the OpenAlgo library and initialize it with your API key:
+First, import the `api` class from the BTAlgo library and initialize it with your API key:
 
 ```python
 from openalgo import api
@@ -30,16 +30,16 @@ client = api(api_key='your_api_key_here', host='http://127.0.0.1:5000')
 
 ```
 
-### Check OpenAlgo Version
+### Check BTAlgo Version
 
 ```python
 import openalgo 
-openalgo.__version__
+btalgo.__version__
 ```
 
 ### Examples
 
-Please refer to the documentation on [order constants](https://docs.openalgo.in/api-documentation/v1/order-constants), and consult the API reference for details on optional parameters
+Please refer to the documentation on [order constants](https://docs.billionairestechnologies.com/api-documentation/v1/order-constants), and consult the API reference for details on optional parameters
 
 ### PlaceOrder example
 
@@ -1398,7 +1398,7 @@ Instruments **Response**
 
 ```python
 response = client.telegram(
-      username="<openalgo_loginid>",
+      username="<btalgo_loginid>",
       message="NIFTY crossed 26000!"
   )
 
@@ -1416,7 +1416,7 @@ print(response)
 
 ### WhatsApp Alert Example
 
-Prerequisites: open `/whatsapp` in the OpenAlgo web UI, click **Pair**, scan the QR with your phone. Pairing is admin-only on purpose — the REST API exposes only the send endpoint so a leaked API key cannot re-pair the device. Once paired, the bot auto-reconnects on every server boot from the encrypted session blob stored in `openalgo.db`.
+Prerequisites: open `/whatsapp` in the BTAlgo web UI, click **Pair**, scan the QR with your phone. Pairing is admin-only on purpose — the REST API exposes only the send endpoint so a leaked API key cannot re-pair the device. Once paired, the bot auto-reconnects on every server boot from the encrypted session blob stored in `btalgo.db`.
 
 One unified call handles every common case — text, image, document, self-send, single recipient, or small broadcast (max 5).
 
@@ -1461,7 +1461,7 @@ response = client.whatsapp(
 
 #### Send an image with caption
 
-The path is read from the OpenAlgo server's filesystem. It must lie under `WHATSAPP_ATTACHMENT_ROOTS` (defaults to `<openalgo>/db/attachments/`).
+The path is read from the BTAlgo server's filesystem. It must lie under `WHATSAPP_ATTACHMENT_ROOTS` (defaults to `<btalgo>/db/attachments/`).
 
 ```python
 response = client.whatsapp(
@@ -1491,7 +1491,7 @@ response = client.whatsapp(
 )
 ```
 
-#### Send to a linked OpenAlgo user (legacy multi-recipient path)
+#### Send to a linked BTAlgo user (legacy multi-recipient path)
 
 ```python
 response = client.whatsapp(
@@ -1502,7 +1502,7 @@ response = client.whatsapp(
 
 #### Receiving messages (bot commands)
 
-Type slash-commands from your own phone in the **"Message yourself"** chat — the OpenAlgo linked device sees those as `is_from_me=True` and responds in the same chat. Random contacts who message your number cannot drive the bot.
+Type slash-commands from your own phone in the **"Message yourself"** chat — the BTAlgo linked device sees those as `is_from_me=True` and responds in the same chat. Random contacts who message your number cannot drive the bot.
 
 ```
 /help                   List all commands
@@ -1866,9 +1866,9 @@ Analyzer Toggle Response
 from openalgo import api
 import time
 
-# Initialize OpenAlgo client
+# Initialize BTAlgo client
 client = api(
-    api_key="your_api_key",                  # Replace with your actual OpenAlgo API key
+    api_key="your_api_key",                  # Replace with your actual BTAlgo API key
     host="http://127.0.0.1:5000",            # REST API host
     ws_url="ws://127.0.0.1:8765"             # WebSocket host
 )
@@ -1903,9 +1903,9 @@ finally:
 from openalgo import api
 import time
 
-# Initialize OpenAlgo client
+# Initialize BTAlgo client
 client = api(
-    api_key="your_api_key",                  # Replace with your actual OpenAlgo API key
+    api_key="your_api_key",                  # Replace with your actual BTAlgo API key
     host="http://127.0.0.1:5000",            # REST API host
     ws_url="ws://127.0.0.1:8765"             # WebSocket host
 )
@@ -1940,9 +1940,9 @@ finally:
 from openalgo import api
 import time
 
-# Initialize OpenAlgo client
+# Initialize BTAlgo client
 client = api(
-    api_key="your_api_key",                  # Replace with your actual OpenAlgo API key
+    api_key="your_api_key",                  # Replace with your actual BTAlgo API key
     host="http://127.0.0.1:5000",            # REST API host
     ws_url="ws://127.0.0.1:8765"             # WebSocket host
 )
@@ -1981,7 +1981,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/trading-platform/python.md?ask=<question>
+GET https://docs.billionairestechnologies.com/trading-platform/python.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

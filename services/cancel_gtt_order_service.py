@@ -153,7 +153,7 @@ def cancel_gtt_order(
 
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
-            return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
         return cancel_gtt_order_with_auth(trigger_id, AUTH_TOKEN, broker_name, original_data)
 
     # Direct internal call

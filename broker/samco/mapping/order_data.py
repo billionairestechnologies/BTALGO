@@ -8,8 +8,8 @@ logger = get_logger(__name__)
 
 def map_order_status(status):
     """
-    Maps Samco order status to OpenAlgo standardized status.
-    OpenAlgo expects: 'open', 'complete', 'cancelled', 'rejected'
+    Maps Samco order status to BTAlgo standardized status.
+    BTAlgo expects: 'open', 'complete', 'cancelled', 'rejected'
     """
     status_lower = status.lower() if status else ""
     status_mapping = {
@@ -61,13 +61,13 @@ def map_order_data(order_data):
             trading_symbol = order.get("tradingSymbol", "")
             exchange = order.get("exchange", "")
 
-            # Use the get_oa_symbol function to fetch the OpenAlgo symbol from the database
+            # Use the get_oa_symbol function to fetch the BTAlgo symbol from the database
             symbol_from_db = get_oa_symbol(trading_symbol, exchange)
 
             # Check if a symbol was found; if so, update the trading_symbol in the current order
             if symbol_from_db:
                 order["tradingSymbol"] = symbol_from_db
-                # Map product codes to OpenAlgo format
+                # Map product codes to BTAlgo format
                 product_code = order.get("productCode", "")
                 if (
                     order["exchange"] == "NSE" or order["exchange"] == "BSE"
@@ -127,7 +127,7 @@ def calculate_order_statistics(order_data):
 
 def transform_order_data(orders):
     """
-    Transforms Samco order data to OpenAlgo standardized format.
+    Transforms Samco order data to BTAlgo standardized format.
     """
     if isinstance(orders, dict):
         orders = [orders]
@@ -141,7 +141,7 @@ def transform_order_data(orders):
             )
             continue
 
-        # Map Samco order type to OpenAlgo format
+        # Map Samco order type to BTAlgo format
         # Samco converts MKT orders to L with marketProtection, so check for that
         ordertype = order.get("orderType", "")
         market_protection = order.get("marketProtection")
@@ -226,7 +226,7 @@ def map_trade_data(trade_data):
 
 def transform_tradebook_data(tradebook_data):
     """
-    Transforms Samco tradebook data to OpenAlgo standardized format.
+    Transforms Samco tradebook data to BTAlgo standardized format.
     """
     transformed_data = []
     for trade in tradebook_data:
@@ -289,7 +289,7 @@ def map_position_data(position_data):
 
 def transform_positions_data(positions_data):
     """
-    Transforms Samco positions data to OpenAlgo standardized format.
+    Transforms Samco positions data to BTAlgo standardized format.
     Samco returns netQuantity as positive and uses transactionType to indicate direction.
     """
     transformed_data = []
@@ -362,7 +362,7 @@ def map_portfolio_data(portfolio_data):
 
 def transform_holdings_data(holdings_data):
     """
-    Transforms Samco holdings data to OpenAlgo standardized format.
+    Transforms Samco holdings data to BTAlgo standardized format.
     """
     transformed_data = []
     holdings = holdings_data.get("holdings", [])

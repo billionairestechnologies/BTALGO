@@ -1,7 +1,7 @@
-# services/flow_openalgo_client.py
+# services/flow_btalgo_client.py
 """
-OpenAlgo Client Wrapper for Flow
-Provides SDK-like interface using internal OpenAlgo services
+BTAlgo Client Wrapper for Flow
+Provides SDK-like interface using internal BTAlgo services
 """
 
 import logging
@@ -10,9 +10,9 @@ from typing import Any, Dict, List, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 
-class FlowOpenAlgoClient:
+class FlowBTAlgoClient:
     """
-    Client wrapper that provides SDK-like interface to OpenAlgo services.
+    Client wrapper that provides SDK-like interface to BTAlgo services.
     Used by Flow workflow executor to interact with trading functionality.
     """
 
@@ -21,7 +21,7 @@ class FlowOpenAlgoClient:
         Initialize the client with an API key.
 
         Args:
-            api_key: The OpenAlgo API key for authentication
+            api_key: The BTAlgo API key for authentication
         """
         self.api_key = api_key
 
@@ -655,14 +655,14 @@ class FlowOpenAlgoClient:
         return self._handle_response(success, response, status_code)
 
 
-def get_flow_client(api_key: str) -> FlowOpenAlgoClient:
+def get_flow_client(api_key: str) -> FlowBTAlgoClient:
     """
-    Factory function to create a Flow OpenAlgo client.
+    Factory function to create a Flow BTAlgo client.
 
     Args:
-        api_key: The OpenAlgo API key
+        api_key: The BTAlgo API key
 
     Returns:
-        FlowOpenAlgoClient instance
+        FlowBTAlgoClient instance
     """
-    return FlowOpenAlgoClient(api_key)
+    return FlowBTAlgoClient(api_key)

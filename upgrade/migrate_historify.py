@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Historify DuckDB Migration Script for OpenAlgo
+Historify DuckDB Migration Script for BTAlgo
 
 This migration sets up the Historify database for historical market data storage:
 - Creates the DuckDB database file in /db directory

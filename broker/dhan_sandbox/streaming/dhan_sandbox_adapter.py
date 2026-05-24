@@ -40,7 +40,7 @@ class Dhan_sandboxWebSocketAdapter(BaseBrokerWebSocketAdapter):
         return low + ((high - low) * ratio)
 
     def _parse_option_contract(self, symbol: str):
-        """Parse OpenAlgo option symbol and return (underlying, strike, option_type)."""
+        """Parse BTAlgo option symbol and return (underlying, strike, option_type)."""
         match = re.match(
             r"^([A-Z]+)\d{2}(?:JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\d{2}([\d.]+)(CE|PE)$",
             symbol.upper(),
@@ -260,7 +260,7 @@ class Dhan_sandboxWebSocketAdapter(BaseBrokerWebSocketAdapter):
                         
                     self._current_prices[sub_key] = new_price
                     
-                    # Create mock data object matching OpenAlgo normalized format
+                    # Create mock data object matching BTAlgo normalized format
                     market_data = {
                         "symbol": symbol,
                         "exchange": exchange,

@@ -20,7 +20,7 @@ def get_base_url():
 
 def get_device_id():
     """Get a consistent device ID for Nubra API calls."""
-    return "OPENALGO"
+    return "BTALGO"
 
 
 def authenticate_broker(totp_code):

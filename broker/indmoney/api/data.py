@@ -809,7 +809,7 @@ class BrokerData:
             if not isinstance(end_date, str):
                 end_date = end_date.strftime("%Y-%m-%d")
 
-            # Map OpenAlgo intervals to Indmoney intervals using timeframe_map
+            # Map BTAlgo intervals to Indmoney intervals using timeframe_map
             if interval not in self.timeframe_map:
                 supported = list(self.timeframe_map.keys())
                 raise Exception(
@@ -905,7 +905,7 @@ class BrokerData:
 
                     logger.debug(f"Received {len(candles_data)} candles for chunk")
 
-                    # Transform Indmoney candle format to OpenAlgo format
+                    # Transform Indmoney candle format to BTAlgo format
                     chunk_candles = []
                     for candle in candles_data:
                         try:

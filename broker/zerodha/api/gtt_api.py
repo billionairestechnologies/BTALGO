@@ -236,7 +236,7 @@ def get_gtt_book(auth):
     """List all GTTs for the user. Returns (response_dict, status_code).
 
     The returned dict has ``status`` and ``data`` where ``data`` is a list of
-    OpenAlgo-normalised GTT objects (see ``map_gtt_book``).
+    BTAlgo-normalised GTT objects (see ``map_gtt_book``).
     """
     client = get_httpx_client()
     response = client.get(f"{_BASE}/gtt/triggers", headers=_headers(auth))

@@ -68,7 +68,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/optiongreeks \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|-------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 | symbol | Option symbol | Mandatory | - |
 | exchange | Exchange: NFO, BFO, CDS, MCX | Mandatory | - |
 | interest_rate | Risk-free interest rate (annualized %) | Optional | 0 |

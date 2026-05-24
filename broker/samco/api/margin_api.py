@@ -21,9 +21,9 @@ def calculate_margin_api(positions, auth, api_key=None):
     automatically calculates spread benefits.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for Samco
-        api_key: OpenAlgo API key (optional, not used for Samco)
+        api_key: BTAlgo API key (optional, not used for Samco)
 
     Returns:
         Tuple of (response, response_data)
@@ -101,7 +101,7 @@ def calculate_margin_api(positions, auth, api_key=None):
         standardized_response = parse_margin_response(response_data)
 
         # Log the standardized response
-        logger.info("STANDARDIZED OPENALGO RESPONSE")
+        logger.info("STANDARDIZED BTALGO RESPONSE")
         logger.info("=" * 80)
         logger.info(f"Standardized Response: {json.dumps(standardized_response, indent=2)}")
 

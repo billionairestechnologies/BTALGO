@@ -8,8 +8,8 @@ import threading
 import time
 
 from broker.groww.database.master_contract_db import (
-    format_groww_to_openalgo_symbol,
-    format_openalgo_to_groww_symbol,
+    format_groww_to_btalgo_symbol,
+    format_btalgo_to_groww_symbol,
 )
 from broker.groww.mapping.transform_data import (
     EXCHANGE_BSE,
@@ -151,7 +151,7 @@ def direct_get_order_book(auth):
 
         logger.info(f"Successfully fetched total of {len(all_orders)} orders using direct API")
 
-        # Convert all symbols from Groww format to OpenAlgo format
+        # Convert all symbols from Groww format to BTAlgo format
         for order in all_orders:
             if "trading_symbol" in order:
                 groww_symbol = order["trading_symbol"]
@@ -162,7 +162,7 @@ def direct_get_order_book(auth):
                 order["brsymbol"] = groww_symbol
                 order["brexchange"] = groww_exchange
 
-                # First, determine the correct OpenAlgo exchange
+                # First, determine the correct BTAlgo exchange
                 # For options and futures (F&O), the exchange should be NFO even if Groww returns NSE
                 is_derivative = False
                 is_future = False
@@ -171,7 +171,7 @@ def direct_get_order_book(auth):
                 if any(suffix in groww_symbol for suffix in ["CE", "PE", "C", "P"]):
                     exchange = "NFO"
                     is_derivative = True
-                    order["exchange"] = "NFO"  # Set OpenAlgo exchange format
+                    order["exchange"] = "NFO"  # Set BTAlgo exchange format
                     logger.info(
                         f"Remapped exchange from {groww_exchange} to NFO for option symbol: {groww_symbol}"
                     )
@@ -180,7 +180,7 @@ def direct_get_order_book(auth):
                     exchange = "NFO"
                     is_derivative = True
                     is_future = True
-                    order["exchange"] = "NFO"  # Set OpenAlgo exchange format
+                    order["exchange"] = "NFO"  # Set BTAlgo exchange format
                     logger.info(
                         f"Remapped exchange from {groww_exchange} to NFO for futures symbol: {groww_symbol}"
                     )
@@ -189,7 +189,7 @@ def direct_get_order_book(auth):
                     order["exchange"] = exchange
 
                 # Now handle the symbol conversion based on the correct exchange
-                # For NFO derivatives (options or futures), convert from Groww format to OpenAlgo format
+                # For NFO derivatives (options or futures), convert from Groww format to BTAlgo format
                 if is_derivative:
                     # Try multiple approaches to convert the symbol
 
@@ -202,12 +202,12 @@ def direct_get_order_book(auth):
                         from database.token_db import get_oa_symbol
 
                         if token:
-                            openalgo_symbol = get_oa_symbol(token, "NFO")
-                            logger.info(f"OpenAlgo Symbol: {openalgo_symbol}")
-                            if openalgo_symbol:
-                                order["symbol"] = openalgo_symbol
+                            btalgo_symbol = get_oa_symbol(token, "NFO")
+                            logger.info(f"BTAlgo Symbol: {btalgo_symbol}")
+                            if btalgo_symbol:
+                                order["symbol"] = btalgo_symbol
                                 logger.info(
-                                    f"Converted NFO symbol by token: {groww_symbol} -> {openalgo_symbol}"
+                                    f"Converted NFO symbol by token: {groww_symbol} -> {btalgo_symbol}"
                                 )
                                 symbol_converted = True
                     except Exception as e:
@@ -280,13 +280,13 @@ def direct_get_order_book(auth):
                                         else f"M{month_num}"
                                     )
 
-                                    # Format as OpenAlgo expects: NIFTY15MAY2526650CE
-                                    openalgo_symbol = (
+                                    # Format as BTAlgo expects: NIFTY15MAY2526650CE
+                                    btalgo_symbol = (
                                         f"{symbol_name}{day}{month_name}{year}{strike}{option_type}"
                                     )
-                                    order["symbol"] = openalgo_symbol
+                                    order["symbol"] = btalgo_symbol
                                     logger.info(
-                                        f"Converted Groww option symbol by pattern: {groww_symbol} -> {openalgo_symbol}"
+                                        f"Converted Groww option symbol by pattern: {groww_symbol} -> {btalgo_symbol}"
                                     )
                                     symbol_converted = True
 
@@ -323,11 +323,11 @@ def direct_get_order_book(auth):
                                         else f"M{month_num}"
                                     )
 
-                                    # Format as OpenAlgo expects: NIFTY29MAY25FUT
-                                    openalgo_symbol = f"{symbol_name}{day}{month_name}{year}FUT"
-                                    order["symbol"] = openalgo_symbol
+                                    # Format as BTAlgo expects: NIFTY29MAY25FUT
+                                    btalgo_symbol = f"{symbol_name}{day}{month_name}{year}FUT"
+                                    order["symbol"] = btalgo_symbol
                                     logger.info(
-                                        f"Converted Groww futures symbol by pattern: {groww_symbol} -> {openalgo_symbol}"
+                                        f"Converted Groww futures symbol by pattern: {groww_symbol} -> {btalgo_symbol}"
                                     )
                                     symbol_converted = True
                         except Exception as e:
@@ -742,9 +742,9 @@ def get_trade_book(auth):
         if all_trades:
             logger.info(f"Sample trade data: {json.dumps(all_trades[0], indent=2, default=str)}")
 
-        # Format trades to match OpenAlgo's expected format (as used in the REST API)
+        # Format trades to match BTAlgo's expected format (as used in the REST API)
         # This matches the format expected by the order_data.py mapping functions
-        openalgo_trades = []
+        btalgo_trades = []
         for trade in all_trades:
             # Convert price from paise to rupees if needed (Groww returns prices in paise)
             price = trade.get("price", 0)
@@ -752,8 +752,8 @@ def get_trade_book(auth):
                 price = price / 100
 
             # Transform to the exact format expected by map_trade_data and transform_tradebook_data
-            openalgo_trade = {
-                # Fields expected by OpenAlgo's UI
+            btalgo_trade = {
+                # Fields expected by BTAlgo's UI
                 "tradingSymbol": trade.get("symbol", ""),  # Capitalized for exact matching
                 "exchangeSegment": trade.get("exchange", ""),
                 "productType": trade.get("product", ""),
@@ -776,12 +776,12 @@ def get_trade_book(auth):
                 "created_at": trade.get("created_at", ""),
                 "status": trade.get("trade_status", "EXECUTED"),
             }
-            openalgo_trades.append(openalgo_trade)
+            btalgo_trades.append(btalgo_trade)
 
         # Log the first transformed trade for debugging
-        if openalgo_trades:
+        if btalgo_trades:
             logger.info(
-                f"Sample OpenAlgo trade format: {json.dumps(openalgo_trades[0], indent=2, default=str)}"
+                f"Sample BTAlgo trade format: {json.dumps(btalgo_trades[0], indent=2, default=str)}"
             )
 
         # Create the response with the structure expected by map_trade_data
@@ -789,8 +789,8 @@ def get_trade_book(auth):
         response = {
             "status": "success",
             "message": f"Retrieved {len(all_trades)} trades",
-            "data": openalgo_trades,  # This is what map_trade_data will look for first
-            "tradebook": openalgo_trades,  # For compatibility with different naming conventions
+            "data": btalgo_trades,  # This is what map_trade_data will look for first
+            "tradebook": btalgo_trades,  # For compatibility with different naming conventions
             "raw_data": all_trades,  # Keep the original data for reference
         }
 
@@ -879,7 +879,7 @@ def get_positions(auth):
                     raw_positions = response_data["payload"]["positions"]
                     logger.info(f"Found {len(raw_positions)} positions in CASH segment")
 
-                    # Transform positions to match OpenAlgo's expected format
+                    # Transform positions to match BTAlgo's expected format
                     for position in raw_positions:
                         # Calculate net quantities
                         buy_qty = position.get("credit_quantity", 0) + position.get(
@@ -897,7 +897,7 @@ def get_positions(auth):
 
                         # Get the trading symbol
                         groww_symbol = position.get("trading_symbol", "")
-                        openalgo_symbol = groww_symbol
+                        btalgo_symbol = groww_symbol
                         symbol_converted = False
 
                         # Handle symbol conversion for consistency with orderbook
@@ -907,14 +907,14 @@ def get_positions(auth):
                             try:
                                 from database.token_db import get_oa_symbol
                             except ImportError:
-                                from openalgo.database.token_db import get_oa_symbol
+                                from btalgo.database.token_db import get_oa_symbol
 
                             # First try database lookup for any symbol
                             db_symbol = get_oa_symbol(groww_symbol, "NFO")
                             if db_symbol:
-                                openalgo_symbol = db_symbol
+                                btalgo_symbol = db_symbol
                                 logger.info(
-                                    f"Database: Converted Groww symbol: {groww_symbol} -> {openalgo_symbol}"
+                                    f"Database: Converted Groww symbol: {groww_symbol} -> {btalgo_symbol}"
                                 )
                                 symbol_converted = True
                             else:
@@ -952,12 +952,12 @@ def get_positions(auth):
                                         else f"M{month_num}"
                                     )
 
-                                    # Format as OpenAlgo expects: NIFTY15MAY2526650CE
-                                    openalgo_symbol = (
+                                    # Format as BTAlgo expects: NIFTY15MAY2526650CE
+                                    btalgo_symbol = (
                                         f"{symbol_name}{day}{month_name}{year}{strike}{option_type}"
                                     )
                                     logger.info(
-                                        f"Pattern: Converted Groww option symbol: {groww_symbol} -> {openalgo_symbol}"
+                                        f"Pattern: Converted Groww option symbol: {groww_symbol} -> {btalgo_symbol}"
                                     )
                                     symbol_converted = True
                                 else:
@@ -992,10 +992,10 @@ def get_positions(auth):
                                             else f"M{month_num}"
                                         )
 
-                                        # Format as OpenAlgo expects: NIFTY29MAY25FUT
-                                        openalgo_symbol = f"{symbol_name}{day}{month_name}{year}FUT"
+                                        # Format as BTAlgo expects: NIFTY29MAY25FUT
+                                        btalgo_symbol = f"{symbol_name}{day}{month_name}{year}FUT"
                                         logger.info(
-                                            f"Pattern: Converted Groww futures symbol: {groww_symbol} -> {openalgo_symbol}"
+                                            f"Pattern: Converted Groww futures symbol: {groww_symbol} -> {btalgo_symbol}"
                                         )
                                         symbol_converted = True
 
@@ -1003,18 +1003,18 @@ def get_positions(auth):
                             logger.error(f"Error converting position symbol: {e}")
                             # Fall back to original symbol if conversion fails
 
-                        # Map exchange to OpenAlgo format
+                        # Map exchange to BTAlgo format
                         exchange = position.get("exchange", "")
                         if exchange == "NSE":
-                            openalgo_exchange = "NSE_EQ"
+                            btalgo_exchange = "NSE_EQ"
                         elif exchange == "BSE":
-                            openalgo_exchange = "BSE_EQ"
+                            btalgo_exchange = "BSE_EQ"
                         elif exchange == "NFO":
-                            openalgo_exchange = "NSE_FO"
+                            btalgo_exchange = "NSE_FO"
                         else:
-                            openalgo_exchange = exchange
+                            btalgo_exchange = exchange
 
-                        # Create position object in OpenAlgo format
+                        # Create position object in BTAlgo format
                         # For CASH segment, use the original trading_symbol as the symbol
                         if position.get("segment") == "CASH":
                             position_symbol = position.get(
@@ -1022,29 +1022,29 @@ def get_positions(auth):
                             )  # Use trading_symbol for cash segment
                         else:
                             position_symbol = (
-                                openalgo_symbol  # Use converted symbol for other segments
+                                btalgo_symbol  # Use converted symbol for other segments
                             )
 
                         transformed_position = {
-                            # Standard OpenAlgo fields
+                            # Standard BTAlgo fields
                             "symbol": position_symbol,
                             "tradingsymbol": position_symbol,
-                            "exchange": openalgo_exchange,
+                            "exchange": btalgo_exchange,
                             "product": position.get("product", ""),
                             "quantity": net_qty,
                             "net_quantity": net_qty,
                             "average_price": avg_price,
                             "buy_quantity": buy_qty,
                             "sell_quantity": sell_qty,
-                            "segment": "EQ",  # OpenAlgo format for CASH segment
-                            # Specific Groww fields (renamed to match OpenAlgo expectations)
+                            "segment": "EQ",  # BTAlgo format for CASH segment
+                            # Specific Groww fields (renamed to match BTAlgo expectations)
                             "buy_price": position.get("credit_price", 0)
                             / 100,  # Convert paise to rupees
                             "sell_price": position.get("debit_price", 0) / 100
                             if position.get("debit_price", 0) > 0
                             else 0,
                             "symbol_isin": position.get("symbol_isin", ""),
-                            # Fields expected by OpenAlgo's UI
+                            # Fields expected by BTAlgo's UI
                             "pnl": 0,  # Not provided in response, calculate if needed
                             "last_price": 0,  # Not provided in response
                             "close_price": 0,  # Not provided in response
@@ -1093,7 +1093,7 @@ def get_positions(auth):
 
                             # Get the trading symbol
                             groww_symbol = position.get("trading_symbol", "")
-                            openalgo_symbol = groww_symbol
+                            btalgo_symbol = groww_symbol
                             symbol_converted = False
 
                             # Handle FNO symbol conversion
@@ -1106,21 +1106,21 @@ def get_positions(auth):
                                     try:
                                         from database.token_db import get_oa_symbol
                                     except ImportError:
-                                        from openalgo.database.token_db import get_oa_symbol
+                                        from btalgo.database.token_db import get_oa_symbol
 
                                     # First try database lookup for this FNO symbol
                                     db_symbol = get_oa_symbol(groww_symbol, "NFO")
                                     if db_symbol:
-                                        openalgo_symbol = db_symbol
+                                        btalgo_symbol = db_symbol
                                         logger.info(
-                                            f"Database: Converted Groww FNO symbol: {groww_symbol} -> {openalgo_symbol}"
+                                            f"Database: Converted Groww FNO symbol: {groww_symbol} -> {btalgo_symbol}"
                                         )
                                         symbol_converted = True
                                     else:
                                         # Fallback to pattern matching if database lookup fails
-                                        # For Options: Convert from Groww format to OpenAlgo format
+                                        # For Options: Convert from Groww format to BTAlgo format
                                         # Groww format: "NIFTY25051334000CE" or "BANKNIFTY25051332500PE"
-                                        # OpenAlgo format: "NIFTY13MAY2534000CE" or "BANKNIFTY13MAY2532500PE"
+                                        # BTAlgo format: "NIFTY13MAY2534000CE" or "BANKNIFTY13MAY2532500PE"
                                         groww_pattern = re.compile(
                                             r"([A-Z]+)(\d{2})(\d{2})(\d{2})(\d+)([CP]E)"
                                         )
@@ -1153,10 +1153,10 @@ def get_positions(auth):
                                             else f"M{month_num}"
                                         )
 
-                                        # Format as OpenAlgo expects: NIFTY15MAY2526650CE
-                                        openalgo_symbol = f"{symbol_name}{day}{month_name}{year}{strike}{option_type}"
+                                        # Format as BTAlgo expects: NIFTY15MAY2526650CE
+                                        btalgo_symbol = f"{symbol_name}{day}{month_name}{year}{strike}{option_type}"
                                         logger.info(
-                                            f"Pattern: Converted Groww option position symbol: {groww_symbol} -> {openalgo_symbol}"
+                                            f"Pattern: Converted Groww option position symbol: {groww_symbol} -> {btalgo_symbol}"
                                         )
                                         symbol_converted = True
 
@@ -1192,41 +1192,41 @@ def get_positions(auth):
                                                 else f"M{month_num}"
                                             )
 
-                                            # Format as OpenAlgo expects: NIFTY29MAY25FUT
-                                            openalgo_symbol = (
+                                            # Format as BTAlgo expects: NIFTY29MAY25FUT
+                                            btalgo_symbol = (
                                                 f"{symbol_name}{day}{month_name}{year}FUT"
                                             )
                                             logger.info(
-                                                f"Pattern: Converted Groww futures position symbol: {groww_symbol} -> {openalgo_symbol}"
+                                                f"Pattern: Converted Groww futures position symbol: {groww_symbol} -> {btalgo_symbol}"
                                             )
                                             symbol_converted = True
                                 except Exception as e:
                                     logger.error(f"Error converting position symbol: {e}")
                                     # Fall back to original symbol if conversion fails
 
-                            # Map exchange to OpenAlgo format
+                            # Map exchange to BTAlgo format
                             exchange = position.get("exchange", "")
                             if exchange == "NSE":
-                                openalgo_exchange = "NSE"
+                                btalgo_exchange = "NSE"
                             elif exchange == "BSE":
-                                openalgo_exchange = "BSE"
+                                btalgo_exchange = "BSE"
                             elif exchange == "NFO":
-                                openalgo_exchange = "NSE_FO"
+                                btalgo_exchange = "NSE_FO"
                             else:
-                                openalgo_exchange = exchange
+                                btalgo_exchange = exchange
 
                             # Create position object with segment set to FNO
                             transformed_position = {
-                                "symbol": openalgo_symbol,
-                                "tradingsymbol": openalgo_symbol,
-                                "exchange": openalgo_exchange,
+                                "symbol": btalgo_symbol,
+                                "tradingsymbol": btalgo_symbol,
+                                "exchange": btalgo_exchange,
                                 "product": position.get("product", ""),
                                 "quantity": net_qty,
                                 "net_quantity": net_qty,
                                 "average_price": avg_price,
                                 "buy_quantity": buy_qty,
                                 "sell_quantity": sell_qty,
-                                "segment": "FO",  # OpenAlgo format for FNO segment
+                                "segment": "FO",  # BTAlgo format for FNO segment
                                 "buy_price": position.get("credit_price", 0) / 100,
                                 "sell_price": position.get("debit_price", 0) / 100
                                 if position.get("debit_price", 0) > 0
@@ -1342,7 +1342,7 @@ def get_holdings(auth):
                             "day_change_percentage": holding.get("day_change_percentage", 0),
                             "value": holding.get("value", 0),
                             "company_name": holding.get("company_name", ""),
-                            # Using the key names OpenAlgo expects
+                            # Using the key names BTAlgo expects
                             "tradingsymbol": holding.get("trading_symbol", ""),
                             "instrument_token": holding.get("token", ""),
                             "t1_quantity": holding.get("t1_quantity", 0),
@@ -1459,7 +1459,7 @@ def get_open_position(tradingsymbol, exchange, product, auth):
     Returns:
         str: Net quantity
     """
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
     positions_data = _get_cached_positions(auth)
     net_qty = "0"
@@ -1480,7 +1480,7 @@ def get_open_position(tradingsymbol, exchange, product, auth):
         else:
             positions_list = []
 
-        # Accept both OpenAlgo-standard exchange codes and the segment-suffixed
+        # Accept both BTAlgo-standard exchange codes and the segment-suffixed
         # variants stored by get_positions() (NSE_EQ/BSE_EQ for CASH, NSE_FO/BSE_FO for FNO).
         exchange_variants = {
             "NSE": {"NSE", "NSE_EQ"},
@@ -1517,7 +1517,7 @@ def direct_place_order_api(data, auth):
     Place an order with Groww using direct API (no SDK)
 
     Args:
-        data (dict): Order data in OpenAlgo format
+        data (dict): Order data in BTAlgo format
         auth (str): Authentication token
 
     Returns:
@@ -1552,7 +1552,7 @@ def direct_place_order_api(data, auth):
             logger.info(f"Using brsymbol from database: {original_symbol} -> {trading_symbol}")
         else:
             # If not found in database, try format conversion as fallback
-            trading_symbol = format_openalgo_to_groww_symbol(original_symbol, original_exchange)
+            trading_symbol = format_btalgo_to_groww_symbol(original_symbol, original_exchange)
             logger.info(
                 f"Symbol not found in database, using conversion: {original_symbol} -> {trading_symbol}"
             )
@@ -1719,7 +1719,7 @@ def direct_place_order_api(data, auth):
                     ),
                     "remark": payload_data.get("remark", "Order placed successfully"),
                     "trading_symbol": trading_symbol,
-                    "symbol": original_symbol,  # Add original OpenAlgo symbol to response
+                    "symbol": original_symbol,  # Add original BTAlgo symbol to response
                 }
 
                 res = ResponseObject(200)
@@ -1802,7 +1802,7 @@ def place_order_api(data, auth):
     Place an order with Groww using direct API only (no SDK fallback)
 
     Args:
-        data (dict): Order data in OpenAlgo format
+        data (dict): Order data in BTAlgo format
         auth (str): Authentication token
 
     Returns:
@@ -1892,7 +1892,7 @@ def place_smartorder_api(data, auth):
     Place a smart order with position management using direct API implementation
 
     Args:
-        data (dict): Order data in OpenAlgo format
+        data (dict): Order data in BTAlgo format
         auth (str): Authentication token
 
     Returns:
@@ -1943,7 +1943,7 @@ def place_smartorder_api(data, auth):
             try:
                 from database.token_db import get_br_symbol
             except ImportError:
-                from openalgo.database.token_db import get_br_symbol
+                from btalgo.database.token_db import get_br_symbol
 
             # Get current open position for the symbol
             position_str = get_open_position(symbol, exchange, map_product_type(product), AUTH_TOKEN)
@@ -2143,7 +2143,7 @@ def get_holdings(auth):
             logger.error(error_msg)
             return None, {"status": "error", "message": error_msg}
 
-        # Transform holdings to OpenAlgo format
+        # Transform holdings to BTAlgo format
         holdings = response_data.get("payload", {}).get("holdings", [])
         formatted_holdings = []
 
@@ -2185,7 +2185,7 @@ def close_all_positions(token=None, auth=None):
     try:
         from database.token_db import get_br_symbol
     except ImportError:
-        from openalgo.database.token_db import get_br_symbol
+        from btalgo.database.token_db import get_br_symbol
     """
     Close all open positions for the authenticated user
     """
@@ -2351,16 +2351,16 @@ def cancel_order(orderid, auth, segment=None, symbol=None, exchange=None):
         orderid (str): Order ID to cancel
         auth (str): Authentication token
         segment (str, optional): Order segment (e.g., SEGMENT_CASH). If None, will be detected from order book.
-        symbol (str, optional): Trading symbol in OpenAlgo format
+        symbol (str, optional): Trading symbol in BTAlgo format
         exchange (str, optional): Exchange code
 
     Returns:
         tuple: (response data, status code)
     """
     try:
-        # If symbol is provided, convert it from OpenAlgo to Groww format
+        # If symbol is provided, convert it from BTAlgo to Groww format
         if symbol and exchange:
-            groww_symbol = format_openalgo_to_groww_symbol(symbol, exchange)
+            groww_symbol = format_btalgo_to_groww_symbol(symbol, exchange)
             logger.info(f"Symbol conversion for cancel order: {symbol} -> {groww_symbol}")
 
         # If segment is not provided, try to determine it from order book
@@ -2557,11 +2557,11 @@ def cancel_order(orderid, auth, segment=None, symbol=None, exchange=None):
                 else:
                     logger.warning(f"Unexpected payload format: {payload}")
 
-            # If symbol is provided, include it in OpenAlgo format in the response
+            # If symbol is provided, include it in BTAlgo format in the response
             if symbol:
-                # Add the original OpenAlgo format symbol to the response
+                # Add the original BTAlgo format symbol to the response
                 response["symbol"] = symbol
-                logger.info(f"Including OpenAlgo symbol in cancel response: {symbol}")
+                logger.info(f"Including BTAlgo symbol in cancel response: {symbol}")
 
             # Log the success
             logger.info(f"Successfully processed cancel request for order {orderid}")
@@ -2812,10 +2812,10 @@ def direct_modify_order(data, auth):
                 response = {"status": "error", "orderid": groww_order_id, "message": error_message}
                 return ResponseObject(400), response
 
-            # If symbol was provided in the original request, include it in OpenAlgo format
+            # If symbol was provided in the original request, include it in BTAlgo format
             if "symbol" in data and data["symbol"]:
                 response["symbol"] = data["symbol"]
-                logger.info(f"Including OpenAlgo symbol in modify response: {data['symbol']}")
+                logger.info(f"Including BTAlgo symbol in modify response: {data['symbol']}")
 
             # Log the success
             logger.info(f"Successfully submitted modification for order {groww_order_id}")
@@ -3071,28 +3071,28 @@ def cancel_all_orders_api(data, auth):
                             "message": cancel_response.get("message", "Successfully cancelled"),
                         }
 
-                        # Get and include symbol in the OpenAlgo format
+                        # Get and include symbol in the BTAlgo format
                         if "symbol" in order:
                             broker_symbol = order.get("symbol", "")
 
-                            # For NFO symbols that have spaces, convert to OpenAlgo format
+                            # For NFO symbols that have spaces, convert to BTAlgo format
                             exchange = order.get("exchange", "NSE")
                             if exchange == "NFO" and " " in broker_symbol:
                                 try:
                                     from broker.groww.database.master_contract_db import (
-                                        format_groww_to_openalgo_symbol,
+                                        format_groww_to_btalgo_symbol,
                                     )
 
-                                    openalgo_symbol = format_groww_to_openalgo_symbol(
+                                    btalgo_symbol = format_groww_to_btalgo_symbol(
                                         broker_symbol, exchange
                                     )
-                                    if openalgo_symbol:
-                                        cancelled_item["symbol"] = openalgo_symbol
+                                    if btalgo_symbol:
+                                        cancelled_item["symbol"] = btalgo_symbol
                                         cancelled_item["brsymbol"] = (
                                             broker_symbol  # Keep original broker symbol for reference
                                         )
                                         logger.info(
-                                            f"Transformed cancelled order symbol for UI: {broker_symbol} -> {openalgo_symbol}"
+                                            f"Transformed cancelled order symbol for UI: {broker_symbol} -> {btalgo_symbol}"
                                         )
                                 except Exception as e:
                                     logger.error(

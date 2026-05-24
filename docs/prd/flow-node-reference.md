@@ -631,7 +631,7 @@ Send Telegram notification.
 | message | string | Alert message |
 | chatId | string | Telegram chat ID (optional) |
 
-**Requires:** Telegram bot configured in OpenAlgo settings.
+**Requires:** Telegram bot configured in BTAlgo settings.
 
 ### Math Expression
 

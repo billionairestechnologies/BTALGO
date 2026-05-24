@@ -50,7 +50,7 @@ A visual canvas where users:
 │                        Flask Backend                                 │
 │  ┌─────────────────────────────────────────────────────────────────┐│
 │  │                   Execution Engine                               ││
-│  │  WorkflowContext │ NodeExecutor │ FlowOpenAlgoClient            ││
+│  │  WorkflowContext │ NodeExecutor │ FlowBTAlgoClient            ││
 │  └─────────────────────────────────────────────────────────────────┘│
 │        │                    │                    │                   │
 │  ┌─────▼─────┐      ┌──────▼──────┐      ┌─────▼─────┐             │
@@ -224,7 +224,7 @@ flow_workflow_executions (
 |------|---------|-------|
 | `blueprints/flow.py` | Web routes and workflow API | - |
 | `services/flow_executor_service.py` | Main execution engine | ~1940 |
-| `services/flow_openalgo_client.py` | OpenAlgo API wrapper for nodes | - |
+| `services/flow_btalgo_client.py` | BTAlgo API wrapper for nodes | - |
 | `services/flow_scheduler_service.py` | APScheduler integration | - |
 | `services/flow_price_monitor_service.py` | Price alert monitoring | - |
 | `database/flow_db.py` | SQLAlchemy models (workflows, executions) | - |

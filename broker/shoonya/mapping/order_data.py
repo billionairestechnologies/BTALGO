@@ -121,7 +121,7 @@ def transform_order_data(orders):
             )
             continue
 
-        # Map Shoonya status to OpenAlgo status
+        # Map Shoonya status to BTAlgo status
         raw_status = str(order.get("status") or "").upper()
         status_map = {
             "COMPLETE": "complete",

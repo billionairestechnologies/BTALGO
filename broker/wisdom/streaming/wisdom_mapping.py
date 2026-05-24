@@ -2,10 +2,10 @@ import logging
 
 
 class WisdomExchangeMapper:
-    """Maps between OpenAlgo exchange codes and Wisdom XTS specific exchange types"""
+    """Maps between BTAlgo exchange codes and Wisdom XTS specific exchange types"""
 
     # Exchange type mapping for Wisdom XTS broker
-    # Format: {OpenAlgo_Exchange: Wisdom_Exchange_Code}
+    # Format: {BTAlgo_Exchange: Wisdom_Exchange_Code}
     # Based on Wisdom API documentation:
     # "NSECM": 1, "NSEFO": 2, "NSECD": 3, "BSECM": 11, "BSEFO": 12, "MCXFO": 51
     EXCHANGE_TYPES = {
@@ -29,8 +29,8 @@ class WisdomExchangeMapper:
         "MCXFO": 51,  # MCX F&O
     }
 
-    # Reverse mapping for converting Wisdom exchange codes to OpenAlgo format
-    # Format: {Wisdom_Exchange_Code: OpenAlgo_Exchange}
+    # Reverse mapping for converting Wisdom exchange codes to BTAlgo format
+    # Format: {Wisdom_Exchange_Code: BTAlgo_Exchange}
     REVERSE_EXCHANGE_TYPES = {
         1: "NSE",  # NSECM
         2: "NFO",  # NSEFO
@@ -43,7 +43,7 @@ class WisdomExchangeMapper:
     @staticmethod
     def get_exchange_type(exchange):
         """
-        Convert OpenAlgo exchange code to Wisdom XTS specific exchange type
+        Convert BTAlgo exchange code to Wisdom XTS specific exchange type
 
         Args:
             exchange: Exchange code (e.g., 'NSE', 'BSE', 'NSEFO')
@@ -62,7 +62,7 @@ class WisdomExchangeMapper:
         # Mapping based on Wisdom API documentation:
         # "NSECM": 1, "NSEFO": 2, "NSECD": 3, "BSECM": 11, "BSEFO": 12, "MCXFO": 51
         all_exchange_mappings = {
-            # OpenAlgo standard codes
+            # BTAlgo standard codes
             "NSE": 1,  # NSE Cash Market
             "NFO": 2,  # NSE F&O
             "CDS": 3,  # NSE Currency Derivatives
@@ -100,15 +100,15 @@ class WisdomExchangeMapper:
         return 1
 
     @staticmethod
-    def get_openalgo_exchange(wisdom_code):
+    def get_btalgo_exchange(wisdom_code):
         """
-        Convert Wisdom XTS exchange code to OpenAlgo exchange code
+        Convert Wisdom XTS exchange code to BTAlgo exchange code
 
         Args:
             wisdom_code (int): Wisdom exchange code
 
         Returns:
-            str: OpenAlgo exchange code
+            str: BTAlgo exchange code
         """
         return WisdomExchangeMapper.REVERSE_EXCHANGE_TYPES.get(
             wisdom_code, "NSE"

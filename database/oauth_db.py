@@ -1,6 +1,6 @@
 """OAuth 2.1 persistence for the Remote MCP feature.
 
-Three tables, all in db/openalgo.db. Hashing pipeline is identical to the
+Three tables, all in db/btalgo.db. Hashing pipeline is identical to the
 existing API key flow in database/auth_db.py — Argon2id with the same
 API_KEY_PEPPER. We do NOT introduce a new secret material here.
 
@@ -33,7 +33,7 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 # Reuse the same DATABASE_URL + pepper as auth_db so the OAuth tables live
-# alongside users in db/openalgo.db. No new secret material is introduced.
+# alongside users in db/btalgo.db. No new secret material is introduced.
 DATABASE_URL = os.getenv("DATABASE_URL")
 PEPPER = os.getenv("API_KEY_PEPPER")
 
@@ -195,7 +195,7 @@ def verify_secret(secret: str, hashed: str) -> bool:
 
 def init_db() -> None:
     """Create OAuth tables. Idempotent — safe to call repeatedly."""
-    logger.info("Initializing OAuth tables in db/openalgo.db ...")
+    logger.info("Initializing OAuth tables in db/btalgo.db ...")
     Base.metadata.create_all(bind=engine)
     logger.info("OAuth tables ready.")
 

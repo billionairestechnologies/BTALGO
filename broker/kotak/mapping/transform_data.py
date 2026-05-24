@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Kotak Neo API Parameters
 
 from database.token_db import get_br_symbol
@@ -99,7 +99,7 @@ def map_variety(pricetype):
 
 def map_exchange(brexchange):
     """
-    Maps the Broker Exchange to the OpenAlgo Exchange.
+    Maps the Broker Exchange to the BTAlgo Exchange.
     """
 
     exchange_mapping = {
@@ -116,7 +116,7 @@ def map_exchange(brexchange):
 
 def reverse_map_exchange(exchange):
     """
-    Maps the Broker Exchange to the OpenAlgo Exchange.
+    Maps the Broker Exchange to the BTAlgo Exchange.
     """
 
     exchange_mapping = {

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Historify Scheduler Migration Script for OpenAlgo
+Historify Scheduler Migration Script for BTAlgo
 
 This migration adds scheduler tables to the Historify DuckDB database:
 - historify_schedules: Store schedule configurations

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This guide walks you through installing OpenAlgo on your system. We'll cover Windows, Ubuntu, and macOS installations.
+This guide walks you through installing BTAlgo on your system. We'll cover Windows, Ubuntu, and macOS installations.
 
 ## Quick Install (All Platforms)
 
@@ -10,8 +10,8 @@ If you're comfortable with command line, here's the fastest way:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/marketcalls/openalgo.git
-cd openalgo
+git clone https://github.com/billionairestechnologies/btalgo.git
+cd btalgo
 
 # 2. Install UV package manager
 pip install uv
@@ -19,7 +19,7 @@ pip install uv
 # 3. Create configuration
 cp .sample.env .env
 
-# 4. Run OpenAlgo
+# 4. Run BTAlgo
 uv run app.py
 ```
 
@@ -53,19 +53,19 @@ git --version
 # Should show: git version 2.x.x
 ```
 
-#### Step 3: Download OpenAlgo
+#### Step 3: Download BTAlgo
 
 Open Command Prompt (search "cmd") and run:
 
 ```cmd
-# Navigate to where you want OpenAlgo
+# Navigate to where you want BTAlgo
 cd C:\Users\YourName\Documents
 
 # Clone the repository
-git clone https://github.com/marketcalls/openalgo.git
+git clone https://github.com/billionairestechnologies/btalgo.git
 
 # Enter the folder
-cd openalgo
+cd btalgo
 ```
 
 #### Step 4: Install UV Package Manager
@@ -85,7 +85,7 @@ copy .sample.env .env
 - Right-click `.env` → Open with → Notepad
 - We'll configure this in the next chapter
 
-#### Step 6: Run OpenAlgo
+#### Step 6: Run BTAlgo
 
 ```cmd
 uv run app.py
@@ -116,12 +116,12 @@ sudo apt install python3.12 python3.12-venv python3-pip git -y
 python3.12 --version
 ```
 
-#### Step 3: Download OpenAlgo
+#### Step 3: Download BTAlgo
 
 ```bash
 # Clone repository
-git clone https://github.com/marketcalls/openalgo.git
-cd openalgo
+git clone https://github.com/billionairestechnologies/btalgo.git
+cd btalgo
 ```
 
 #### Step 4: Install UV and Configure
@@ -134,7 +134,7 @@ pip install uv
 cp .sample.env .env
 ```
 
-#### Step 5: Run OpenAlgo
+#### Step 5: Run BTAlgo
 
 ```bash
 uv run app.py
@@ -156,12 +156,12 @@ Access at `http://your-server-ip:5000`
 brew install python@3.12 git
 ```
 
-#### Step 3: Download and Run OpenAlgo
+#### Step 3: Download and Run BTAlgo
 
 ```bash
 # Clone repository
-git clone https://github.com/marketcalls/openalgo.git
-cd openalgo
+git clone https://github.com/billionairestechnologies/btalgo.git
+cd btalgo
 
 # Install UV
 pip3 install uv
@@ -210,8 +210,8 @@ ZMQ_PORT='5555'
 
 ```bash
 # Clone repository
-git clone https://github.com/marketcalls/openalgo.git
-cd openalgo
+git clone https://github.com/billionairestechnologies/btalgo.git
+cd btalgo
 
 # Create environment file
 cp .sample.env .env
@@ -280,7 +280,7 @@ docker-compose up
 
 Open browser → Go to `http://127.0.0.1:5000`
 
-You should see the OpenAlgo login page.
+You should see the BTAlgo login page.
 
 ### Check 2: API Docs
 
@@ -307,7 +307,7 @@ Solution: Reinstall Python with "Add to PATH" checked
 ## Folder Structure After Installation
 
 ```
-openalgo/
+btalgo/
 ├── app.py              # Main application
 ├── .env                # Your configuration (edit this)
 ├── .sample.env         # Example configuration
@@ -348,7 +348,7 @@ uv run python -c "import secrets; print(secrets.token_hex(32))"
 
 Run this twice - once for APP_KEY, once for API_KEY_PEPPER.
 
-## Running OpenAlgo
+## Running BTAlgo
 
 ### Development Mode (Default)
 
@@ -360,7 +360,7 @@ Access at `http://127.0.0.1:5000`
 
 ## Production Deployment (Ubuntu Server)
 
-For production use, deploy OpenAlgo on an Ubuntu server using the automated `install.sh` script. This is the **recommended approach** for live trading.
+For production use, deploy BTAlgo on an Ubuntu server using the automated `install.sh` script. This is the **recommended approach** for live trading.
 
 **Important**: The install script configures everything automatically:
 - Nginx reverse proxy with SSL/TLS
@@ -430,10 +430,10 @@ ssh user@your_server_ip
 #### 2. Download Installation Script
 
 ```bash
-mkdir -p ~/openalgo-install
-cd ~/openalgo-install
+mkdir -p ~/btalgo-install
+cd ~/btalgo-install
 
-wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/install.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/install.sh
 
 chmod +x install.sh
 ```
@@ -466,7 +466,7 @@ sudo ./install.sh
 ```
 
 Each deployment gets:
-- Unique service name (e.g., openalgo-yourdomain-broker)
+- Unique service name (e.g., btalgo-yourdomain-broker)
 - Separate configuration files and directories
 - Individual log files
 - Independent SSL certificates
@@ -476,7 +476,7 @@ Each deployment gets:
 
 1. **Check Service Status**
    ```bash
-   sudo systemctl status openalgo-yourdomain-broker
+   sudo systemctl status btalgo-yourdomain-broker
    ```
 
 2. **Verify Nginx Configuration**
@@ -500,17 +500,17 @@ Each deployment gets:
 #### Service Management
 
 ```bash
-# List all OpenAlgo services
-systemctl list-units "openalgo-*"
+# List all BTAlgo services
+systemctl list-units "btalgo-*"
 
 # Restart specific deployment
-sudo systemctl restart openalgo-yourdomain-broker
+sudo systemctl restart btalgo-yourdomain-broker
 
 # View real-time logs
-sudo journalctl -f -u openalgo-yourdomain-broker
+sudo journalctl -f -u btalgo-yourdomain-broker
 
 # View last 100 lines of logs
-sudo journalctl -n 100 -u openalgo-yourdomain-broker
+sudo journalctl -n 100 -u btalgo-yourdomain-broker
 ```
 
 #### Nginx Management
@@ -542,10 +542,10 @@ sudo certbot --nginx -d yourdomain.com
 
 ```bash
 # View service logs
-sudo journalctl -u openalgo-yourdomain-broker
+sudo journalctl -u btalgo-yourdomain-broker
 
 # Restart service
-sudo systemctl restart openalgo-yourdomain-broker
+sudo systemctl restart btalgo-yourdomain-broker
 ```
 
 #### Nginx Issues
@@ -586,7 +586,7 @@ If you need to receive webhooks from TradingView, GoCharting, or ChartInk but do
 | **devtunnel** (Microsoft) | `devtunnel host -p 5000` | [devtunnels.ms](https://aka.ms/devtunnels) |
 | **Cloudflare Tunnel** | `cloudflared tunnel --url http://localhost:5000` | [cloudflare.com](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/) |
 
-**Important**: Tunneling is **only for webhooks**. Always run OpenAlgo on your own server with proper domain setup for production use. Don't run the entire application through a tunnel.
+**Important**: Tunneling is **only for webhooks**. Always run BTAlgo on your own server with proper domain setup for production use. Don't run the entire application through a tunnel.
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -594,7 +594,7 @@ If you need to receive webhooks from TradingView, GoCharting, or ChartInk but do
 │                                                                 │
 │  Your Ubuntu Server (install.sh)                               │
 │  ┌──────────────────────────────────────────────────────────┐ │
-│  │  Nginx (HTTPS) → Gunicorn → OpenAlgo                     │ │
+│  │  Nginx (HTTPS) → Gunicorn → BTAlgo                     │ │
 │  │  • Dashboard access: https://yourdomain.com              │ │
 │  │  • API access: https://yourdomain.com/api/v1/*           │ │
 │  │  • WebSocket: wss://yourdomain.com/ws                    │ │
@@ -612,12 +612,12 @@ If you need to receive webhooks from TradingView, GoCharting, or ChartInk but do
 
 ## Docker Deployment (Alternative)
 
-OpenAlgo can also be deployed using Docker with custom domain and SSL. This is useful if you prefer containerized deployments.
+BTAlgo can also be deployed using Docker with custom domain and SSL. This is useful if you prefer containerized deployments.
 
 ### Quick Start
 
 ```bash
-wget https://raw.githubusercontent.com/marketcalls/openalgo/refs/heads/main/install/install-docker.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/refs/heads/main/install/install-docker.sh
 chmod +x install-docker.sh
 ./install-docker.sh
 ```
@@ -635,12 +635,12 @@ chmod +x install-docker.sh
 
 ```bash
 # Create a non-root user if running as root
-adduser openalgo
-usermod -aG sudo openalgo
-su - openalgo
+adduser btalgo
+usermod -aG sudo btalgo
+su - btalgo
 
 # Download and run
-wget https://raw.githubusercontent.com/marketcalls/openalgo/refs/heads/main/install/install-docker.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/refs/heads/main/install/install-docker.sh
 chmod +x install-docker.sh
 ./install-docker.sh
 ```
@@ -648,7 +648,7 @@ chmod +x install-docker.sh
 **Option 2: As Root User**
 
 ```bash
-wget https://raw.githubusercontent.com/marketcalls/openalgo/refs/heads/main/install/install-docker.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/refs/heads/main/install/install-docker.sh
 chmod +x install-docker.sh
 ./install-docker.sh
 ```
@@ -665,7 +665,7 @@ The script will prompt you for:
 2. Installs Docker & Docker Compose
 3. Installs Nginx web server
 4. Installs Certbot for SSL
-5. Clones OpenAlgo to `/opt/openalgo`
+5. Clones BTAlgo to `/opt/btalgo`
 6. Configures environment variables
 7. Sets up firewall (UFW)
 8. Obtains SSL certificate
@@ -676,22 +676,22 @@ The script will prompt you for:
 
 ```bash
 # View application status
-openalgo-status
+btalgo-status
 
 # View live logs
-openalgo-logs
+btalgo-logs
 
 # Restart application
-openalgo-restart
+btalgo-restart
 
 # Create backup
-openalgo-backup
+btalgo-backup
 ```
 
 ### Docker Commands
 
 ```bash
-cd /opt/openalgo
+cd /opt/btalgo
 
 # Restart container
 sudo docker compose restart
@@ -709,12 +709,12 @@ sudo docker compose up -d
 
 | Item | Location |
 |------|----------|
-| Installation | `/opt/openalgo` |
-| Configuration | `/opt/openalgo/.env` |
-| Database | Docker volume `openalgo_db` |
+| Installation | `/opt/btalgo` |
+| Configuration | `/opt/btalgo/.env` |
+| Database | Docker volume `btalgo_db` |
 | Nginx Config | `/etc/nginx/sites-available/yourdomain.com` |
 | SSL Certificates | `/etc/letsencrypt/live/yourdomain.com/` |
-| Backups | `/opt/openalgo-backups/` |
+| Backups | `/opt/btalgo-backups/` |
 
 ### Architecture
 
@@ -733,7 +733,7 @@ sudo docker compose up -d
     ▼         ▼
 ┌───────┐ ┌──────────┐
 │ Flask │ │WebSocket │ ← Docker Container
-│ :5000 │ │  :8765   │   (openalgo-web)
+│ :5000 │ │  :8765   │   (btalgo-web)
 └───────┘ └──────────┘
     │
     ▼
@@ -746,10 +746,10 @@ sudo docker compose up -d
 ### Updating Docker Deployment
 
 ```bash
-cd /opt/openalgo
+cd /opt/btalgo
 
 # Create backup first
-openalgo-backup
+btalgo-backup
 
 # Stop container
 sudo docker compose down
@@ -762,12 +762,12 @@ sudo docker compose build --no-cache
 sudo docker compose up -d
 
 # Verify
-openalgo-status
+btalgo-status
 ```
 
 ## Raspberry Pi Installation
 
-OpenAlgo can run on Raspberry Pi models 3, 4, or 5 (4GB+ RAM), preferably with Ubuntu 24.04+ server edition.
+BTAlgo can run on Raspberry Pi models 3, 4, or 5 (4GB+ RAM), preferably with Ubuntu 24.04+ server edition.
 
 ### Hardware Requirements
 
@@ -808,9 +808,9 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 Use the same `install.sh` script as Ubuntu Server:
 
 ```bash
-mkdir -p ~/openalgo-install
-cd ~/openalgo-install
-wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/install.sh
+mkdir -p ~/btalgo-install
+cd ~/btalgo-install
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/install.sh
 chmod +x install.sh
 sudo ./install.sh
 ```
@@ -827,11 +827,11 @@ sudo sh get-docker.sh
 
 **Clone and Build:**
 ```bash
-git clone https://github.com/marketcalls/openalgo
-cd openalgo
+git clone https://github.com/billionairestechnologies/btalgo
+cd btalgo
 cp .sample.env .env
 # Edit .env with your broker credentials
-docker build -t openalgo:latest .
+docker build -t btalgo:latest .
 docker-compose up -d
 ```
 
@@ -863,14 +863,14 @@ For external access:
 4. Configure SSL/TLS to "Full (strict)"
 5. Enable WAF and rate limiting for security
 
-## Updating OpenAlgo
+## Updating BTAlgo
 
 To get the latest version:
 
 ```bash
-cd openalgo
+cd btalgo
 
-# Stop OpenAlgo first
+# Stop BTAlgo first
 
 # Pull latest changes
 git pull origin main
@@ -878,7 +878,7 @@ git pull origin main
 # Sync dependencies
 uv sync
 
-# Restart OpenAlgo
+# Restart BTAlgo
 uv run app.py
 ```
 
@@ -900,7 +900,7 @@ chmod +x app.py
 
 ### Issue: "Database locked"
 
-Close all OpenAlgo instances and restart.
+Close all BTAlgo instances and restart.
 
 ### Issue: "Port 5000 in use"
 

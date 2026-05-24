@@ -29,7 +29,7 @@ _RATE_LIMIT_BASE_DELAY = 1.0  # Base delay for 429 retry (seconds)
 
 def get_api_response(endpoint, auth, method="GET", payload=""):
     AUTH_TOKEN = auth
-    device_id = "OPENALGO"  # Fixed device ID, same as auth_api.py
+    device_id = "BTALGO"  # Fixed device ID, same as auth_api.py
 
     # Get the shared httpx client with connection pooling
     client = get_httpx_client()
@@ -177,7 +177,7 @@ def get_open_position(tradingsymbol, exchange, producttype, auth):
     Get the net quantity for a specific position.
     Uses Nubra's position data format with portfolio.stock_positions, fut_positions, opt_positions.
     """
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search in OpenPosition
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
     positions_data = _get_cached_positions(auth)
 
@@ -237,14 +237,14 @@ def place_order_api(data, auth):
     Nubra API: POST /orders/v2/single
     """
     AUTH_TOKEN = auth
-    device_id = "OPENALGO"  # Fixed device ID, same as auth_api.py
+    device_id = "BTALGO"  # Fixed device ID, same as auth_api.py
     
     # Get token (ref_id) for the symbol
     token = get_token(data["symbol"], data["exchange"])
     
     logger.info(f"Nubra order - Symbol: {data['symbol']}, Exchange: {data['exchange']}, Token: {token}")
     
-    # Transform OpenAlgo data to Nubra format
+    # Transform BTAlgo data to Nubra format
     nubra_data = transform_data(data, token)
     
     headers = {
@@ -298,10 +298,10 @@ def place_order_api(data, auth):
     # Nubra returns 201 (Created) on success with order_id in response
     if response.status_code in [200, 201] and "order_id" in response_data:
         orderid = str(response_data["order_id"])
-        # Normalize response format for OpenAlgo compatibility
+        # Normalize response format for BTAlgo compatibility
         response_data["status"] = True
         response_data["data"] = {"orderid": orderid}
-        # OpenAlgo service layer expects status 200 for success
+        # BTAlgo service layer expects status 200 for success
         response.status = 200
     else:
         orderid = None
@@ -460,7 +460,7 @@ def close_all_positions(current_api_key, auth):
         symbol = position.get("symbol", position.get("display_name", ""))
         ref_id = str(position.get("ref_id", ""))
         
-        # Try to get OpenAlgo symbol from database using ref_id
+        # Try to get BTAlgo symbol from database using ref_id
         oa_symbol = get_symbol(ref_id, exchange)
         if oa_symbol:
             symbol = oa_symbol
@@ -504,7 +504,7 @@ def cancel_order(orderid, auth):
     Nubra API: DELETE /orders/{order_id}
     """
     AUTH_TOKEN = auth
-    device_id = "OPENALGO"  # Fixed device ID, same as auth_api.py
+    device_id = "BTALGO"  # Fixed device ID, same as auth_api.py
 
     # Get the shared httpx client with connection pooling
     client = get_httpx_client()
@@ -584,12 +584,12 @@ def modify_order(data, auth):
     For ORDER_TYPE_STOPLOSS: also requires trigger_price in algo_params
     """
     AUTH_TOKEN = auth
-    device_id = "OPENALGO"  # Fixed device ID, same as auth_api.py
+    device_id = "BTALGO"  # Fixed device ID, same as auth_api.py
 
     # Get the shared httpx client with connection pooling
     client = get_httpx_client()
 
-    # Transform OpenAlgo data to Nubra modify order format
+    # Transform BTAlgo data to Nubra modify order format
     # Note: token/ref_id is not needed for modify order
     transformed_data = transform_modify_order_data(data, None)
     

@@ -2,13 +2,13 @@
 
 ## Overview
 
-OpenAlgo follows a carefully orchestrated startup sequence that ensures all components are properly initialized before accepting requests. The startup performs environment validation, database initialization, cache restoration, and service activation.
+BTAlgo follows a carefully orchestrated startup sequence that ensures all components are properly initialized before accepting requests. The startup performs environment validation, database initialization, cache restoration, and service activation.
 
 ## Startup Flow Diagram
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                        OpenAlgo Startup Sequence                             │
+│                        BTAlgo Startup Sequence                             │
 └──────────────────────────────────────────────────────────────────────────────┘
 
                         uv run app.py
@@ -279,14 +279,14 @@ def check_session_expiry():
 ## Startup Banner Example
 
 ```
-╭─── OpenAlgo v1.3.0 ──────────────────────────────────────────╮
+╭─── BTAlgo v1.3.0 ──────────────────────────────────────────╮
 │                                                              │
 │             Your Personal Algo Trading Platform              │
 │                                                              │
 │ Endpoints                                                    │
 │ Web App    http://127.0.0.1:5000                            │
 │ WebSocket  ws://127.0.0.1:8765                              │
-│ Docs       https://docs.openalgo.in                         │
+│ Docs       https://docs.billionairestechnologies.com                         │
 │                                                              │
 │ Status     Ready                                             │
 │                                                              │

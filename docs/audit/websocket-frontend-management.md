@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This audit examines the WebSocket implementation in OpenAlgo's React frontend, focusing on connection management during tab switching, page navigation, and browser visibility changes. The analysis identifies critical gaps in resource management and provides recommendations for implementing a robust, centralized WebSocket solution.
+This audit examines the WebSocket implementation in BTAlgo's React frontend, focusing on connection management during tab switching, page navigation, and browser visibility changes. The analysis identifies critical gaps in resource management and provides recommendations for implementing a robust, centralized WebSocket solution.
 
 **Key Finding**: The current implementation lacks Page Visibility API integration, causing WebSocket connections to remain active when tabs are hidden, leading to unnecessary resource consumption and potential connection issues.
 
@@ -53,7 +53,7 @@ isPaused: boolean          // Whether streaming is paused
 
 ### 1.1 WebSocket Hooks
 
-OpenAlgo uses three distinct hooks for real-time communication:
+BTAlgo uses three distinct hooks for real-time communication:
 
 | Hook | Transport | Purpose | File |
 |------|-----------|---------|------|

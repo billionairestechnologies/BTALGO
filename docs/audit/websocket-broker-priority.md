@@ -2,18 +2,18 @@
 
 **Scope:** All broker WebSocket integrations under `broker/*/streaming/`, the WebSocket proxy layer (`websocket_proxy/`), service-layer code in `services/` that depends on live broker streams, and cross-platform deployment compatibility (Windows/macOS dev → Docker/Ubuntu+gunicorn+eventlet production).
 **Date:** 2026-05-04 (revised for 24×7×365 self-hosted reality, weekend/holiday gap, and cross-platform deployment).
-**Companion to:** [`websocket-keepalive-audit.md`](./websocket-keepalive-audit.md) (transport/keepalive layer) and Issue [#1101 — Standard WebSocket Ping/Heartbeat](https://github.com/marketcalls/openalgo/issues/1101).
+**Companion to:** [`websocket-keepalive-audit.md`](./websocket-keepalive-audit.md) (transport/keepalive layer) and Issue [#1101 — Standard WebSocket Ping/Heartbeat](https://github.com/billionairestechnologies/btalgo/issues/1101).
 **Source of truth:** code (every defect cited with `file:line`).
 
 ---
 
 ## 1. Purpose & Real-World Workload
 
-The keepalive audit catalogs **what each broker does** for ping/heartbeat. This document identifies **which brokers are broken or fragile under OpenAlgo's actual self-hosted production workload**, ranked by impact, with concrete defects and a phased remediation plan.
+The keepalive audit catalogs **what each broker does** for ping/heartbeat. This document identifies **which brokers are broken or fragile under BTAlgo's actual self-hosted production workload**, ranked by impact, with concrete defects and a phased remediation plan.
 
 ### 1.1 The deployment reality
 
-OpenAlgo is **self-hosted by individual traders** on their own server (per CLAUDE.md: "Single user per deployment — no multi-user, no privilege escalation. One user, one broker session per instance."). The realistic operational profile:
+BTAlgo is **self-hosted by individual traders** on their own server (per CLAUDE.md: "Single user per deployment — no multi-user, no privilege escalation. One user, one broker session per instance."). The realistic operational profile:
 
 | Dimension | Reality |
 |---|---|
@@ -316,7 +316,7 @@ Cumulative weekly cost across 30 brokers × every weekend × every Indian holida
 
 ## 6. Cross-Platform Compatibility (per CLAUDE.md)
 
-OpenAlgo runs on Windows, macOS, Docker, and Ubuntu+gunicorn+eventlet. Code that works in dev may break in production due to eventlet's stdlib monkey-patching.
+BTAlgo runs on Windows, macOS, Docker, and Ubuntu+gunicorn+eventlet. Code that works in dev may break in production due to eventlet's stdlib monkey-patching.
 
 ### 6.1 dhan_sandbox — eventlet compatibility risk
 
@@ -687,13 +687,13 @@ Verify that a fix to one broker doesn't disrupt others. Run all enabled brokers 
 - **Per-broker keepalive tuning rationale** — defer to [keepalive-audit](./websocket-keepalive-audit.md).
 - **WebSocket proxy server (port 8765) client-facing protocol.**
 - **Data correctness** (tick parsing, symbol mapping) — separate concern.
-- **Token refresh on broker side** — out of OpenAlgo's control.
+- **Token refresh on broker side** — out of BTAlgo's control.
 
 ---
 
 ## 14. Cross-References
 
-- Issue [#1101 — Standard WebSocket Ping/Heartbeat](https://github.com/marketcalls/openalgo/issues/1101)
+- Issue [#1101 — Standard WebSocket Ping/Heartbeat](https://github.com/billionairestechnologies/btalgo/issues/1101)
 - [`docs/audit/websocket-keepalive-audit.md`](./websocket-keepalive-audit.md)
 - [`docs/websocket-architecture.md`](../websocket-architecture.md)
 - [`install/install.sh`](../../install/install.sh) — production deployment via gunicorn+eventlet+systemd

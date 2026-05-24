@@ -44,7 +44,7 @@ A single, unmissable red-button kill switch that:
 ## 2. User Stories
 
 - **US-1**: As a trader, when I realize I've lost control of a strategy, I press a red button in the dashboard header and within 10 seconds my entire book is flat and no new orders can land.
-- **US-2**: As a trader locked out of the dashboard (laptop dead, phone only), I send `/killswitch on` to the OpenAlgo Telegram bot and achieve the same outcome.
+- **US-2**: As a trader locked out of the dashboard (laptop dead, phone only), I send `/killswitch on` to the BTAlgo Telegram bot and achieve the same outcome.
 - **US-3**: As a trader I want to see, in my Telegram summary, exactly how many orders were cancelled, positions were closed, and strategies were halted — across live and sandbox.
 - **US-4**: After the kill switch is active, if a TradingView alert fires a webhook, it gets a clear `403 KILL_SWITCH_ACTIVE` response. TradingView retries cease.
 - **US-5**: Before I can deactivate, I must type `UNLOCK` and wait out the 60-second hold, so a fat-finger press can't undo the lock.
@@ -56,7 +56,7 @@ A single, unmissable red-button kill switch that:
 
 ### 3.1 Single Choke Point
 
-Every order path in OpenAlgo converges at the service-function level, *above* the branch between live broker and sandbox. Put the gate there — one check, both modes covered.
+Every order path in BTAlgo converges at the service-function level, *above* the branch between live broker and sandbox. Put the gate there — one check, both modes covered.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -429,7 +429,7 @@ Add the check at the top of each webhook handler so upstream senders (TradingVie
 Standard response body:
 ```json
 {"status": "error", "code": "KILL_SWITCH_ACTIVE",
- "message": "OpenAlgo kill switch is active. Orders are not being accepted."}
+ "message": "BTAlgo kill switch is active. Orders are not being accepted."}
 ```
 HTTP status: **403 Forbidden**.
 
@@ -626,7 +626,7 @@ The in-memory cache is a read optimization, not the source of truth. Every servi
 
 ### 16.3 Worker process crash mid-activation
 
-Because the flag is persisted in `db/openalgo.db`, a Gunicorn worker crash (or host reboot) mid-activation leaves the flag as whatever was last committed. On process startup, `is_kill_switch_active()` re-reads from DB. User sees the active state correctly on next page load.
+Because the flag is persisted in `db/btalgo.db`, a Gunicorn worker crash (or host reboot) mid-activation leaves the flag as whatever was last committed. On process startup, `is_kill_switch_active()` re-reads from DB. User sees the active state correctly on next page load.
 
 ### 16.4 Concurrent activate calls
 
@@ -650,13 +650,13 @@ Safe to re-run if needed.
 - **Telegram deactivation** bound to the single registered Telegram chat — an attacker who guesses the bot token still needs to be the registered user to issue the command.
 - **Audit trail** every activation/deactivation — irrevocable record of who did what.
 - **Rate limit** `/api/v1/killswitch/activate` to 5/min to prevent a botched script from hammering it.
-- No API key has *more* power than the single user's session — OpenAlgo's single-user deployment model means we don't need role-based access control for v1.
+- No API key has *more* power than the single user's session — BTAlgo's single-user deployment model means we don't need role-based access control for v1.
 
 ---
 
 ## 18. Telegram Security Considerations
 
-The Telegram bot already operates on the assumption that the user's chat ID is registered in their OpenAlgo instance. The kill switch commands inherit that trust model:
+The Telegram bot already operates on the assumption that the user's chat ID is registered in their BTAlgo instance. The kill switch commands inherit that trust model:
 
 - Unregistered chats → "Not authorized"
 - Registered chat → full kill-switch control

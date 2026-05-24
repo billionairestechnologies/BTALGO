@@ -5,13 +5,13 @@
 ### Overview
 
 **Feature:** Shared WebSocket Connection Manager
-**Issue:** [#848](https://github.com/marketcalls/openalgo/issues/848)
+**Issue:** [#848](https://github.com/billionairestechnologies/btalgo/issues/848)
 **Status:** Implemented
 **Release:** v2.x
 
 ### Problem Statement
 
-The OpenAlgo React frontend requires real-time market data across multiple pages and components. Previously, each component that needed market data created its own WebSocket connection, leading to:
+The BTAlgo React frontend requires real-time market data across multiple pages and components. Previously, each component that needed market data created its own WebSocket connection, leading to:
 
 | Problem | Impact |
 |---------|--------|
@@ -70,7 +70,7 @@ When WebSocket connections fail (e.g., after market hours when the broker WebSoc
 
 2. **As a trader**, I want the WebSocket to pause when I switch to another browser tab to save bandwidth.
 
-3. **As a trader**, I want the connection to resume automatically when I return to the OpenAlgo tab.
+3. **As a trader**, I want the connection to resume automatically when I return to the BTAlgo tab.
 
 4. **As a developer**, I want to use the same `useMarketData` hook API without worrying about connection management.
 

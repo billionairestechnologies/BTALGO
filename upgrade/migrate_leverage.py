@@ -32,7 +32,7 @@ logger = get_logger(__name__)
 def migrate_leverage():
     """Create or recreate leverage_config as a single-row config table."""
 
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
 
     # Adjust path for SQLite if relative (since we're in upgrade folder)
     if DATABASE_URL.startswith("sqlite:///") and not DATABASE_URL.startswith("sqlite:////"):
@@ -88,7 +88,7 @@ def migrate_leverage():
 def main():
     """Main function to run the migration"""
     logger.info("=" * 60)
-    logger.info("OpenAlgo Leverage Configuration Migration")
+    logger.info("BTAlgo Leverage Configuration Migration")
     logger.info("=" * 60)
     logger.info("Creating leverage_config table for common crypto leverage setting")
     logger.info("-" * 60)

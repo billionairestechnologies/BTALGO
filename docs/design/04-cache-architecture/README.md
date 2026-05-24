@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo implements a multi-layer caching system to achieve high performance with 100,000+ trading symbols. The caching architecture minimizes database queries, reduces latency, and ensures fast API responses during high-frequency trading operations.
+BTAlgo implements a multi-layer caching system to achieve high performance with 100,000+ trading symbols. The caching architecture minimizes database queries, reduces latency, and ensures fast API responses during high-frequency trading operations.
 
 ## Cache Architecture Diagram
 
@@ -78,7 +78,7 @@ High-performance in-memory cache for 100,000+ trading symbols.
 @dataclass
 class SymbolData:
     """Lightweight symbol data structure for in-memory storage"""
-    symbol: str          # OpenAlgo symbol (NSE:SBIN-EQ)
+    symbol: str          # BTAlgo symbol (NSE:SBIN-EQ)
     brsymbol: str        # Broker symbol (SBIN)
     name: str            # Company name
     exchange: str        # Exchange (NSE, NFO, BSE)

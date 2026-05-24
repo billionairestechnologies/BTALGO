@@ -1,4 +1,4 @@
-# OpenAlgo Upgrade Guide
+# BTAlgo Upgrade Guide
 
 ## Quick Start (Recommended)
 
@@ -33,8 +33,8 @@ python upgrade/<migration_script>.py
 
 #### How to Apply
 ```bash
-# Navigate to openalgo directory
-cd openalgo
+# Navigate to btalgo directory
+cd btalgo
 
 # Apply sandbox migration
 uv run upgrade/migrate_sandbox.py
@@ -68,8 +68,8 @@ The `migrate_sandbox.py` script performs a comprehensive migration:
 
 #### How to Apply
 ```bash
-# Navigate to openalgo directory
-cd openalgo
+# Navigate to btalgo directory
+cd btalgo
 
 # Apply the migration (creates tables)
 uv run upgrade/migrate_telegram_bot.py
@@ -83,7 +83,7 @@ uv run upgrade/migrate_telegram_bot.py --downgrade
 
 #### What It Does
 - Creates 5 new tables for Telegram functionality
-- Adds user linking between Telegram and OpenAlgo
+- Adds user linking between Telegram and BTAlgo
 - Enables read-only access to trading data via Telegram
 - Provides analytics and command tracking
 
@@ -165,8 +165,8 @@ When you first use the feature, these will be created automatically:
 
 #### How to Apply
 ```bash
-# Navigate to openalgo directory
-cd openalgo
+# Navigate to btalgo directory
+cd btalgo
 
 # Apply indexes migration
 uv run upgrade/migrate_indexes.py
@@ -248,9 +248,9 @@ python your_migration.py status
 
 ### Common Issues
 
-1. **Module not found errors**: Ensure you're running from the OpenAlgo directory with virtual environment:
+1. **Module not found errors**: Ensure you're running from the BTAlgo directory with virtual environment:
    ```bash
-   cd /path/to/openalgo
+   cd /path/to/btalgo
    source .venv/bin/activate  # or use uv run
    python upgrade/migration_name.py
    ```
@@ -263,4 +263,4 @@ python your_migration.py status
 
 ---
 
-*For full documentation, see [OpenAlgo Documentation](../docs/)*
+*For full documentation, see [BTAlgo Documentation](../docs/)*

@@ -39,7 +39,7 @@ def should_route_to_pending(api_key: str, api_type: str | None = None) -> bool:
     Check if orders should be routed to Action Center (pending orders)
 
     Args:
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
         api_type: Type of operation (e.g., 'placeorder', 'closeposition', etc.)
 
     Returns:
@@ -84,7 +84,7 @@ def queue_order(
     Queue an order to the Action Center (pending_orders table)
 
     Args:
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
         order_data: Order data dictionary
         api_type: Type of order ('placeorder', 'smartorder', 'basketorder', 'splitorder')
 

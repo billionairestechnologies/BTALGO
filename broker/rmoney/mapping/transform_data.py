@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping RMoney XTS Broking Parameters
 
 from database.token_db import get_br_symbol, get_token
@@ -26,7 +26,7 @@ def transform_data(data, token):
         "orderQuantity": int(data["quantity"]),
         "limitPrice": float(data.get("price", "0")),
         "stopPrice": float(data.get("trigger_price", "0")),
-        "orderUniqueIdentifier": "openalgo",
+        "orderUniqueIdentifier": "btalgo",
     }
     logger.info(f"transformed data: {transformed}")
     return transformed
@@ -42,13 +42,13 @@ def transform_modify_order_data(data, token):
         "modifiedLimitPrice": data["price"],
         "modifiedStopPrice": data.get("trigger_price", "0"),
         "modifiedTimeInForce": "DAY",
-        "orderUniqueIdentifier": "openalgo",
+        "orderUniqueIdentifier": "btalgo",
     }
 
 
 def map_exchange(exchange):
     """
-    Maps the OpenAlgo exchange to the broker exchange string format.
+    Maps the BTAlgo exchange to the broker exchange string format.
     Used for order placement API.
 
     Per XTS Interactive API docs, exchangeSegment must be a string:
@@ -69,7 +69,7 @@ def map_exchange(exchange):
 
 def map_exchange_numeric(exchange):
     """
-    Maps the OpenAlgo exchange to the broker's numeric exchange code.
+    Maps the BTAlgo exchange to the broker's numeric exchange code.
     Used for margin calculator API which requires numeric exchange segments.
 
     Reference: XTS API Documentation - ExchangeSegments Enum
@@ -122,9 +122,9 @@ def map_product_type(product):
 
 def reverse_map_product_type(exchange, product):
     """
-    Reverse maps the broker product type to the OpenAlgo product type, considering the exchange.
+    Reverse maps the broker product type to the BTAlgo product type, considering the exchange.
     """
-    # Exchange to OpenAlgo product type mapping for 'D'
+    # Exchange to BTAlgo product type mapping for 'D'
     exchange_mapping = {
         "CNC": "CNC",
         "NRML": "NRML",

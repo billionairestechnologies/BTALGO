@@ -120,11 +120,11 @@ def download_csv_motilal_data(exchange_name):
 # --- Index symbol normalization (Motilal-specific) -----------------------
 #
 # Motilal ships index names in its own house-style ("Nifty 50", "BSE CAPGOOD",
-# "SNXT50", ...) while OpenAlgo needs canonical symbols per symbol_Openalgo.md.
+# "SNXT50", ...) while BTAlgo needs canonical symbols per symbol_Openalgo.md.
 # The mapping is kept local to this broker loader so other brokers — which
 # already feed clean strings — aren't affected.
 
-# Broker-house-style NSE index name -> OpenAlgo canonical symbol. Keys are
+# Broker-house-style NSE index name -> BTAlgo canonical symbol. Keys are
 # upper-cased and whitespace-stripped before lookup.
 _NSE_INDEX_ALIASES: dict[str, str] = {
     "NIFTY50": "NIFTY",
@@ -137,7 +137,7 @@ _NSE_INDEX_ALIASES: dict[str, str] = {
     "INDIAVIX": "INDIAVIX",
 }
 
-# Broker-house-style BSE index name -> OpenAlgo canonical symbol. Keys are
+# Broker-house-style BSE index name -> BTAlgo canonical symbol. Keys are
 # matched against the raw broker string after upper-casing + collapsing runs
 # of whitespace to a single space (so "BSE  CAPGOOD" still hits "BSE CAPGOOD").
 _BSE_INDEX_ALIASES_RAW: dict[str, str] = {
@@ -220,7 +220,7 @@ def _normalize_bse_index_symbol(broker_symbol):
 
 def standardize_index_symbols(df):
     """
-    Standardize NSE_INDEX and BSE_INDEX symbol names to OpenAlgo canonical form
+    Standardize NSE_INDEX and BSE_INDEX symbol names to BTAlgo canonical form
     using Motilal-specific alias maps. Symbols not in the maps pass through
     after basic cleanup (upper-case + whitespace removed). NaN rows are
     preserved — the old `.str` pipeline was NaN-safe and `.apply` is not.
@@ -308,7 +308,7 @@ def download_csv_index_data(exchange_name):
 
 def process_motilal_index_csv(df, exchange_name):
     """
-    Processes the Motilal Index CSV file to fit the OpenAlgo database schema.
+    Processes the Motilal Index CSV file to fit the BTAlgo database schema.
 
     Args:
         df (pd.DataFrame): Raw DataFrame from Motilal Index API
@@ -328,7 +328,7 @@ def process_motilal_index_csv(df, exchange_name):
     df["name"] = df["symbol"]
     df["brsymbol"] = df["symbol"]
 
-    # Map exchange to OpenAlgo format with _INDEX suffix
+    # Map exchange to BTAlgo format with _INDEX suffix
     if exchange_name == "NSE":
         df["exchange"] = "NSE_INDEX"
     elif exchange_name == "BSE":
@@ -345,7 +345,7 @@ def process_motilal_index_csv(df, exchange_name):
     df["lotsize"] = 1
     df["tick_size"] = 0.05
 
-    # Standardize index symbols to OpenAlgo format
+    # Standardize index symbols to BTAlgo format
     df = standardize_index_symbols(df)
 
     # Select only the columns needed for the database
@@ -376,7 +376,7 @@ def process_motilal_index_csv(df, exchange_name):
 
 def process_motilal_csv(df, exchange_name):
     """
-    Processes the Motilal CSV file to fit the OpenAlgo database schema.
+    Processes the Motilal CSV file to fit the BTAlgo database schema.
 
     Args:
         df (pd.DataFrame): Raw DataFrame from Motilal API
@@ -387,7 +387,7 @@ def process_motilal_csv(df, exchange_name):
     """
     logger.info(f"Processing Motilal CSV Data for {exchange_name}")
 
-    # Rename columns based on Motilal API format to OpenAlgo schema
+    # Rename columns based on Motilal API format to BTAlgo schema
     df = df.rename(
         columns={
             "scripcode": "token",
@@ -405,7 +405,7 @@ def process_motilal_csv(df, exchange_name):
     # Add broker symbol and exchange (keep original)
     df["brsymbol"] = df["symbol"]
 
-    # Map Motilal exchange names to OpenAlgo exchange names
+    # Map Motilal exchange names to BTAlgo exchange names
     exchange_map = {
         "NSE": "NSE",
         "BSE": "BSE",
@@ -453,7 +453,7 @@ def process_motilal_csv(df, exchange_name):
     df.loc[df["optiontype"] == "CE", "instrumenttype"] = "CE"
     df.loc[df["optiontype"] == "PE", "instrumenttype"] = "PE"
 
-    # Format symbols according to OpenAlgo standards
+    # Format symbols according to BTAlgo standards
 
     # For Index instruments, update exchange
     df.loc[
@@ -540,7 +540,7 @@ def process_motilal_csv(df, exchange_name):
         df["symbol"].str.replace(" EQ", "", regex=False).str.strip()
     )
 
-    # Standardize index symbols to OpenAlgo format
+    # Standardize index symbols to BTAlgo format
     df = standardize_index_symbols(df)
 
     # Select only the columns needed for the database

@@ -233,7 +233,7 @@ def load_bruno_endpoints(broker_type="IN_stock"):
 
     # Load from broker-type-specific subfolder (IN_stock or crypto)
     collections_path = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)), "collections", "openalgo", broker_type
+        os.path.dirname(os.path.dirname(__file__)), "collections", "btalgo", broker_type
     )
     bru_files = glob.glob(os.path.join(collections_path, "**", "*.bru"), recursive=True)
 
@@ -314,7 +314,7 @@ def get_collections():
     collections = []
 
     # Load Postman collection
-    postman_path = os.path.join("collections", "postman", "openalgo.postman_collection.json")
+    postman_path = os.path.join("collections", "postman", "btalgo.postman_collection.json")
     if os.path.exists(postman_path):
         with open(postman_path) as f:
             postman_data = json.load(f)
@@ -323,7 +323,7 @@ def get_collections():
             )
 
     # Load Bruno collection
-    bruno_path = os.path.join("collections", "openalgo_bruno.json")
+    bruno_path = os.path.join("collections", "btalgo_bruno.json")
     if os.path.exists(bruno_path):
         with open(bruno_path) as f:
             bruno_data = json.load(f)

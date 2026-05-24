@@ -91,7 +91,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/gttorderbook \
 
 | Parameter | Description | Mandatory/Optional | Default Value |
 |-----------|-------------|--------------------|---------------|
-| apikey | Your OpenAlgo API key | Mandatory | - |
+| apikey | Your BTAlgo API key | Mandatory | - |
 
 ## Response Fields
 
@@ -108,7 +108,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/gttorderbook \
 | trigger_id | string | Unique trigger ID assigned by the broker |
 | trigger_type | string | `"single"` (one trigger) or `"two-leg"` (OCO) |
 | status | string | Always `"active"` (this endpoint filters out non-active states) |
-| symbol | string | Symbol in OpenAlgo format |
+| symbol | string | Symbol in BTAlgo format |
 | exchange | string | Exchange code |
 | trigger_prices | array of numbers | Trigger prices, sorted ascending. Single → `[trigger]`. OCO → `[stoploss_trigger, target_trigger]`. |
 | last_price | number | LTP captured at place/last-modify time. `0` for brokers that don't expose it. |
@@ -139,7 +139,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/gttorderbook \
 
 | Error | Cause |
 |-------|-------|
-| `Invalid openalgo apikey` (403) | Bad / unrecognised API key |
+| `Invalid btalgo apikey` (403) | Bad / unrecognised API key |
 | `GTT orders are not supported for broker 'X' yet` (501) | Broker doesn't ship a `gtt_api` module |
 | `Sandbox GTT support not yet implemented` (501) | Analyzer mode is enabled |
 

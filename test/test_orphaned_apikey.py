@@ -7,8 +7,8 @@ Simulates the scenario where:
 4. get_auth_token_broker() should cache negative results for revoked users
    to prevent log spam from background polling (every 5s)
 
-To run inside the OpenAlgo container:
-    docker exec openalgo python test_orphaned_apikey.py
+To run inside the BTAlgo container:
+    docker exec btalgo python test_orphaned_apikey.py
 """
 
 import hashlib

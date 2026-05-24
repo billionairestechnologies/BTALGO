@@ -1,7 +1,7 @@
 # blueprints/system_permissions.py
 """
 System permissions monitoring API.
-Checks file and directory permissions for OpenAlgo components.
+Checks file and directory permissions for BTAlgo components.
 Cross-platform compatible (Windows, Linux, macOS).
 """
 
@@ -26,14 +26,14 @@ def get_permission_checks():
     """
 
     # Extract database paths from environment variables
-    # Format: 'sqlite:///db/openalgo.db' -> 'db/openalgo.db'
+    # Format: 'sqlite:///db/btalgo.db' -> 'db/btalgo.db'
     def extract_db_path(env_var, default):
         value = os.getenv(env_var, default)
         if value.startswith("sqlite:///"):
             return value[len("sqlite:///") :]
         return value
 
-    main_db = extract_db_path("DATABASE_URL", "db/openalgo.db")
+    main_db = extract_db_path("DATABASE_URL", "db/btalgo.db")
     latency_db = extract_db_path("LATENCY_DATABASE_URL", "db/latency.db")
     logs_db = extract_db_path("LOGS_DATABASE_URL", "db/logs.db")
     sandbox_db = extract_db_path("SANDBOX_DATABASE_URL", "db/sandbox.db")
@@ -77,7 +77,7 @@ def get_permission_checks():
 
 
 def get_base_path():
-    """Get the base path of the OpenAlgo application."""
+    """Get the base path of the BTAlgo application."""
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 

@@ -1,7 +1,7 @@
-# OpenAlgo Advanced Docker Installation (Multi-Instance & Custom SSL)
+# BTAlgo Advanced Docker Installation (Multi-Instance & Custom SSL)
 
 This guide covers the advanced installation script (`install-docker-multi-custom-ssl.sh`), which is designed for power users who need:
-- **Multiple OpenAlgo instances** on a single server.
+- **Multiple BTAlgo instances** on a single server.
 - **Custom SSL Certificates** (e.g., Wildcard SSLs).
 - **Portainer** for container management.
 - **Robust Healthchecks** and automatic error recovery.
@@ -11,7 +11,7 @@ This guide covers the advanced installation script (`install-docker-multi-custom
 Run the following command on your Ubuntu 20.04+ or Debian 11+ server:
 
 ```bash
-wget https://raw.githubusercontent.com/marketcalls/openalgo/main/install/install-docker-multi-custom-ssl.sh
+wget https://raw.githubusercontent.com/billionairestechnologies/btalgo/main/install/install-docker-multi-custom-ssl.sh
 chmod +x install-docker-multi-custom-ssl.sh
 ./install-docker-multi-custom-ssl.sh
 ```
@@ -29,7 +29,7 @@ When you run the script, it will interactively prompt you for:
 
 1.  **Instance Name**:
     - You can give each installation a unique name (e.g., `algo1`, `fyers-bot`).
-    - This allows you to run multiple independent copies of OpenAlgo side-by-side.
+    - This allows you to run multiple independent copies of BTAlgo side-by-side.
 
 2.  **Domain & Broker**:
     - Choose your domain (e.g., `bot1.example.com`).
@@ -72,10 +72,10 @@ Since this script supports multiple instances, docker compose commands need to b
 **Directory Structure:**
 ```
 /opt/
-  ├── openalgo-algo1/       # Instance 1
+  ├── btalgo-algo1/       # Instance 1
   │   ├── docker-compose.yaml
   │   └── .env
-  └── openalgo-fyers-bot/   # Instance 2 (Different Broker/Strategy)
+  └── btalgo-fyers-bot/   # Instance 2 (Different Broker/Strategy)
       ├── docker-compose.yaml
       └── .env
 ```
@@ -83,7 +83,7 @@ Since this script supports multiple instances, docker compose commands need to b
 **Managing a Specific Instance:**
 ```bash
 # Go to the instance directory
-cd /opt/openalgo-algo1
+cd /opt/btalgo-algo1
 
 # Start/Stop/Restart
 docker compose up -d
@@ -135,6 +135,6 @@ If Portainer is already running, the script will:
 3.  **WebSocket 403 Errors**:
     - If you experience disconnects after broker re-login, restart the specific instance:
       ```bash
-      cd /opt/openalgo-INSTANCE_NAME
+      cd /opt/btalgo-INSTANCE_NAME
       docker compose restart
       ```

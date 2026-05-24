@@ -34,7 +34,7 @@ def _get_nearest_futures_price(
         underlying: Base symbol (e.g., NIFTY, BANKNIFTY)
         exchange: Options exchange (NFO, BFO, etc.)
         expiry_date: Expiry in DDMMMYY format (e.g., 30JAN26)
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Futures LTP or None if not found
@@ -132,7 +132,7 @@ def get_oi_data(
         underlying: Underlying symbol (e.g., NIFTY, BANKNIFTY)
         exchange: Exchange (NSE_INDEX, BSE_INDEX, NFO, BFO)
         expiry_date: Expiry in DDMMMYY format
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Tuple of (success, response_data, status_code)
@@ -248,7 +248,7 @@ def calculate_max_pain(
         underlying: Underlying symbol
         exchange: Exchange
         expiry_date: Expiry in DDMMMYY format
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Tuple of (success, response_data, status_code)

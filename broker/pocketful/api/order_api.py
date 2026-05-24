@@ -567,7 +567,7 @@ def get_open_position(tradingsymbol, exchange, product, auth):
     # Initialize net quantity to 0
     net_qty = "0"
 
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search in OpenPosition
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
 
     logger.debug(
@@ -639,7 +639,7 @@ def place_order_api(data, auth_token):
         else:
             return None, info_response, None
     logger.info(f"Client ID: {client_id}")
-    # Transform OpenAlgo order format to Pocketful format
+    # Transform BTAlgo order format to Pocketful format
     newdata = transform_data(data, client_id=client_id)
     logger.info(f"Transformed data: {newdata}")
     # Make the API request
@@ -987,7 +987,7 @@ def modify_order(data, auth):
     logger.info(f"Client ID: {client_id}")
     logger.info(f"Original order data: {data}")
 
-    # Transform OpenAlgo modify order format to Pocketful format
+    # Transform BTAlgo modify order format to Pocketful format
     transformed_data = transform_modify_order_data(data, client_id=client_id)
     logger.info(f"Transformed order data: {transformed_data}")
 

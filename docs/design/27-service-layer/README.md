@@ -2,7 +2,7 @@
 
 ## Overview
 
-The services layer contains the core business logic of OpenAlgo, acting as an intermediary between API endpoints and broker/database operations.
+The services layer contains the core business logic of BTAlgo, acting as an intermediary between API endpoints and broker/database operations.
 
 ## Architecture Diagram
 

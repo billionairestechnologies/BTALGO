@@ -49,7 +49,7 @@ if DATABASE_URL.startswith("sqlite:///") and ":memory:" not in DATABASE_URL:
         os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
 # Encryption setup for API keys
-TELEGRAM_KEY_SALT = os.getenv("TELEGRAM_KEY_SALT", "telegram-openalgo-salt").encode()
+TELEGRAM_KEY_SALT = os.getenv("TELEGRAM_KEY_SALT", "telegram-btalgo-salt").encode()
 
 
 def get_encryption_key():
@@ -93,9 +93,9 @@ class TelegramUser(Base):
 
     id = Column(Integer, primary_key=True)
     telegram_id = Column(Integer, unique=True, nullable=False, index=True)
-    openalgo_username = Column(String(255), nullable=False, index=True)
+    btalgo_username = Column(String(255), nullable=False, index=True)
     encrypted_api_key = Column(Text)  # Encrypted API key for secure storage
-    host_url = Column(String(500))  # OpenAlgo host URL
+    host_url = Column(String(500))  # BTAlgo host URL
     first_name = Column(String(255))
     last_name = Column(String(255))
     telegram_username = Column(String(255))
@@ -231,7 +231,7 @@ def get_telegram_user(telegram_id: int) -> dict | None:
             result = {
                 "id": user.id,
                 "telegram_id": user.telegram_id,
-                "openalgo_username": user.openalgo_username,
+                "btalgo_username": user.btalgo_username,
                 "host_url": user.host_url,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
@@ -255,7 +255,7 @@ def get_telegram_user(telegram_id: int) -> dict | None:
 
 
 def get_telegram_user_by_username(username: str) -> dict | None:
-    """Get telegram user by OpenAlgo username (cached for 30 minutes)"""
+    """Get telegram user by BTAlgo username (cached for 30 minutes)"""
     cache_key = f"username_{username}"
 
     # Check cache first
@@ -265,7 +265,7 @@ def get_telegram_user_by_username(username: str) -> dict | None:
     try:
         user = (
             db_session.query(TelegramUser)
-            .filter_by(openalgo_username=username, is_active=True)
+            .filter_by(btalgo_username=username, is_active=True)
             .first()
         )
 
@@ -273,7 +273,7 @@ def get_telegram_user_by_username(username: str) -> dict | None:
             result = {
                 "id": user.id,
                 "telegram_id": user.telegram_id,
-                "openalgo_username": user.openalgo_username,
+                "btalgo_username": user.btalgo_username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "telegram_username": user.telegram_username,
@@ -316,7 +316,7 @@ def create_or_update_telegram_user(
 
         if user:
             # Update existing user
-            user.openalgo_username = username
+            user.btalgo_username = username
             if encrypted_key:
                 user.encrypted_api_key = encrypted_key
             if host_url:
@@ -331,7 +331,7 @@ def create_or_update_telegram_user(
             # Create new user
             user = TelegramUser(
                 telegram_id=telegram_id,
-                openalgo_username=username,
+                btalgo_username=username,
                 encrypted_api_key=encrypted_key,
                 host_url=host_url,
                 first_name=first_name,
@@ -375,7 +375,7 @@ def delete_telegram_user(telegram_id: int) -> bool:
         user = db_session.query(TelegramUser).filter_by(telegram_id=telegram_id).first()
 
         if user:
-            username = user.openalgo_username
+            username = user.btalgo_username
             user.is_active = False
             user.updated_at = func.now()
             db_session.commit()
@@ -424,7 +424,7 @@ def get_all_telegram_users(filters: dict | None = None) -> list[dict]:
             {
                 "id": user.id,
                 "telegram_id": user.telegram_id,
-                "openalgo_username": user.openalgo_username,
+                "btalgo_username": user.btalgo_username,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "telegram_username": user.telegram_username,
@@ -812,7 +812,7 @@ def get_user_credentials(telegram_id: int) -> dict | None:
                     logger.exception(f"Failed to decrypt API key: {str(e)}")
 
             result = {
-                "username": user.openalgo_username,
+                "username": user.btalgo_username,
                 "api_key": api_key,
                 "host_url": user.host_url or os.getenv("HOST_SERVER", "http://127.0.0.1:5000"),
                 "broker": user.broker,

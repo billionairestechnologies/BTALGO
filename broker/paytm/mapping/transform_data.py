@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Paytm Broking Parameters https://developer.paytmmoney.com/docs/api/login
 
 from database.token_db import get_token
@@ -6,7 +6,7 @@ from database.token_db import get_token
 
 def transform_data(data):
     """
-    Transforms the OpenAlgo API request structure to Paytm v2 API structure.
+    Transforms the BTAlgo API request structure to Paytm v2 API structure.
     """
     symbol = get_token(data["symbol"], data["exchange"])
     txn_type = "B" if data["action"].upper() == "BUY" else "S"
@@ -81,9 +81,9 @@ def map_product_type(product):
 
 def reverse_map_product_type(product):
     """
-    Reverse maps the broker product type to the OpenAlgo product type, considering the exchange.
+    Reverse maps the broker product type to the BTAlgo product type, considering the exchange.
     """
-    # Exchange to OpenAlgo product type mapping for 'D'
+    # Exchange to BTAlgo product type mapping for 'D'
     exchange_mapping = {"CNC": "C", "MARGIN": "M", "MIS": "I"}
 
     return exchange_mapping.get(product)
@@ -91,7 +91,7 @@ def reverse_map_product_type(product):
 
 def reverse_map_order_type(order_type):
     """
-    Reverse maps the Paytm order type to the OpenAlgo order type.
+    Reverse maps the Paytm order type to the BTAlgo order type.
     """
     reverse_order_type_mapping = {
         "MARKET": "MKT",

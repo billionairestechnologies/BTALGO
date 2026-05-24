@@ -1,15 +1,15 @@
-# OpenAlgo — Public IP Security Audit
+# BTAlgo — Public IP Security Audit
 
 **Date:** 2026-04-16
 **Version audited:** 2.0.0.4 (commit `9e742ee9a`)
 **Scope:** Application-layer security for a self-hosted **single-user** deployment where the Flask app (port 5000) and WebSocket proxy (port 8765) are exposed on a **public IP** (common for TradingView / Chartink webhook users).
-**Threat model:** Internet-reachable attacker. Broker static-IP whitelisting (SEBI mandate, effective 2026-04-01) blocks stolen credentials from attacker machines, but attacks routed *through* the OpenAlgo server (which owns the registered IP) are still viable.
+**Threat model:** Internet-reachable attacker. Broker static-IP whitelisting (SEBI mandate, effective 2026-04-01) blocks stolen credentials from attacker machines, but attacks routed *through* the BTAlgo server (which owns the registered IP) are still viable.
 
 ---
 
 ## Executive Summary
 
-OpenAlgo has **solid security fundamentals** — Argon2 password hashing, CSRF enabled with justified exemptions, SQLAlchemy parameterised queries, pinned dependencies, session cookies with `HttpOnly` + `SameSite=Lax`, AES-Fernet encryption for broker tokens, and `SensitiveDataFilter` redaction in logs.
+BTAlgo has **solid security fundamentals** — Argon2 password hashing, CSRF enabled with justified exemptions, SQLAlchemy parameterised queries, pinned dependencies, session cookies with `HttpOnly` + `SameSite=Lax`, AES-Fernet encryption for broker tokens, and `SensitiveDataFilter` redaction in logs.
 
 However, when exposed on a public IP, the audit surfaced:
 
@@ -85,7 +85,7 @@ Phase-1 fixes (login rate reduction, webhook HMAC, WebSocket/ZMQ binding, sessio
 
 #### H4. Broker-token encryption uses a static KDF salt
 - **File:** `database/auth_db.py:56–65`
-- **Issue:** `salt=b"openalgo_static_salt"` is identical across every deployment. If `API_KEY_PEPPER` leaks (debug dump, committed `.env`, backup copy), anyone can derive the Fernet key and decrypt all broker tokens — offline, no server access required.
+- **Issue:** `salt=b"btalgo_static_salt"` is identical across every deployment. If `API_KEY_PEPPER` leaks (debug dump, committed `.env`, backup copy), anyone can derive the Fernet key and decrypt all broker tokens — offline, no server access required.
 - **Fix:** Generate a random 16-byte salt on first run; persist to `keys/encryption_salt.bin` (chmod 600). Document rotation procedure when pepper is compromised.
 
 #### H5. No strict validation of order quantity / price
@@ -297,7 +297,7 @@ This closes the "key extracted after partial processing" gap and makes timing-un
 
 ## Part 3 — Public-IP Deployment Checklist
 
-Required before exposing OpenAlgo on a public IP:
+Required before exposing BTAlgo on a public IP:
 
 - [ ] Bind `WEBSOCKET_HOST=127.0.0.1` and `ZMQ_HOST=127.0.0.1`; front WebSocket with nginx + TLS + IP allowlist.
 - [ ] `FLASK_DEBUG=False` — set as read-only environment variable in systemd unit / Dockerfile, not runtime-configurable.

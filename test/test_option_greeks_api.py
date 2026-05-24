@@ -7,18 +7,18 @@ for options across all supported exchanges.
 
 Prerequisites:
 1. Install mibian library: pip install mibian
-2. OpenAlgo must be running
+2. BTAlgo must be running
 3. Markets should be open for live prices
 
 Usage:
-    cd D:/openalgo-sandbox-test/openalgo/test
+    cd D:/btalgo-sandbox-test/btalgo/test
     python test_option_greeks_api.py
 """
 
 import os
 import sys
 
-# Add parent directory to path so we can import from openalgo modules if needed
+# Add parent directory to path so we can import from btalgo modules if needed
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
@@ -367,13 +367,13 @@ def test_compare_call_put_greeks():
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("OpenAlgo Option Greeks API Test Suite")
+    print("BTAlgo Option Greeks API Test Suite")
     print("=" * 60)
     print(f"\nBase URL: {BASE_URL}")
     print(f"API Key: {API_KEY[:10]}..." if len(API_KEY) > 10 else f"API Key: {API_KEY}")
     print("\n⚠️  Prerequisites:")
     print("  1. Install mibian: pip install mibian")
-    print("  2. OpenAlgo must be running")
+    print("  2. BTAlgo must be running")
     print("  3. Markets should be open for live prices")
     print("  4. Update symbols to current/future expiry dates")
     print("=" * 60)

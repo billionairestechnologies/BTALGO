@@ -2,7 +2,7 @@
 
 ## Overview
 
-Each broker in OpenAlgo follows a standardized folder structure with consistent interfaces for authentication, order management, data retrieval, and symbol mapping.
+Each broker in BTAlgo follows a standardized folder structure with consistent interfaces for authentication, order management, data retrieval, and symbol mapping.
 
 ## Broker Directory Structure
 
@@ -136,7 +136,7 @@ def get_holdings(auth):
 
 ### 5. mapping/transform_data.py
 
-Convert OpenAlgo format to broker format.
+Convert BTAlgo format to broker format.
 
 ```python
 def transform_data(data):
@@ -154,7 +154,7 @@ def transform_data(data):
     }
 
 def transform_response(response):
-    """Transform broker response to OpenAlgo format"""
+    """Transform broker response to BTAlgo format"""
     return {
         "orderid": response['data']['order_id'],
         "status": "success" if response['status'] else "error"
@@ -171,7 +171,7 @@ def download_master_contract():
     pass
 
 def get_symbol(symbol, exchange):
-    """Get broker symbol from OpenAlgo symbol"""
+    """Get broker symbol from BTAlgo symbol"""
     pass
 
 def get_token(symbol, exchange):
@@ -213,11 +213,11 @@ Broker metadata file. This is a simple metadata file (NOT configuration).
 ```json
 {
     "Plugin Name": "zerodha",
-    "Plugin URI": "https://openalgo.in",
-    "Description": "Zerodha OpenAlgo Plugin",
+    "Plugin URI": "https://billionairestechnologies.com",
+    "Description": "Zerodha BTAlgo Plugin",
     "Version": "1.0",
     "Author": "Rajandran R",
-    "Author URI": "https://openalgo.in"
+    "Author URI": "https://billionairestechnologies.com"
 }
 ```
 
@@ -253,7 +253,7 @@ VALID_BROKERS=zerodha,dhan,angel,newbroker
 
 ### Price Type Mapping
 
-| OpenAlgo | Zerodha | Dhan | Angel |
+| BTAlgo | Zerodha | Dhan | Angel |
 |----------|---------|------|-------|
 | MARKET | MARKET | MARKET | MARKET |
 | LIMIT | LIMIT | LIMIT | LIMIT |
@@ -262,7 +262,7 @@ VALID_BROKERS=zerodha,dhan,angel,newbroker
 
 ### Product Type Mapping
 
-| OpenAlgo | Zerodha | Dhan | Angel |
+| BTAlgo | Zerodha | Dhan | Angel |
 |----------|---------|------|-------|
 | CNC | CNC | CNC | DELIVERY |
 | MIS | MIS | INTRADAY | INTRADAY |
@@ -270,7 +270,7 @@ VALID_BROKERS=zerodha,dhan,angel,newbroker
 
 ### Exchange Mapping
 
-| OpenAlgo | Zerodha | Dhan | Angel |
+| BTAlgo | Zerodha | Dhan | Angel |
 |----------|---------|------|-------|
 | NSE | NSE | NSE_EQ | NSE |
 | NFO | NFO | NSE_FNO | NFO |

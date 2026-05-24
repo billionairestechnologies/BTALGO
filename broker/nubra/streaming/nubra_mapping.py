@@ -4,9 +4,9 @@ Nubra exchange mapping and capability registry for WebSocket streaming.
 
 
 class NubraExchangeMapper:
-    """Maps OpenAlgo exchange codes to Nubra-specific exchanges."""
+    """Maps BTAlgo exchange codes to Nubra-specific exchanges."""
 
-    # OpenAlgo exchange -> Nubra WebSocket exchange
+    # BTAlgo exchange -> Nubra WebSocket exchange
     EXCHANGE_MAP = {
         "NSE": "NSE",
         "BSE": "BSE",
@@ -18,7 +18,7 @@ class NubraExchangeMapper:
 
     @staticmethod
     def to_nubra_exchange(exchange: str) -> str:
-        """Convert OpenAlgo exchange to Nubra exchange."""
+        """Convert BTAlgo exchange to Nubra exchange."""
         return NubraExchangeMapper.EXCHANGE_MAP.get(exchange, "NSE")
 
     @staticmethod

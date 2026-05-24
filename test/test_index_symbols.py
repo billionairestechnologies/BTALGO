@@ -21,7 +21,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
 
 # ---------------------------------------------------------------------------
-# Expected OpenAlgo standard symbols (from symbol_Openalgo.md)
+# Expected BTAlgo standard symbols (from symbol_Openalgo.md)
 # ---------------------------------------------------------------------------
 
 EXPECTED_NSE_INDEX_SYMBOLS = {
@@ -186,7 +186,7 @@ def get_database_url(env_vars):
     db_url = env_vars.get("DATABASE_URL") or os.getenv("DATABASE_URL")
     if not db_url:
         return None
-    # Resolve relative sqlite paths (e.g. sqlite:///db/openalgo.db)
+    # Resolve relative sqlite paths (e.g. sqlite:///db/btalgo.db)
     # to be relative to project root, not CWD
     if db_url.startswith("sqlite:///") and not db_url.startswith("sqlite:////"):
         relative_path = db_url[len("sqlite:///"):]
@@ -344,7 +344,7 @@ def run_tests(db_url, broker_name):
     print_section("Test 5: Extra NSE_INDEX symbols - transformation check")
     extra_nse = nse_symbols - EXPECTED_NSE_INDEX_SYMBOLS
     if extra_nse:
-        print(f"  Found {len(extra_nse)} extra symbols (not in OpenAlgo doc)")
+        print(f"  Found {len(extra_nse)} extra symbols (not in BTAlgo doc)")
         print(f"  Checking if unlisted symbols were preserved (only basic cleanup applied):\n")
         nse_transformed = []
         nse_preserved = []
@@ -437,7 +437,7 @@ def run_tests(db_url, broker_name):
     print_section("Test 10: Extra BSE_INDEX symbols - transformation check")
     extra_bse = bse_symbols - EXPECTED_BSE_INDEX_SYMBOLS
     if extra_bse:
-        print(f"  Found {len(extra_bse)} extra symbols (not in OpenAlgo doc)")
+        print(f"  Found {len(extra_bse)} extra symbols (not in BTAlgo doc)")
         print(f"  Checking if unlisted symbols were preserved (only basic cleanup applied):\n")
         bse_transformed = []
         bse_preserved = []
@@ -474,9 +474,9 @@ def run_tests(db_url, broker_name):
         print(f"  {marker} {r['symbol']:<35} <- {r['brsymbol']}")
 
     # -----------------------------------------------------------------------
-    # Unlisted symbols log (broker symbols not in OpenAlgo doc)
+    # Unlisted symbols log (broker symbols not in BTAlgo doc)
     # -----------------------------------------------------------------------
-    print_header("UNLISTED SYMBOLS (not in OpenAlgo doc)")
+    print_header("UNLISTED SYMBOLS (not in BTAlgo doc)")
 
     print_section(f"Unlisted NSE_INDEX symbols ({len(extra_nse)})")
     if extra_nse:

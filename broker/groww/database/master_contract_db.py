@@ -87,19 +87,19 @@ def copy_from_dataframe(df):
         raise
 
 
-# Functions for symbol format conversion between OpenAlgo and Groww formats
-def format_openalgo_to_groww_symbol(symbol, exchange):
+# Functions for symbol format conversion between BTAlgo and Groww formats
+def format_btalgo_to_groww_symbol(symbol, exchange):
     """
-    Convert OpenAlgo symbol format to Groww symbol format
+    Convert BTAlgo symbol format to Groww symbol format
 
     Args:
-        symbol (str): Symbol in OpenAlgo format (e.g., AARTIIND29MAY25630CE)
+        symbol (str): Symbol in BTAlgo format (e.g., AARTIIND29MAY25630CE)
         exchange (str): Exchange code (NSE, BSE, NFO, etc.)
 
     Returns:
         str: Symbol in Groww format (e.g., "AARTIIND 29MAY25 630 CE")
     """
-    logger.info(f"Converting symbol from OpenAlgo to Groww format: {{symbol}}, {exchange}")
+    logger.info(f"Converting symbol from BTAlgo to Groww format: {{symbol}}, {exchange}")
 
     # If it's already in the right format or invalid, return as is
     if not symbol or len(symbol) < 6:
@@ -221,18 +221,18 @@ def format_openalgo_to_groww_symbol(symbol, exchange):
     return symbol
 
 
-def format_groww_to_openalgo_symbol(groww_symbol, exchange):
+def format_groww_to_btalgo_symbol(groww_symbol, exchange):
     """
-    Convert Groww symbol format to OpenAlgo symbol format
+    Convert Groww symbol format to BTAlgo symbol format
 
     Args:
         groww_symbol (str): Symbol in Groww format (e.g., "AARTIIND 29MAY25 630 CE")
         exchange (str): Exchange code (NSE, BSE, NFO, etc.)
 
     Returns:
-        str: Symbol in OpenAlgo format (e.g., "AARTIIND29MAY25630CE")
+        str: Symbol in BTAlgo format (e.g., "AARTIIND29MAY25630CE")
     """
-    logger.info(f"Converting symbol from Groww to OpenAlgo format: {{groww_symbol}}, {exchange}")
+    logger.info(f"Converting symbol from Groww to BTAlgo format: {{groww_symbol}}, {exchange}")
 
     if not groww_symbol:
         return groww_symbol
@@ -242,7 +242,7 @@ def format_groww_to_openalgo_symbol(groww_symbol, exchange):
         # Remove any extra whitespace and convert to uppercase
         clean_symbol = groww_symbol.strip().upper()
 
-        # If already in OpenAlgo format (no spaces), return as is
+        # If already in BTAlgo format (no spaces), return as is
         if " " not in clean_symbol:
             return clean_symbol
 
@@ -258,11 +258,11 @@ def format_groww_to_openalgo_symbol(groww_symbol, exchange):
             strike_price = parts[2]  # Strike price as string
             option_type = parts[3]  # CE or PE
 
-            # Combine into OpenAlgo format: [BaseSymbol][ExpirationDate][StrikePrice][OptionType]
+            # Combine into BTAlgo format: [BaseSymbol][ExpirationDate][StrikePrice][OptionType]
             # Example: AARTIIND29MAY25630CE
-            openalgo_symbol = f"{base_symbol}{date_str}{strike_price}{option_type}"
-            logger.info(f"Converted to OpenAlgo format: {openalgo_symbol}")
-            return openalgo_symbol
+            btalgo_symbol = f"{base_symbol}{date_str}{strike_price}{option_type}"
+            logger.info(f"Converted to BTAlgo format: {btalgo_symbol}")
+            return btalgo_symbol
 
         # For futures
         elif len(parts) >= 3 and parts[-1] == "FUT":
@@ -270,11 +270,11 @@ def format_groww_to_openalgo_symbol(groww_symbol, exchange):
             base_symbol = parts[0]
             date_str = parts[1]  # Format: DDMMMYY (e.g., 29MAY25)
 
-            # Combine into OpenAlgo format: [BaseSymbol][ExpirationDate]FUT
+            # Combine into BTAlgo format: [BaseSymbol][ExpirationDate]FUT
             # Example: NIFTY29MAY25FUT
-            openalgo_symbol = f"{base_symbol}{date_str}FUT"
-            logger.info(f"Converted to OpenAlgo format: {openalgo_symbol}")
-            return openalgo_symbol
+            btalgo_symbol = f"{base_symbol}{date_str}FUT"
+            logger.info(f"Converted to BTAlgo format: {btalgo_symbol}")
+            return btalgo_symbol
 
         # Handle case where option type might be missing
         elif len(parts) == 3:
@@ -309,11 +309,11 @@ def format_groww_to_openalgo_symbol(groww_symbol, exchange):
                     option_type = "CE"
 
                     # Combine into standard format
-                    openalgo_symbol = f"{base_symbol}{date_str}{strike_price}{option_type}"
+                    btalgo_symbol = f"{base_symbol}{date_str}{strike_price}{option_type}"
                     logger.info(
-                        f"Converted to OpenAlgo format (assumed {{option_type}}): {openalgo_symbol}"
+                        f"Converted to BTAlgo format (assumed {{option_type}}): {btalgo_symbol}"
                     )
-                    return openalgo_symbol
+                    return btalgo_symbol
                 except ValueError:
                     # Third part is not a number, might not be an option
                     pass
@@ -331,7 +331,7 @@ def find_symbol_by_token(token, exchange):
         exchange (str): Exchange code
 
     Returns:
-        str: Symbol in OpenAlgo format, or None if not found
+        str: Symbol in BTAlgo format, or None if not found
     """
     result = db_session.query(SymToken).filter_by(token=token, exchange=exchange).first()
     if result:
@@ -344,7 +344,7 @@ def find_token_by_symbol(symbol, exchange):
     Find token in DB by symbol and exchange
 
     Args:
-        symbol (str): Symbol in either OpenAlgo or Groww format
+        symbol (str): Symbol in either BTAlgo or Groww format
         exchange (str): Exchange code
 
     Returns:
@@ -357,19 +357,19 @@ def find_token_by_symbol(symbol, exchange):
 
     # If not found and it's an NFO symbol, try with formatted version
     if exchange == "NFO":
-        # Try with OpenAlgo format if it was in Groww format
-        openalgo_symbol = format_groww_to_openalgo_symbol(symbol, exchange)
-        if openalgo_symbol != symbol:
+        # Try with BTAlgo format if it was in Groww format
+        btalgo_symbol = format_groww_to_btalgo_symbol(symbol, exchange)
+        if btalgo_symbol != symbol:
             result = (
                 db_session.query(SymToken)
-                .filter_by(symbol=openalgo_symbol, exchange=exchange)
+                .filter_by(symbol=btalgo_symbol, exchange=exchange)
                 .first()
             )
             if result:
                 return result.token
 
-        # Try with Groww format if it was in OpenAlgo format
-        groww_symbol = format_openalgo_to_groww_symbol(symbol, exchange)
+        # Try with Groww format if it was in BTAlgo format
+        groww_symbol = format_btalgo_to_groww_symbol(symbol, exchange)
         if groww_symbol != symbol:
             result = (
                 db_session.query(SymToken).filter_by(symbol=groww_symbol, exchange=exchange).first()
@@ -565,8 +565,8 @@ def process_groww_data(path):
         # Add a symbol column based on trading_symbol
         df_mapped["symbol"] = df["trading_symbol"]
 
-        # Replace specific index symbols with standardized OpenAlgo names
-        # Mapping Groww index symbols -> OpenAlgo standard symbols
+        # Replace specific index symbols with standardized BTAlgo names
+        # Mapping Groww index symbols -> BTAlgo standard symbols
         # (from symbol_Openalgo.md documentation)
         symbol_replacements = {
             # NSE Index symbols
@@ -814,8 +814,8 @@ def master_contract_download():
         )
         token_df["tick_size"] = pd.to_numeric(token_df["tick_size"], errors="coerce").fillna(0.05)
 
-        # Step 5: Add OpenAlgo symbols where needed (vectorized - remove spaces from brsymbol)
-        # For NFO options with spaces in brsymbol, the OpenAlgo format is just the symbol without spaces
+        # Step 5: Add BTAlgo symbols where needed (vectorized - remove spaces from brsymbol)
+        # For NFO options with spaces in brsymbol, the BTAlgo format is just the symbol without spaces
         nfo_space_mask = (
             (token_df["exchange"] == "NFO")
             & (token_df["instrumenttype"].isin(["CE", "PE"]))

@@ -2,12 +2,12 @@
 
 ## Overview
 
-This assessment covers how OpenAlgo protects your sensitive data: broker credentials, API keys, and encryption secrets.
+This assessment covers how BTAlgo protects your sensitive data: broker credentials, API keys, and encryption secrets.
 
 **Risk Level**: Critical (data sensitivity)
 **Status**: Good
 
-## What Secrets Does OpenAlgo Store?
+## What Secrets Does BTAlgo Store?
 
 | Secret | Where Stored | Protection | Why It Matters |
 |--------|--------------|------------|----------------|
@@ -156,7 +156,7 @@ Your databases in `db/` directory:
 
 | File | Contains | Sensitivity |
 |------|----------|-------------|
-| `openalgo.db` | Users, orders, settings | High |
+| `btalgo.db` | Users, orders, settings | High |
 | `logs.db` | API request logs | Medium |
 | `sandbox.db` | Sandbox trading data | Low |
 | `latency.db` | Performance metrics | Low |
@@ -202,7 +202,7 @@ This is appropriate - encrypting everything would impact performance without sec
 - [ ] Using disk encryption on host machine
 - [ ] Regular backups of database folder
 - [ ] Strong password for OS account
-- [ ] Strong password for OpenAlgo login
+- [ ] Strong password for BTAlgo login
 
 ## Recovery Scenarios
 
@@ -227,9 +227,9 @@ This is appropriate - encrypting everything would impact performance without sec
 ### Scenario 3: Suspect Compromise
 
 **Actions**:
-1. Logout from OpenAlgo
+1. Logout from BTAlgo
 2. Revoke broker tokens (in broker dashboard)
-3. Generate new API key in OpenAlgo
+3. Generate new API key in BTAlgo
 4. Rotate `APP_KEY` and `API_KEY_PEPPER`
 5. Re-authenticate with brokers
 

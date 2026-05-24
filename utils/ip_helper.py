@@ -15,7 +15,7 @@ def _trust_proxy_headers() -> bool:
     ``True-Client-IP`` / ``X-Client-IP``.
 
     Set ``TRUST_PROXY_HEADERS=TRUE`` in .env ONLY when a reverse proxy
-    (nginx / Cloudflare / a load balancer) sits in front of OpenAlgo and
+    (nginx / Cloudflare / a load balancer) sits in front of BTAlgo and
     that proxy is the only path to the gunicorn/Flask listener. The
     ``install.sh``, ``install-docker.sh``, ``install-multi.sh``, and
     ``install-docker-multi-custom-ssl.sh`` scripts set this automatically

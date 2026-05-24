@@ -236,7 +236,7 @@ def process_5paisa_csv(path):
 
     filtered_df["TradingSymbol"] = filtered_df.apply(create_trading_symbol, axis=1)
 
-    # Create a new DataFrame in OpenAlgo format
+    # Create a new DataFrame in BTAlgo format
     new_df = pd.DataFrame()
     new_df["symbol"] = filtered_df["TradingSymbol"]
     new_df["brsymbol"] = filtered_df["Name"].str.upper().str.rstrip()
@@ -269,7 +269,7 @@ def process_5paisa_csv(path):
         .str.replace("-", "", regex=False)
     )
 
-    # Step 3: Explicit rename map for symbols whose cleaned form differs from OpenAlgo standard
+    # Step 3: Explicit rename map for symbols whose cleaned form differs from BTAlgo standard
     # Only apply to index exchanges to avoid renaming non-index symbols (e.g., ENERGY, FIN on NSE/BSE)
     idx_rename_mask = new_df["exchange"].isin(["NSE_INDEX", "BSE_INDEX"])
     new_df.loc[idx_rename_mask, "symbol"] = new_df.loc[idx_rename_mask, "symbol"].replace(

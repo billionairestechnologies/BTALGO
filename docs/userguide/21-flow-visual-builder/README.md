@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Flow Visual Strategy Builder is OpenAlgo's node-based visual programming interface. It allows you to create trading strategies without writing code by connecting nodes in a flowchart-like canvas.
+The Flow Visual Strategy Builder is BTAlgo's node-based visual programming interface. It allows you to create trading strategies without writing code by connecting nodes in a flowchart-like canvas.
 
 ## What is the Flow Builder?
 
@@ -32,7 +32,7 @@ The Flow Visual Strategy Builder is OpenAlgo's node-based visual programming int
 
 ## Accessing the Flow Builder
 
-1. Login to OpenAlgo
+1. Login to BTAlgo
 2. Navigate to **Flow** in the sidebar
 3. Click **New Flow** or select existing
 
@@ -239,7 +239,7 @@ Configuration:
 
 Flow webhooks need to be accessible from the internet for external triggers (TradingView, ChartInk, etc.).
 
-**Recommended**: Deploy OpenAlgo on an Ubuntu server with your domain using `install.sh`:
+**Recommended**: Deploy BTAlgo on an Ubuntu server with your domain using `install.sh`:
 ```
 https://yourdomain.com/api/v1/flow/{flow-id}/webhook
 ```
@@ -257,7 +257,7 @@ See [Installation Guide](../04-installation/README.md) for detailed setup.
 ### Webhook URL Format
 
 ```
-https://your-openalgo-url/api/v1/flow/{flow-id}/webhook
+https://your-btalgo-url/api/v1/flow/{flow-id}/webhook
 ```
 
 ### TradingView Alert Message
@@ -281,7 +281,7 @@ https://your-openalgo-url/api/v1/flow/{flow-id}/webhook
 
 ## Flow Templates
 
-OpenAlgo provides pre-built templates:
+BTAlgo provides pre-built templates:
 
 | Template | Description |
 |----------|-------------|

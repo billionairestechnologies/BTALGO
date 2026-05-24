@@ -2,7 +2,7 @@
 
 ## Overview
 
-Automated CI/CD pipeline for OpenAlgo v2 providing continuous integration, security scanning, and quality gates for the Flask backend and React frontend. Designed for minimal maintenance overhead and fast developer feedback.
+Automated CI/CD pipeline for BTAlgo v2 providing continuous integration, security scanning, and quality gates for the Flask backend and React frontend. Designed for minimal maintenance overhead and fast developer feedback.
 
 ## Problem Statement
 

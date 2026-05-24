@@ -1,5 +1,5 @@
 """
-OpenAlgo WebSocket 20-Level Market Depth Example
+BTAlgo WebSocket 20-Level Market Depth Example
 For brokers that support 20-level depth (Dhan NSE/NFO)
 """
 

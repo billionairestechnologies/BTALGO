@@ -9,9 +9,9 @@ import sys
 import time
 import urllib.request
 
-API_KEY = os.environ.get("OPENALGO_API_KEY")
+API_KEY = os.environ.get("BTALGO_API_KEY")
 if not API_KEY:
-    sys.exit("Set OPENALGO_API_KEY before running this benchmark.")
+    sys.exit("Set BTALGO_API_KEY before running this benchmark.")
 URL = "http://127.0.0.1:5000/api/v1/optiongreeks"
 BASELINE = "docs/benchmarks/greeks_baseline_pyvollib.json"
 OUT = "docs/benchmarks/greeks_post_opengreeks.json"

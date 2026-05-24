@@ -147,7 +147,7 @@ def reformat_symbol(row):
         return symbol
 
     # For index instruments, use name without spaces (uppercased) and set it
-    # as both symbol and brsymbol. Index normalization to OpenAlgo's standard
+    # as both symbol and brsymbol. Index normalization to BTAlgo's standard
     # naming happens later in process_paytm_csv via INDEX_SYMBOL_MAP_*.
     elif instrument_type in ["I"]:
         symbol = "".join(row["name"].split()).upper()
@@ -190,7 +190,7 @@ def reformat_symbol(row):
 
 def _paytm_option_ce_pe(row):
     """
-    Derive the OpenAlgo option instrumenttype ("CE" or "PE") from the
+    Derive the BTAlgo option instrumenttype ("CE" or "PE") from the
     Paytm row's `name` field (e.g. "NIFTY 12 MAY 17850 CALL" -> "CE").
 
     The shared option lookup services (services/option_symbol_service.py
@@ -310,10 +310,10 @@ def process_paytm_csv(path):
     # Removing the specified columns
     token_df = df.drop(columns=columns_to_remove)
 
-    # Normalize index symbols to OpenAlgo's standard naming (see symbol_Openalgo.md).
+    # Normalize index symbols to BTAlgo's standard naming (see symbol_Openalgo.md).
     # Mapping is scoped per exchange to avoid colliding with equity symbols that
     # happen to share short BSE-index codes (e.g. AUTO, METAL, POWER, REALTY).
-    # Only Paytm names listed in OpenAlgo's standard index list are rewritten;
+    # Only Paytm names listed in BTAlgo's standard index list are rewritten;
     # unlisted indices keep their uppercased joined-name form.
     nse_index_map = {
         "NIFTYNEXT50": "NIFTYNXT50",

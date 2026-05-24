@@ -243,7 +243,7 @@ def process_dhan_csv(path):
 
     df["symbol"] = df.apply(reformat_symbol, axis=1)
 
-    # Normalize NSE_INDEX symbols: uppercase, remove spaces, only for symbols in OpenAlgo docs
+    # Normalize NSE_INDEX symbols: uppercase, remove spaces, only for symbols in BTAlgo docs
     nse_idx_mask = df["exchange"] == "NSE_INDEX"
     valid_nse_symbols = {
         "NIFTY", "NIFTYNXT50", "FINNIFTY", "BANKNIFTY", "MIDCPNIFTY", "INDIAVIX",
@@ -280,12 +280,12 @@ def process_dhan_csv(path):
             "NIFTYMID100FREE": "NIFTYMIDCAP100",
         }
     )
-    # Revert symbols not in the OpenAlgo standard set
+    # Revert symbols not in the BTAlgo standard set
     not_valid = ~df.loc[nse_idx_mask, "symbol"].isin(valid_nse_symbols)
     revert_idx = not_valid[not_valid].index
     df.loc[revert_idx, "symbol"] = original_nse.loc[revert_idx]
 
-    # Normalize BSE_INDEX symbols to OpenAlgo standard format
+    # Normalize BSE_INDEX symbols to BTAlgo standard format
     bse_idx_mask = df["exchange"] == "BSE_INDEX"
     bse_index_map = {
         "SENSEX": "SENSEX",

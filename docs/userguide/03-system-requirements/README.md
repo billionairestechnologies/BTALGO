@@ -2,7 +2,7 @@
 
 ## Introduction
 
-OpenAlgo is designed to run on modest hardware. This guide helps you understand what you need and choose the right setup for your needs.
+BTAlgo is designed to run on modest hardware. This guide helps you understand what you need and choose the right setup for your needs.
 
 ## Minimum Requirements
 
@@ -76,7 +76,7 @@ OpenAlgo is designed to run on modest hardware. This guide helps you understand 
 │     Your Windows/Mac Computer       │
 │                                     │
 │  ┌─────────────────────────────┐   │
-│  │       OpenAlgo              │   │
+│  │       BTAlgo              │   │
 │  │       Running               │   │
 │  └─────────────────────────────┘   │
 │                                     │
@@ -93,7 +93,7 @@ OpenAlgo is designed to run on modest hardware. This guide helps you understand 
 **Limitations**:
 - PC must be on during trading hours
 - Internet must be stable
-- PC restart = OpenAlgo restart
+- PC restart = BTAlgo restart
 
 ### Option 2: Cloud VPS (Recommended)
 
@@ -103,7 +103,7 @@ OpenAlgo is designed to run on modest hardware. This guide helps you understand 
 │    (AWS, DigitalOcean, etc.)        │
 │                                     │
 │  ┌─────────────────────────────┐   │
-│  │       OpenAlgo              │   │
+│  │       BTAlgo              │   │
 │  │    Running 24/7             │   │
 │  └─────────────────────────────┘   │
 │                                     │
@@ -163,7 +163,7 @@ Lower latency = Faster order execution
 
 ### Firewall & Ports
 
-OpenAlgo uses these ports:
+BTAlgo uses these ports:
 
 | Port | Purpose | Required |
 |------|---------|----------|
@@ -183,7 +183,7 @@ OpenAlgo uses these ports:
 |----------|---------|---------|
 | Python | 3.11, 3.12, 3.13, or 3.14 | Core runtime |
 | pip/uv | Latest | Package management |
-| Git | Latest | Download OpenAlgo |
+| Git | Latest | Download BTAlgo |
 | Web Browser | Chrome/Firefox | Access interface |
 
 ### For Development/Frontend

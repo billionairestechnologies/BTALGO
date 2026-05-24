@@ -16,14 +16,14 @@ def calculate_margin_api(positions, auth):
     API: POST /orders/v2/margin_required
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token (session_token) for Nubra
 
     Returns:
         Tuple of (response, response_data)
     """
     AUTH_TOKEN = auth
-    device_id = "OPENALGO"
+    device_id = "BTALGO"
 
     # Transform positions to Nubra format (this returns the full payload)
     payload_data = transform_margin_positions(positions)

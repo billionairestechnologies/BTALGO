@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo uses environment variables for configuration, managed through a `.env` file with validation at startup. For cloud deployments (Railway/Render), the `start.sh` script can auto-generate `.env` from environment variables.
+BTAlgo uses environment variables for configuration, managed through a `.env` file with validation at startup. For cloud deployments (Railway/Render), the `start.sh` script can auto-generate `.env` from environment variables.
 
 ## Configuration Files
 
@@ -54,7 +54,7 @@ VALID_BROKERS = 'fivepaisa,fivepaisaxts,aliceblue,angel,compositedge,dhan,dhan_s
 
 ```bash
 # Main database
-DATABASE_URL = 'sqlite:///db/openalgo.db'
+DATABASE_URL = 'sqlite:///db/btalgo.db'
 
 # Additional databases
 LATENCY_DATABASE_URL = 'sqlite:///db/latency.db'

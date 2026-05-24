@@ -1,8 +1,8 @@
-# OpenAlgo User Guide - Tracker
+# BTAlgo User Guide - Tracker
 
 ## About This Guide
 
-This comprehensive user guide is designed for **traders of all levels** - from complete beginners to experienced algo traders. It serves as the definitive reference for using OpenAlgo effectively.
+This comprehensive user guide is designed for **traders of all levels** - from complete beginners to experienced algo traders. It serves as the definitive reference for using BTAlgo effectively.
 
 **Target Audience**: Traders, investors, and anyone wanting to automate their trading
 
@@ -12,7 +12,7 @@ This comprehensive user guide is designed for **traders of all levels** - from c
 
 | # | Module | Status | Difficulty |
 |---|--------|--------|------------|
-| 01 | What is OpenAlgo | ✅ Complete | Beginner |
+| 01 | What is BTAlgo | ✅ Complete | Beginner |
 | 02 | Key Concepts | ✅ Complete | Beginner |
 | 03 | System Requirements | ✅ Complete | Beginner |
 | 04 | Installation Guide | ✅ Complete | Beginner |
@@ -47,7 +47,7 @@ This comprehensive user guide is designed for **traders of all levels** - from c
 ## Learning Path
 
 ### Path 1: Quick Start (New Users)
-1. What is OpenAlgo (01)
+1. What is BTAlgo (01)
 2. Installation Guide (04)
 3. First-Time Setup (05)
 4. Broker Connection (06)

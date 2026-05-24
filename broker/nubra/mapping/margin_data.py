@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Nubra Margin API
 
 from database.token_db import get_token
@@ -9,7 +9,7 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin position format to Nubra margin format.
+    Transform BTAlgo margin position format to Nubra margin format.
     
     Nubra Margin API Payload Structure:
     {
@@ -133,7 +133,7 @@ def transform_margin_positions(positions):
 
 def map_product_type(product):
     """
-    Maps OpenAlgo product type to Nubra order_delivery_type.
+    Maps BTAlgo product type to Nubra order_delivery_type.
     """
     mapping = {
         "CNC": "ORDER_DELIVERY_TYPE_CNC",
@@ -145,7 +145,7 @@ def map_product_type(product):
 
 def map_order_side(action):
     """
-    Maps OpenAlgo action to Nubra order_side.
+    Maps BTAlgo action to Nubra order_side.
     """
     mapping = {
         "BUY": "ORDER_SIDE_BUY",
@@ -156,7 +156,7 @@ def map_order_side(action):
 
 def map_price_type(pricetype):
     """
-    Maps OpenAlgo pricetype to Nubra price_type.
+    Maps BTAlgo pricetype to Nubra price_type.
     """
     mapping = {
         "MARKET": "MARKET",
@@ -169,7 +169,7 @@ def map_price_type(pricetype):
 
 def map_order_type(pricetype):
     """
-    Maps OpenAlgo pricetype to Nubra order_type.
+    Maps BTAlgo pricetype to Nubra order_type.
     """
     mapping = {
         "MARKET": "ORDER_TYPE_REGULAR",
@@ -182,7 +182,7 @@ def map_order_type(pricetype):
 
 def parse_margin_response(response_data):
     """
-    Parse Nubra margin calculator response to OpenAlgo standard format.
+    Parse Nubra margin calculator response to BTAlgo standard format.
 
     Nubra Response Example:
     {
@@ -212,7 +212,7 @@ def parse_margin_response(response_data):
         span_margin = float(response_data.get("span", 0))
         exposure_margin = float(response_data.get("exposure", 0))
         
-        # Return standardized format match OpenAlgo API specification
+        # Return standardized format match BTAlgo API specification
         return {
             "status": "success",
             "data": {

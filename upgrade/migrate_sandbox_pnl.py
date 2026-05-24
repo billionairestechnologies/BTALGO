@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Sandbox PnL Day-wise Tracking Migration Script for OpenAlgo
+Sandbox PnL Day-wise Tracking Migration Script for BTAlgo
 
 This migration adds today_realized_pnl columns to sandbox tables
 to enable proper day-wise P&L tracking that resets at session boundary.

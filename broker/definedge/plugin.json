@@ -1,10 +1,10 @@
 {
     "Plugin Name": "DefinedGe Securities",
-    "Plugin URI": "https://openalgo.in",
-    "Description": "DefinedGe Securities OpenAlgo Plugin",
+    "Plugin URI": "https://billionairestechnologies.com",
+    "Description": "DefinedGe Securities BTAlgo Plugin",
     "Version": "1.0",
-    "Author": "OpenAlgo Team",
-    "Author URI": "https://openalgo.in",
+    "Author": "BTAlgo Team",
+    "Author URI": "https://billionairestechnologies.com",
     "supported_exchanges": ["NSE", "BSE", "NFO", "BFO", "CDS", "MCX", "NSE_INDEX", "BSE_INDEX"],
     "broker_type": "IN_stock",
     "leverage_config": false

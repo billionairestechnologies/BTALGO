@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Upstox Margin API https://upstox.com/developer/api-documentation/margin
 
 from broker.upstox.mapping.transform_data import map_product_type
@@ -10,10 +10,10 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin position format to Upstox margin format.
+    Transform BTAlgo margin position format to Upstox margin format.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
 
     Returns:
         List of positions in Upstox format
@@ -89,13 +89,13 @@ def transform_margin_positions(positions):
 
 def parse_margin_response(response_data):
     """
-    Parse Upstox margin response to OpenAlgo standard format.
+    Parse Upstox margin response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from Upstox margin API
 
     Returns:
-        Standardized margin response matching OpenAlgo format
+        Standardized margin response matching BTAlgo format
     """
     try:
         if not response_data or not isinstance(response_data, dict):
@@ -132,7 +132,7 @@ def parse_margin_response(response_data):
             total_span += margin.get("span_margin", 0)
             total_exposure += margin.get("exposure_margin", 0)
 
-        # Return standardized format matching OpenAlgo API specification
+        # Return standardized format matching BTAlgo API specification
         return {
             "status": "success",
             "data": {

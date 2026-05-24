@@ -4,7 +4,7 @@
 
 ## Overview
 
-Python Strategies enables traders to run custom Python trading algorithms within OpenAlgo, with process isolation, market-aware scheduling, and comprehensive lifecycle management.
+Python Strategies enables traders to run custom Python trading algorithms within BTAlgo, with process isolation, market-aware scheduling, and comprehensive lifecycle management.
 
 ## Problem Statement
 
@@ -80,9 +80,9 @@ A subprocess-based strategy execution system that:
 ### FR6: API Integration
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| FR6.1 | OpenAlgo SDK available to strategies | P0 |
+| FR6.1 | BTAlgo SDK available to strategies | P0 |
 | FR6.2 | Environment variables for API key | P0 |
-| FR6.3 | Access to all OpenAlgo API endpoints | P0 |
+| FR6.3 | Access to all BTAlgo API endpoints | P0 |
 
 ## Non-Functional Requirements
 
@@ -102,7 +102,7 @@ A subprocess-based strategy execution system that:
 | 4GB | 2 | 512MB | 5-8 |
 | 8GB+ | 2-4 | 1024MB | 10+ |
 
-> **Note**: Thread limits (`OPENBLAS_NUM_THREADS`, etc.) prevent RLIMIT_NPROC exhaustion when using NumPy/SciPy/Numba. See [Issue #822](https://github.com/marketcalls/openalgo/issues/822).
+> **Note**: Thread limits (`OPENBLAS_NUM_THREADS`, etc.) prevent RLIMIT_NPROC exhaustion when using NumPy/SciPy/Numba. See [Issue #822](https://github.com/billionairestechnologies/btalgo/issues/822).
 
 ## Architecture
 
@@ -131,7 +131,7 @@ A subprocess-based strategy execution system that:
 │                          │                                  │
 │                          ▼                                  │
 │  ┌──────────────────────────────────────────────────────┐  │
-│  │              OpenAlgo SDK (openalgo)                   │  │
+│  │              BTAlgo SDK (btalgo)                   │  │
 │  │  • client.placesmartorder()                           │  │
 │  │  • client.history()                                   │  │
 │  │  • client.quotes()                                    │  │
@@ -151,8 +151,8 @@ import time
 from openalgo import api
 
 # Configuration
-API_KEY = os.getenv('OPENALGO_APIKEY')
-HOST = os.getenv('OPENALGO_HOST', 'http://127.0.0.1:5000')
+API_KEY = os.getenv('BTALGO_APIKEY')
+HOST = os.getenv('BTALGO_HOST', 'http://127.0.0.1:5000')
 SYMBOL = 'SBIN'
 EXCHANGE = 'NSE'
 QUANTITY = 1
@@ -271,7 +271,7 @@ strategy_configs.json (file-based)
 ## Directory Structure
 
 ```
-openalgo/
+btalgo/
 ├── strategies/
 │   ├── scripts/           # User-uploaded strategies
 │   ├── examples/          # Template strategies

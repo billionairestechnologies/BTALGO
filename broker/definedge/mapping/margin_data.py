@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Definedge Span Calculator API
 
 from broker.definedge.mapping.transform_data import map_exchange, map_product_type
@@ -10,10 +10,10 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin positions to Definedge Span Calculator format.
+    Transform BTAlgo margin positions to Definedge Span Calculator format.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
 
     Returns:
         List of positions in Definedge format
@@ -98,7 +98,7 @@ def transform_margin_positions(positions):
 
 def parse_margin_response(response_data):
     """
-    Parse Definedge margin response to OpenAlgo standard format.
+    Parse Definedge margin response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from Definedge API
@@ -127,7 +127,7 @@ def parse_margin_response(response_data):
         exposure_margin = float(response_data.get("exposure", 0))
         total_margin_required = span_margin + exposure_margin
 
-        # Return standardized OpenAlgo format
+        # Return standardized BTAlgo format
         return {
             "status": "success",
             "data": {

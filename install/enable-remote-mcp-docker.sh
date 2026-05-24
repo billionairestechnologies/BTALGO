@@ -1,10 +1,10 @@
 #!/bin/bash
 # ============================================================================
-# OpenAlgo Remote MCP enabler — Docker variant
+# BTAlgo Remote MCP enabler — Docker variant
 # ============================================================================
 # Run AFTER a successful install via install-docker.sh or
 # install-docker-multi-custom-ssl.sh. Detects Docker Compose stacks
-# under /opt/openalgo/<domain>/ (or a path you provide), edits the
+# under /opt/btalgo/<domain>/ (or a path you provide), edits the
 # bind-mounted .env, restarts the container.
 #
 # Database migrations:
@@ -14,7 +14,7 @@
 #   advantage Docker has over the native install path on upgrades.
 #
 # What this script does:
-#   1. Detect Docker Compose stacks under /opt/openalgo (default)
+#   1. Detect Docker Compose stacks under /opt/btalgo (default)
 #   2. Pick one (or run for all in batch mode)
 #   3. Backs up the per-instance .env
 #   4. Adds / updates MCP_* keys in .env
@@ -59,9 +59,9 @@ fi
 # ---------------------------------------------------------------------------
 # 1. Discover Docker Compose stacks
 # ---------------------------------------------------------------------------
-INSTALL_BASE="${INSTALL_BASE:-/opt/openalgo}"
+INSTALL_BASE="${INSTALL_BASE:-/opt/btalgo}"
 
-log "\n[1/5] Detecting OpenAlgo Docker stacks..." "$BLUE"
+log "\n[1/5] Detecting BTAlgo Docker stacks..." "$BLUE"
 log "Looking under: $INSTALL_BASE" "$YELLOW"
 
 mapfile -t STACK_DIRS < <(find "$INSTALL_BASE" -maxdepth 2 -name "docker-compose.yaml" -o -name "docker-compose.yml" 2>/dev/null \
@@ -118,7 +118,7 @@ fi
 log "\n[2/5] Public MCP URL" "$BLUE"
 
 # install-docker-multi-custom-ssl.sh names the stack directory after
-# the domain (/opt/openalgo/<domain>/), so derive the suggested
+# the domain (/opt/btalgo/<domain>/), so derive the suggested
 # public URL from the path. Fall back to HOST_SERVER in .env when the
 # layout differs.
 GUESSED_DOMAIN=$(basename "$STACK_DIR")
@@ -283,8 +283,8 @@ $(printf '%b' "${GREEN}=========================================================
     1. Point your client at $MCP_URL/mcp
     2. Complete the OAuth dance — DCR happens automatically
     3. Approve the new client at /admin/remote-mcp on the dashboard
-       (sign in to OpenAlgo first)
-    4. Sign in to OpenAlgo when prompted to authorize the requested scopes
+       (sign in to BTAlgo first)
+    4. Sign in to BTAlgo when prompted to authorize the requested scopes
 
   Order placement is OFF by default. To enable on this instance:
     sudo sed -i "s|MCP_OAUTH_WRITE_SCOPE_ENABLED.*|MCP_OAUTH_WRITE_SCOPE_ENABLED = 'True'|" $ENV_FILE

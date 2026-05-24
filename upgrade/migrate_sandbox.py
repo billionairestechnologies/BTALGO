@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Sandbox Complete Setup Migration Script for OpenAlgo
+Sandbox Complete Setup Migration Script for BTAlgo
 
 This migration ensures the complete sandbox/analyzer mode setup:
 - Creates all sandbox tables if they don't exist

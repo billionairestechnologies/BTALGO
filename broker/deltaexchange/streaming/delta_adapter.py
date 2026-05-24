@@ -1,6 +1,6 @@
 """
 delta_adapter.py
-OpenAlgo WebSocket adapter for Delta Exchange.
+BTAlgo WebSocket adapter for Delta Exchange.
 
 Channels used:
   v2/ticker    — real-time OHLCV + mark_price + OI + best bid/ask
@@ -69,7 +69,7 @@ class DeltaWebSocketAdapter(BaseBrokerWebSocketAdapter):
             api_key    = auth_data.get("api_key") or auth_data.get("access_token", "")
             api_secret = auth_data.get("api_secret", "")
         else:
-            # OpenAlgo stores the api_key as the auth token
+            # BTAlgo stores the api_key as the auth token
             api_key    = get_auth_token(user_id) or ""
             api_secret = os.getenv("BROKER_API_SECRET", "")
 
@@ -293,7 +293,7 @@ class DeltaWebSocketAdapter(BaseBrokerWebSocketAdapter):
             if not br_symbol:
                 return
 
-            # Find ALL OpenAlgo subscriptions matching this broker symbol + channel.
+            # Find ALL BTAlgo subscriptions matching this broker symbol + channel.
             # Multiple modes (e.g. 1=LTP and 2=Quote) can share the same v2/ticker
             # channel, so we must fan out to every subscriber.
             subscriptions = self._find_subscriptions_by_br_symbol(br_symbol, msg_type)
@@ -356,7 +356,7 @@ class DeltaWebSocketAdapter(BaseBrokerWebSocketAdapter):
         """Normalise and publish an account-level private event.
 
         Private events are published on a fixed per-type topic so that any
-        OpenAlgo service can subscribe to them via ZeroMQ:
+        BTAlgo service can subscribe to them via ZeroMQ:
 
           Topic pattern: ``deltaexchange_{event_type}``
           Examples:      ``deltaexchange_orders``, ``deltaexchange_positions``,
@@ -376,7 +376,7 @@ class DeltaWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
     def _normalise_ticker(self, msg: dict, cache_key: str) -> dict:
         """
-        Map v2/ticker fields to OpenAlgo market data format.
+        Map v2/ticker fields to BTAlgo market data format.
 
         Field mapping:
             ltp        ← mark_price  (string)
@@ -439,7 +439,7 @@ class DeltaWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
     def _normalise_l2_orderbook(self, msg: dict, cache_key: str) -> dict:
         """
-        Map l2_orderbook message to OpenAlgo depth format.
+        Map l2_orderbook message to BTAlgo depth format.
 
         Delta l2_orderbook levels:
           buy/sell: [{"limit_price": str, "size": int, "depth": str}, ...]

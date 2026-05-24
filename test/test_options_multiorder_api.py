@@ -8,17 +8,17 @@ Works in both:
 - Live Mode: Places real orders with the broker
 - Analyze Mode (Sandbox): Places sandbox orders for testing
 
-Make sure the OpenAlgo application is running before executing this script.
+Make sure the BTAlgo application is running before executing this script.
 
 Usage:
-    cd D:/openalgo-class/openalgo/test
+    cd D:/btalgo-class/btalgo/test
     python test_options_multiorder_api.py
 """
 
 import os
 import sys
 
-# Add parent directory to path so we can import from openalgo modules if needed
+# Add parent directory to path so we can import from btalgo modules if needed
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
@@ -502,7 +502,7 @@ def test_calendar_spread():
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("OpenAlgo Options Multi-Order API Test Suite")
+    print("BTAlgo Options Multi-Order API Test Suite")
     print("=" * 60)
     print(f"\nBase URL: {BASE_URL}")
     print(f"API Key: {API_KEY[:10]}..." if len(API_KEY) > 10 else f"API Key: {API_KEY}")

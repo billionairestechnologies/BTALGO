@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Universal SMTP Migration for OpenAlgo - With Automatic Path Resolution
+Universal SMTP Migration for BTAlgo - With Automatic Path Resolution
 
-This script adds SMTP configuration columns to the OpenAlgo database.
+This script adds SMTP configuration columns to the BTAlgo database.
 Automatically resolves database paths regardless of where it's run from.
 
 Usage (run from anywhere):
@@ -340,7 +340,7 @@ Examples:
     logger = setup_logging(args.verbose)
     use_emoji = not args.no_emoji
 
-    safe_print("🚀 OpenAlgo SMTP Migration (Universal Path Version)", use_emoji)
+    safe_print("🚀 BTAlgo SMTP Migration (Universal Path Version)", use_emoji)
     safe_print("=" * 50, False)
     safe_print(f"Python: {sys.version}", False)
     safe_print(f"Platform: {sys.platform}", False)
@@ -378,7 +378,7 @@ Examples:
             if verify_smtp_columns():
                 safe_print("\n🎉 SMTP migration completed successfully!", use_emoji)
                 safe_print("\nNext steps:", False)
-                safe_print("1. Restart your OpenAlgo application", False)
+                safe_print("1. Restart your BTAlgo application", False)
                 safe_print("2. Go to Profile → SMTP Configuration", False)
                 safe_print("3. Configure your email settings", False)
                 safe_print("4. Test your configuration", False)

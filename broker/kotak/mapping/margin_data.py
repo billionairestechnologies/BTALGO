@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Kotak Neo Margin API
 
 from broker.kotak.mapping.transform_data import (
@@ -14,12 +14,12 @@ logger = get_logger(__name__)
 
 def transform_margin_position(position):
     """
-    Transform a single OpenAlgo margin position to Kotak margin format.
+    Transform a single BTAlgo margin position to Kotak margin format.
 
     Note: Kotak margin API accepts only one order at a time, not a batch.
 
     Args:
-        position: Position in OpenAlgo format
+        position: Position in BTAlgo format
 
     Returns:
         Dict in Kotak margin format or None if transformation fails
@@ -65,7 +65,7 @@ def transform_margin_position(position):
 
 def parse_margin_response(response_data):
     """
-    Parse Kotak margin response to OpenAlgo standard format.
+    Parse Kotak margin response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from Kotak API
@@ -86,7 +86,7 @@ def parse_margin_response(response_data):
         # Kotak returns: avlMrgn, reqdMrgn, ordMrgn, mrgnUsd, rmsVldtd, etc.
         total_margin_required = float(response_data.get("reqdMrgn", 0))
 
-        # Return standardized format matching OpenAlgo API specification
+        # Return standardized format matching BTAlgo API specification
         return {
             "status": "success",
             "data": {
@@ -119,7 +119,7 @@ def parse_batch_margin_response(responses):
                 data = response.get("data", {})
                 total_required_margin += data.get("total_margin_required", 0)
 
-        # Return standardized format matching OpenAlgo API specification
+        # Return standardized format matching BTAlgo API specification
         return {
             "status": "success",
             "data": {

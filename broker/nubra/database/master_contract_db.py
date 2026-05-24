@@ -92,7 +92,7 @@ def download_nubra_instruments(output_path):
 
     headers = {
         'Authorization': f'Bearer {auth_token}',
-        'x-device-id': 'OPENALGO'
+        'x-device-id': 'BTALGO'
     }
 
     all_data = []
@@ -122,14 +122,14 @@ def download_nubra_instruments(output_path):
 def process_nubra_json(path):
     """
     Processes the Nubra JSON file to fit the existing database schema
-    and converts it into OpenAlgo master contract format.
+    and converts it into BTAlgo master contract format.
 
     Rules:
     - NSE + non-STOCK  -> exchange = NFO, brexchange = NSE
     - BSE + non-STOCK  -> exchange = BFO, brexchange = BSE
     - STOCK instruments keep their original exchange
     - Expiry column remains in DB as DD-MMM-YY
-    - Symbol format follows OpenAlgo F&O spec:
+    - Symbol format follows BTAlgo F&O spec:
         FUT : [BASE][DDMMMYY]FUT
         OPT : [BASE][DDMMMYY][STRIKE][CE/PE]
     """
@@ -147,7 +147,7 @@ def process_nubra_json(path):
     # Preserve broker exchange
     df['brexchange'] = df['exchange']
 
-    # OpenAlgo exchange mapping
+    # BTAlgo exchange mapping
     df['exchange'] = df.apply(
         lambda r: (
             'NFO' if (r['exchange'] == 'NSE' and r['derivative_type'] != 'STOCK')
@@ -188,7 +188,7 @@ def process_nubra_json(path):
     # Strike price (options)
     df['strike'] = df.get('strike_price', 0).fillna(0).astype(float) / 100
 
-    # ---------------- Symbol Construction (OpenAlgo format) ----------------
+    # ---------------- Symbol Construction (BTAlgo format) ----------------
 
     valid_expiry = df['expiry'].notna()
 
@@ -250,7 +250,7 @@ def download_nubra_indexes(output_path):
 
 def process_nubra_indexes(path):
     """
-    Processes the Nubra index CSV file to fit the OpenAlgo database schema.
+    Processes the Nubra index CSV file to fit the BTAlgo database schema.
     
     CSV Structure from Nubra API:
     - EXCHANGE: NSE or BSE
@@ -258,11 +258,11 @@ def process_nubra_indexes(path):
     - ZANSKAR_INDEX_SYMBOL: Zanskar's internal symbol (preserved as brsymbol)
     - INDEX_NAME: Full index name (e.g., "Nifty 50", "Nifty Bank")
     
-    Output format follows OpenAlgo convention:
+    Output format follows BTAlgo convention:
     - exchange = NSE_INDEX or BSE_INDEX
     - brexchange = NSE or BSE (original exchange)
     - instrumenttype = 'INDEX'
-    - symbol = Standardized OpenAlgo format (NIFTY, BANKNIFTY, SENSEX, etc.)
+    - symbol = Standardized BTAlgo format (NIFTY, BANKNIFTY, SENSEX, etc.)
     - brsymbol = ZANSKAR_INDEX_SYMBOL (original broker symbol)
     - token = ZANSKAR_INDEX_SYMBOL
     
@@ -271,7 +271,7 @@ def process_nubra_indexes(path):
     """
     df = pd.read_csv(path)
     
-    # Map CSV columns to OpenAlgo database schema
+    # Map CSV columns to BTAlgo database schema
     df = df.rename(columns={
         'EXCHANGE': 'brexchange',
         'INDEX_SYMBOL': 'symbol',
@@ -282,7 +282,7 @@ def process_nubra_indexes(path):
     # Use broker symbol as token
     df['token'] = df['brsymbol'].astype(str)
     
-    # Map to OpenAlgo index exchange format
+    # Map to BTAlgo index exchange format
     # NSE indexes → NSE_INDEX, BSE indexes → BSE_INDEX
     df['exchange'] = df['brexchange'].apply(
         lambda x: (
@@ -292,9 +292,9 @@ def process_nubra_indexes(path):
         )
     )
     
-    # Common Index Symbol Formats - map Nubra INDEX_SYMBOL to OpenAlgo standard
-    # Reference: OpenAlgo symbols.md
-    nubra_to_openalgo_index = {
+    # Common Index Symbol Formats - map Nubra INDEX_SYMBOL to BTAlgo standard
+    # Reference: BTAlgo symbols.md
+    nubra_to_btalgo_index = {
         # ---- NSE Indexes ----
         'INDIA_VIX': 'INDIAVIX',
         'NIFTYALPHA': 'NIFTYALPHA50',
@@ -362,7 +362,7 @@ def process_nubra_indexes(path):
         'TECK': 'BSETECK',
         'TELCOM': 'BSETELECOM',
     }
-    df['symbol'] = df['symbol'].replace(nubra_to_openalgo_index)
+    df['symbol'] = df['symbol'].replace(nubra_to_btalgo_index)
     
     # Index-specific fields
     df['instrumenttype'] = 'INDEX'

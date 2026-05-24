@@ -7,7 +7,7 @@ for all brokers WITHOUT needing live broker connections.
 We mock get_positions() and place_order_api() to test the logic in isolation.
 
 Usage:
-    cd /Users/openalgo/openalgo-test/openalgo
+    cd /Users/btalgo/btalgo-test/btalgo
     uv run pytest test/test_smartorder_logic.py -v
 """
 
@@ -20,7 +20,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # ---------------------------------------------------------------------------
-# Test data: the OpenAlgo SmartOrder spec table
+# Test data: the BTAlgo SmartOrder spec table
 # ---------------------------------------------------------------------------
 # (action, qty, position_size, current_position) -> expected (action, quantity) or "no_action"
 SPEC_TABLE = [
@@ -73,7 +73,7 @@ def compute_smart_order_action(action, quantity, position_size, current_position
 
 
 class TestSmartOrderPositionLogic:
-    """Test the position calculation logic against the OpenAlgo spec table."""
+    """Test the position calculation logic against the BTAlgo spec table."""
 
     @pytest.mark.parametrize(
         "action,qty,pos_size,current_pos,expected_action,expected_qty,desc",

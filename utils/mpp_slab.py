@@ -1,7 +1,7 @@
 # Market Price Protection (MPP) Slab Configuration
 # Reference: https://support.zerodha.com/category/trading-and-markets/charts-and-orders/order/articles/market-price-protection-on-the-order-window
 #
-# This module provides centralized Market Price Protection functionality for OpenAlgo.
+# This module provides centralized Market Price Protection functionality for BTAlgo.
 # When brokers stop supporting market orders, this converts MARKET orders to LIMIT orders
 # with a price buffer based on configurable protection percentages.
 

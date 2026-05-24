@@ -8,7 +8,7 @@
 
 ## 1. Problem Statement
 
-Currently, OpenAlgo strategies (Webhook and Chartink) have no local order/position tracking — everything is delegated to broker APIs. There is no strategy-level stoploss, target, or trailing stop. A trader running multiple strategies on the same symbol has no way to manage or view positions per strategy. All exits rely on `placesmartorder(position_size=0)` which closes ALL positions for a symbol across the entire account, not just the strategy's position.
+Currently, BTAlgo strategies (Webhook and Chartink) have no local order/position tracking — everything is delegated to broker APIs. There is no strategy-level stoploss, target, or trailing stop. A trader running multiple strategies on the same symbol has no way to manage or view positions per strategy. All exits rely on `placesmartorder(position_size=0)` which closes ALL positions for a symbol across the entire account, not just the strategy's position.
 
 ### What's Missing
 
@@ -121,7 +121,7 @@ Currently, OpenAlgo strategies (Webhook and Chartink) have no local order/positi
 
 ## 5. Database Schema
 
-All tables stored in `db/openalgo.db` for persistence across restarts.
+All tables stored in `db/btalgo.db` for persistence across restarts.
 
 ### 5.1 Strategy Table Additions (Existing)
 
@@ -2004,7 +2004,7 @@ Same changes as strategy webhook — identical pattern.
 
 ### 17.1 SQLite Concurrency Safeguards
 
-The risk engine, OrderStatusPoller, Flask request threads (webhooks, dashboard API, manual close), and APScheduler all write to `db/openalgo.db` concurrently. SQLite requires explicit configuration for safe multi-threaded access.
+The risk engine, OrderStatusPoller, Flask request threads (webhooks, dashboard API, manual close), and APScheduler all write to `db/btalgo.db` concurrently. SQLite requires explicit configuration for safe multi-threaded access.
 
 **Required PRAGMA settings** (set on engine creation in `database/strategy_position_db.py`):
 
@@ -2178,7 +2178,7 @@ All risk parameters are optional. A strategy with no SL/target/trailing configur
 
 ## 19. Database Migration
 
-Migration follows the existing OpenAlgo pattern: standalone idempotent scripts in `upgrade/`, registered in `migrate_all.py`, run via `uv run upgrade/migrate_all.py`.
+Migration follows the existing BTAlgo pattern: standalone idempotent scripts in `upgrade/`, registered in `migrate_all.py`, run via `uv run upgrade/migrate_all.py`.
 
 ### 19.1 New Migration Script: `upgrade/migrate_strategy_risk.py`
 
@@ -2187,7 +2187,7 @@ Follows the same conventions as `migrate_sandbox.py`:
 ```python
 #!/usr/bin/env python
 """
-Strategy Risk Management Migration Script for OpenAlgo
+Strategy Risk Management Migration Script for BTAlgo
 
 Creates new tables for strategy-level risk management, position tracking,
 and order tracking. Adds risk columns to existing Strategy/ChartinkStrategy
@@ -2210,7 +2210,7 @@ MIGRATION_VERSION = "001"
 ```python
 def upgrade():
     """Apply complete strategy risk setup."""
-    engine = get_main_db_engine()         # db/openalgo.db
+    engine = get_main_db_engine()         # db/btalgo.db
     with engine.connect() as conn:
         set_sqlite_pragmas(conn)          # WAL mode, busy_timeout
         create_new_tables(conn)           # strategy_order, strategy_position, etc.
@@ -2229,7 +2229,7 @@ def rollback():
 
 ### 19.2 New Tables (CREATE TABLE IF NOT EXISTS)
 
-All in `db/openalgo.db`:
+All in `db/btalgo.db`:
 
 - `strategy_order` (Section 5.3) — order tracking per strategy
 - `strategy_position` (Section 5.4) — live + historical positions, partial index on active

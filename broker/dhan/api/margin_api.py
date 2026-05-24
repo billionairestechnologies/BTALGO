@@ -19,7 +19,7 @@ def get_client_id(api_key=None):
     Get Dhan client ID from BROKER_API_KEY or database.
 
     Args:
-        api_key: OpenAlgo API key (optional)
+        api_key: BTAlgo API key (optional)
 
     Returns:
         Client ID string or None
@@ -105,7 +105,7 @@ def calculate_single_margin(position_data, auth, client_id):
         standardized_response = parse_margin_response(response_data)
 
         # Log the standardized response
-        logger.info("STANDARDIZED OPENALGO RESPONSE")
+        logger.info("STANDARDIZED BTALGO RESPONSE")
         logger.info("=" * 80)
         logger.info(f"Standardized Response: {json.dumps(standardized_response, indent=2)}")
         logger.info("=" * 80)
@@ -138,12 +138,12 @@ def calculate_margin_api(positions, auth, api_key=None):
     - Spread benefits (hedge/combo margin benefits)
     - Portfolio-level optimizations
 
-    This limitation is due to Dhan API design, not OpenAlgo.
+    This limitation is due to Dhan API design, not BTAlgo.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for Dhan
-        api_key: OpenAlgo API key (optional, for client ID lookup)
+        api_key: BTAlgo API key (optional, for client ID lookup)
 
     Returns:
         Tuple of (response, response_data)

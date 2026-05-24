@@ -1,5 +1,5 @@
 """
-OpenAlgo WebSocket LTP Example - 1800 Symbols Test
+BTAlgo WebSocket LTP Example - 1800 Symbols Test
 Tests LTP data streaming for 1800+ symbols from CSV file including exchange info
 """
 
@@ -12,14 +12,14 @@ import time
 from collections import defaultdict
 from datetime import datetime
 
-# Add parent directory to path to import openalgo
+# Add parent directory to path to import btalgo
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 try:
     from openalgo import api
 except ImportError:
-    print("Error: Could not import openalgo. Make sure you're running from the correct directory.")
+    print("Error: Could not import btalgo. Make sure you're running from the correct directory.")
     sys.exit(1)
 
 
@@ -112,7 +112,7 @@ def load_symbols(limit=1800):
 
 
 def main():
-    print("OpenAlgo WebSocket LTP Example - 1800 Symbols Test")
+    print("BTAlgo WebSocket LTP Example - 1800 Symbols Test")
     print("=" * 60)
 
     # Initialize the API client

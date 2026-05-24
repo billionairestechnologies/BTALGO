@@ -2,12 +2,12 @@
 
 ## Overview
 
-This assessment reviews file handling in OpenAlgo for security considerations.
+This assessment reviews file handling in BTAlgo for security considerations.
 
 **Risk Level**: Low
 **Status**: Acceptable
 
-## File Operations in OpenAlgo
+## File Operations in BTAlgo
 
 ### User-Controlled File Operations
 
@@ -19,7 +19,7 @@ This assessment reviews file handling in OpenAlgo for security considerations.
 
 ### Key Finding
 
-**Limited file operations**: OpenAlgo has minimal file upload functionality, reducing attack surface.
+**Limited file operations**: BTAlgo has minimal file upload functionality, reducing attack surface.
 
 ## CSV Upload Analysis
 
@@ -77,7 +77,7 @@ finally:
 
 **Configuration** (`.env`):
 ```bash
-DATABASE_URL=sqlite:///db/openalgo.db
+DATABASE_URL=sqlite:///db/btalgo.db
 ```
 
 **Protection**:
@@ -95,7 +95,7 @@ DATABASE_URL=sqlite:///db/openalgo.db
 
 **Configuration**:
 ```python
-LOG_PATH = os.path.join(BASE_DIR, 'logs', 'openalgo.log')
+LOG_PATH = os.path.join(BASE_DIR, 'logs', 'btalgo.log')
 ```
 
 **Protection**:
@@ -110,7 +110,7 @@ Located in `db/` directory:
 
 | File | Content | Sensitivity |
 |------|---------|-------------|
-| `openalgo.db` | User data, orders | High |
+| `btalgo.db` | User data, orders | High |
 | `logs.db` | API logs | Medium |
 | `sandbox.db` | Sandbox trading | Low |
 | `latency.db` | Performance | Low |
@@ -143,10 +143,10 @@ This protects all files if device is lost/stolen.
 ### What to Back Up
 
 ```
-openalgo/
+btalgo/
 ├── .env              # CRITICAL - encryption keys
 ├── db/               # Trading data
-│   ├── openalgo.db
+│   ├── btalgo.db
 │   ├── logs.db
 │   └── ...
 └── logs/             # Optional - for troubleshooting
@@ -185,7 +185,7 @@ On shared systems, `/tmp` is world-readable. For single-user systems:
 
 ## What's Not a Concern
 
-For single-user OpenAlgo:
+For single-user BTAlgo:
 
 | Issue | Why Not Applicable |
 |-------|-------------------|
@@ -219,7 +219,7 @@ For single-user OpenAlgo:
 
 ## Summary
 
-File handling in OpenAlgo is **secure for single-user deployment**:
+File handling in BTAlgo is **secure for single-user deployment**:
 
 - Minimal file operations
 - No user-controlled paths

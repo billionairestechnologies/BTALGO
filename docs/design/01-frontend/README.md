@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo features a modern React 19 Single Page Application (SPA) built with TypeScript, Vite, and Tailwind CSS 4. The frontend provides a responsive trading interface with real-time market data, visual workflow automation, and comprehensive strategy management.
+BTAlgo features a modern React 19 Single Page Application (SPA) built with TypeScript, Vite, and Tailwind CSS 4. The frontend provides a responsive trading interface with real-time market data, visual workflow automation, and comprehensive strategy management.
 
 ## Technology Stack
 

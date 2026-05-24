@@ -59,7 +59,7 @@ PEPPER = _pepper_value
 #      production path. utils/env_check.py auto-provisions it on first boot
 #      (and migrates existing ciphertext) so by the time this module imports,
 #      the env var is set.
-#   2. The legacy hardcoded literal b"openalgo_static_salt". This is the
+#   2. The legacy hardcoded literal b"btalgo_static_salt". This is the
 #      fallback for one-off scripts that import auth_db directly without
 #      going through the env_check bootstrap (CLI utilities, ad-hoc REPL,
 #      docs/typecheck runs). A one-time stderr warning fires so the operator
@@ -80,7 +80,7 @@ def _resolve_fernet_salt() -> bytes:
             "auto-provisions a per-install salt.\n"
         )
         _resolve_fernet_salt._warned = True  # type: ignore[attr-defined]
-    return b"openalgo_static_salt"
+    return b"btalgo_static_salt"
 
 
 def get_encryption_key():

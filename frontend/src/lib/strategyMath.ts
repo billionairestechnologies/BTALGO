@@ -45,7 +45,7 @@ export interface StrategyLeg {
   side: Side
   lots: number
   lotSize: number
-  expiry: string // OpenAlgo format, e.g. 28APR26
+  expiry: string // BTAlgo format, e.g. 28APR26
   strike?: number // required for options
   optionType?: OptionType // required for options
   /** Live / entry premium (per share, not per lot). 0 if unknown. */
@@ -516,7 +516,7 @@ export function daysToYears(days: number): number {
   return Math.max(0, days) / 365
 }
 
-/** Format symbol per OpenAlgo standard: BASE[DDMMMYY][STRIKE][CE|PE]. */
+/** Format symbol per BTAlgo standard: BASE[DDMMMYY][STRIKE][CE|PE]. */
 export function buildOptionSymbol(
   base: string,
   expiry: string,

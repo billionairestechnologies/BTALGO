@@ -402,11 +402,11 @@ When a strategy runs, these environment variables are available:
 
 | Variable | Description |
 |----------|-------------|
-| `OPENALGO_APIKEY` | API key for OpenAlgo requests |
-| `OPENALGO_HOST` | OpenAlgo server URL |
+| `BTALGO_APIKEY` | API key for BTAlgo requests |
+| `BTALGO_HOST` | BTAlgo server URL |
 | `PYTHONUNBUFFERED` | Set to '1' for real-time output |
 
-### Using OpenAlgo SDK in Strategy
+### Using BTAlgo SDK in Strategy
 
 ```python
 #!/usr/bin/env python
@@ -414,8 +414,8 @@ import os
 from openalgo import api
 
 # Get credentials from environment
-API_KEY = os.getenv('OPENALGO_APIKEY')
-HOST = os.getenv('OPENALGO_HOST', 'http://127.0.0.1:5000')
+API_KEY = os.getenv('BTALGO_APIKEY')
+HOST = os.getenv('BTALGO_HOST', 'http://127.0.0.1:5000')
 
 # Initialize client
 client = api(api_key=API_KEY, host=HOST)

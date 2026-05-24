@@ -23,7 +23,7 @@ Clients need:
 
 A proxy server that:
 - Connects to broker-specific WebSocket APIs
-- Normalizes data to OpenAlgo format
+- Normalizes data to BTAlgo format
 - Uses ZeroMQ for high-performance internal messaging
 - Supports connection pooling for scale
 

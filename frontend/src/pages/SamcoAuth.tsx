@@ -659,7 +659,7 @@ export default function SamcoAuth() {
                   Back to Broker Selection
                 </Link>
                 <a
-                  href="https://docs.openalgo.in"
+                  href="https://docs.billionairestechnologies.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline inline-flex items-center gap-1"

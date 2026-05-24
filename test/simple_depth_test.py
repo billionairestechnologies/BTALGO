@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 class SimpleFeed:
-    """A simplified wrapper around the OpenAlgo WebSocket client for Market Depth data"""
+    """A simplified wrapper around the BTAlgo WebSocket client for Market Depth data"""
 
     def __init__(self, host: str = "localhost", port: int = 8765, api_key: str | None = None):
         """
@@ -370,7 +370,7 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    print("OpenAlgo Simple Market Depth Feed Test")
+    print("BTAlgo Simple Market Depth Feed Test")
 
     api_key = os.getenv("API_KEY")
     if not api_key:

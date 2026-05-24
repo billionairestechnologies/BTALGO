@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo implements a unified WebSocket proxy server that handles real-time market data streaming from 29 brokers. The architecture uses ZeroMQ for high-performance internal messaging and supports connection pooling for handling thousands of symbol subscriptions.
+BTAlgo implements a unified WebSocket proxy server that handles real-time market data streaming from 29 brokers. The architecture uses ZeroMQ for high-performance internal messaging and supports connection pooling for handling thousands of symbol subscriptions.
 
 ## Architecture Diagram
 
@@ -248,7 +248,7 @@ Broker API            Broker Adapter          ZeroMQ             Proxy          
     ├─────────────────────►│                    │                  │                  │
     │                      │                    │                  │                  │
     │                      │  2. Normalize to   │                  │                  │
-    │                      │     OpenAlgo format│                  │                  │
+    │                      │     BTAlgo format│                  │                  │
     │                      │                    │                  │                  │
     │                      │  3. Publish        │                  │                  │
     │                      ├───────────────────►│                  │                  │

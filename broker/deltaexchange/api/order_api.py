@@ -25,7 +25,7 @@ def get_api_response(endpoint, auth, method="GET", payload="", params=None):
 
     Args:
         endpoint: API path, e.g. "/v2/orders"
-        auth:     api_key (BROKER_API_KEY stored in OpenAlgo DB after login)
+        auth:     api_key (BROKER_API_KEY stored in BTAlgo DB after login)
         method:   HTTP method (GET, POST, PUT, DELETE)
         payload:  JSON body string for POST/PUT/DELETE requests (pass "" for GET)
         params:   Dict of query parameters (GET only)
@@ -238,7 +238,7 @@ def get_positions(auth):
     Derivatives come from GET /v2/positions/margined.
     Spot holdings come from GET /v2/wallet/balances — non-INR assets with
     a non-zero balance are synthesised into position-like dicts so they
-    appear in the OpenAlgo position book alongside derivative positions.
+    appear in the BTAlgo position book alongside derivative positions.
     """
     positions = []
 
@@ -686,7 +686,7 @@ def close_all_positions(current_api_key, auth):
         action = "SELL" if size > 0 else "BUY"
         quantity = abs(size)
 
-        # Resolve OpenAlgo symbol from DB.
+        # Resolve BTAlgo symbol from DB.
         # For spot wallet entries, product_id is asset_id (not product token),
         # so look up by brsymbol instead.
         if is_spot:

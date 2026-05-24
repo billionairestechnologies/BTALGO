@@ -45,7 +45,7 @@ def authenticate_broker(otp_token, otp, api_secret=None):
         if not api_session_key:
             return None, None, None, "Failed to get API session key"
 
-        # Return auth string in format expected by OpenAlgo
+        # Return auth string in format expected by BTAlgo
         auth_string = f"{api_session_key}:::{susertoken or ''}:::{api_token}"
         feed_token = susertoken  # susertoken is used as feed_token for websocket
 

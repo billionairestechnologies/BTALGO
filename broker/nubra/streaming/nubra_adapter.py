@@ -1,5 +1,5 @@
 """
-Nubra WebSocket streaming adapter for OpenAlgo.
+Nubra WebSocket streaming adapter for BTAlgo.
 
 Extends BaseBrokerWebSocketAdapter to provide real-time market data
 from Nubra's WebSocket API via ZeroMQ.
@@ -15,7 +15,7 @@ Channel strategy (per Nubra API docs):
 
 Data Flow:
     Nubra WS -> NubraWebSocket (protobuf decode) -> callback override
-      -> nubra_adapter.py (transform to OpenAlgo format)
+      -> nubra_adapter.py (transform to BTAlgo format)
       -> BaseBrokerWebSocketAdapter.publish_market_data(topic, data)
       -> ZeroMQ -> websocket_proxy/server.py -> WebSocket clients
 """
@@ -655,7 +655,7 @@ class NubraWebSocketAdapter(BaseBrokerWebSocketAdapter):
         Handle incoming index data from Nubra WebSocket.
 
         This callback fires for BOTH index and instrument symbols subscribed
-        via the index channel. Transforms to OpenAlgo format and publishes
+        via the index channel. Transforms to BTAlgo format and publishes
         to ZMQ topic: {exchange}_{symbol}_{LTP|QUOTE}
         """
         try:
@@ -772,7 +772,7 @@ class NubraWebSocketAdapter(BaseBrokerWebSocketAdapter):
         Handle incoming orderbook data from Nubra WebSocket.
 
         This callback fires for instruments subscribed via the orderbook
-        channel (mode 3 / Depth). Transforms to OpenAlgo format and publishes
+        channel (mode 3 / Depth). Transforms to BTAlgo format and publishes
         to ZMQ topic: {exchange}_{symbol}_DEPTH
         """
         try:

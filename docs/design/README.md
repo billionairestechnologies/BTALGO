@@ -1,10 +1,10 @@
-# OpenAlgo Developer Documentation
+# BTAlgo Developer Documentation
 
-Welcome to the OpenAlgo Developer Bible - a comprehensive guide for understanding and working with the OpenAlgo algorithmic trading platform.
+Welcome to the BTAlgo Developer Bible - a comprehensive guide for understanding and working with the BTAlgo algorithmic trading platform.
 
-## What is OpenAlgo?
+## What is BTAlgo?
 
-OpenAlgo is a production-ready algorithmic trading platform built with Flask (backend) and React 19 (frontend). It provides a unified API layer across 29 Indian brokers, enabling seamless integration with TradingView, Amibroker, Excel, Python, and AI agents.
+BTAlgo is a production-ready algorithmic trading platform built with Flask (backend) and React 19 (frontend). It provides a unified API layer across 29 Indian brokers, enabling seamless integration with TradingView, Amibroker, Excel, Python, and AI agents.
 
 ## Documentation Index
 

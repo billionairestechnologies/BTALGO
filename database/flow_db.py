@@ -55,7 +55,7 @@ def generate_webhook_secret():
 
 
 def get_workflow_api_key(workflow):
-    """Decrypt and return a workflow's stored OpenAlgo API key.
+    """Decrypt and return a workflow's stored BTAlgo API key.
 
     The api_key column transitioned from plaintext to Fernet-encrypted
     (auth_db Fernet, PBKDF2 over API_KEY_PEPPER). Pre-migration plaintext

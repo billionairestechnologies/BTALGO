@@ -7,7 +7,7 @@
 ## What this gets you
 
 Once enabled, hosted AI clients (claude.ai, chatgpt.com, claude mobile)
-can connect to your OpenAlgo install over HTTPS using OAuth 2.1 with
+can connect to your BTAlgo install over HTTPS using OAuth 2.1 with
 PKCE. Tools the user authorizes become callable from those clients.
 
 The local stdio MCP (`mcp/mcpserver.py` launched by Claude Desktop /
@@ -25,7 +25,7 @@ model.
 | Your install came from | Use this enabler |
 |---|---|
 | `install/install.sh` (native Ubuntu, single domain) | `sudo ./install/enable-remote-mcp.sh` |
-| `install/install-multi.sh` (native Ubuntu, multiple domains) | `sudo ./install/enable-remote-mcp.sh` — the helper detects all `openalgo-*` services and asks which one |
+| `install/install-multi.sh` (native Ubuntu, multiple domains) | `sudo ./install/enable-remote-mcp.sh` — the helper detects all `btalgo-*` services and asks which one |
 | `install/install-docker.sh` (single Docker stack) | `sudo ./install/enable-remote-mcp-docker.sh` |
 | `install/install-docker-multi-custom-ssl.sh` (multi-instance Docker) | `sudo ./install/enable-remote-mcp-docker.sh` — re-run for each domain you want to enable |
 
@@ -37,7 +37,7 @@ recipe.
 ## Mode 1 — Same-domain (recommended for most users)
 
 This is the path the helper scripts automate. The MCP and OAuth
-endpoints live under your existing OpenAlgo dashboard hostname, e.g.
+endpoints live under your existing BTAlgo dashboard hostname, e.g.
 `https://yourdomain.com/mcp`.
 
 **No nginx changes are needed.** The existing `location /` block in
@@ -49,14 +49,14 @@ same proxy.
 
 ```bash
 # After install/install.sh (or install-multi.sh) has completed and
-# your dashboard is reachable, run this from the openalgo project
+# your dashboard is reachable, run this from the btalgo project
 # root:
 sudo ./install/enable-remote-mcp.sh
 ```
 
 The script:
 
-1. Detects the existing `openalgo-*` systemd service
+1. Detects the existing `btalgo-*` systemd service
 2. Reads your `.env` to suggest the right public URL
 3. Refuses if `FLASK_DEBUG=True` (token leak risk)
 4. Backs up your `.env`, then sets:
@@ -74,13 +74,13 @@ The script:
 ### Steps for Docker installs (`install-docker.sh`, `install-docker-multi-custom-ssl.sh`)
 
 ```bash
-# After your container(s) are running, from the openalgo project root:
+# After your container(s) are running, from the btalgo project root:
 sudo ./install/enable-remote-mcp-docker.sh
 ```
 
 The script:
 
-1. Discovers Compose stacks under `/opt/openalgo/<domain>/`
+1. Discovers Compose stacks under `/opt/btalgo/<domain>/`
    (override with `INSTALL_BASE=/your/path` if you installed elsewhere)
 2. Picks one if multiple exist (re-run for each instance)
 3. Refuses if `FLASK_DEBUG=True` is set in the bind-mounted `.env`
@@ -106,7 +106,7 @@ MCP_OAUTH_WRITE_SCOPE_ENABLED = 'False'
 MCP_HTTP_CORS_ORIGINS = 'https://claude.ai,https://chatgpt.com'
 ```
 
-Then `cd /opt/openalgo/<domain> && docker compose restart`.
+Then `cd /opt/btalgo/<domain> && docker compose restart`.
 
 ### Steps for fresh installs
 
@@ -184,22 +184,22 @@ This is **not** automated — but it's the same pattern as the existing
        # else 404s — keeps the dashboard surface invisible from this
        # hostname.
        location ^~ /.well-known/oauth-authorization-server {
-           proxy_pass http://unix:/var/run/openalgo/<DEPLOY_NAME>.sock;
+           proxy_pass http://unix:/var/run/btalgo/<DEPLOY_NAME>.sock;
            proxy_set_header Host $host;
            proxy_set_header X-Forwarded-Proto $scheme;
        }
        location ^~ /.well-known/oauth-protected-resource {
-           proxy_pass http://unix:/var/run/openalgo/<DEPLOY_NAME>.sock;
+           proxy_pass http://unix:/var/run/btalgo/<DEPLOY_NAME>.sock;
            proxy_set_header Host $host;
            proxy_set_header X-Forwarded-Proto $scheme;
        }
        location ^~ /oauth/ {
-           proxy_pass http://unix:/var/run/openalgo/<DEPLOY_NAME>.sock;
+           proxy_pass http://unix:/var/run/btalgo/<DEPLOY_NAME>.sock;
            proxy_set_header Host $host;
            proxy_set_header X-Forwarded-Proto $scheme;
        }
        location = /mcp {
-           proxy_pass http://unix:/var/run/openalgo/<DEPLOY_NAME>.sock;
+           proxy_pass http://unix:/var/run/btalgo/<DEPLOY_NAME>.sock;
            proxy_http_version 1.1;
            proxy_buffering off;
            proxy_read_timeout 300s;
@@ -207,7 +207,7 @@ This is **not** automated — but it's the same pattern as the existing
            proxy_set_header X-Forwarded-Proto $scheme;
        }
        location ^~ /mcp/ {
-           proxy_pass http://unix:/var/run/openalgo/<DEPLOY_NAME>.sock;
+           proxy_pass http://unix:/var/run/btalgo/<DEPLOY_NAME>.sock;
            proxy_http_version 1.1;
            proxy_buffering off;
            proxy_read_timeout 300s;
@@ -256,13 +256,13 @@ This is **not** automated — but it's the same pattern as the existing
    ```
 
 2. The client probes the discovery endpoint, registers itself via DCR,
-   and redirects you to OpenAlgo for OAuth approval.
+   and redirects you to BTAlgo for OAuth approval.
 
 3. **First-time approval gate** — because `MCP_OAUTH_REQUIRE_APPROVAL=True`,
    the new client lands in pending state and the OAuth flow refuses to
    complete until you approve. Approve via the admin console:
 
-   - Sign in to OpenAlgo at `https://yourdomain.com`
+   - Sign in to BTAlgo at `https://yourdomain.com`
    - Open **Admin → Remote MCP** (`/admin/remote-mcp`)
    - The new client appears in the **Pending approvals** card with the
      name the hosted client supplied (e.g. *"ChatGPT MCP Connector"*)
@@ -272,7 +272,7 @@ This is **not** automated — but it's the same pattern as the existing
    over `log/mcp.jsonl`, and a **Kill switch** that revokes every
    refresh token across every approved client.
 
-4. Sign in to your OpenAlgo dashboard if prompted, review the scopes,
+4. Sign in to your BTAlgo dashboard if prompted, review the scopes,
    and click **Authorize**.
 
 5. The client now has an access token and can call MCP tools. Watch
@@ -286,9 +286,9 @@ This is **not** automated — but it's the same pattern as the existing
 | Audit log | `log/mcp.jsonl` (one JSON line per tool call) |
 | Errors | `log/errors.jsonl` (write-tool pre-execution warnings show up here too) |
 | Signing keys | `keys/mcp_oauth_<kid>.pem` (chmod 600) |
-| OAuth client list | `sqlite3 db/openalgo.db 'SELECT * FROM oauth_clients'` |
-| Active refresh tokens | `sqlite3 db/openalgo.db 'SELECT id, client_id, family_id, revoked_at FROM oauth_refresh_tokens'` |
-| Kill switch (revoke everything) | `sqlite3 db/openalgo.db "UPDATE oauth_refresh_tokens SET revoked_at=CURRENT_TIMESTAMP WHERE revoked_at IS NULL"` |
+| OAuth client list | `sqlite3 db/btalgo.db 'SELECT * FROM oauth_clients'` |
+| Active refresh tokens | `sqlite3 db/btalgo.db 'SELECT id, client_id, family_id, revoked_at FROM oauth_refresh_tokens'` |
+| Kill switch (revoke everything) | `sqlite3 db/btalgo.db "UPDATE oauth_refresh_tokens SET revoked_at=CURRENT_TIMESTAMP WHERE revoked_at IS NULL"` |
 
 ## Threat model summary
 
@@ -313,7 +313,7 @@ This is **not** automated — but it's the same pattern as the existing
 ```bash
 # Edit the .env, set:
 #   MCP_HTTP_ENABLED = 'False'
-sudo systemctl restart openalgo-<deploy-name>
+sudo systemctl restart btalgo-<deploy-name>
 ```
 
 **Docker** (`install-docker.sh`, `install-docker-multi-custom-ssl.sh`):
@@ -321,7 +321,7 @@ sudo systemctl restart openalgo-<deploy-name>
 ```bash
 # Edit the bind-mounted .env, set:
 #   MCP_HTTP_ENABLED = 'False'
-cd /opt/openalgo/<domain> && sudo docker compose restart
+cd /opt/btalgo/<domain> && sudo docker compose restart
 ```
 
 Either way, the OAuth and MCP routes immediately stop responding.

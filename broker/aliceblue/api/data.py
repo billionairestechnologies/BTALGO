@@ -134,7 +134,7 @@ class BrokerData:
             return str(token)
 
     def _map_exchange(self, exchange: str) -> str:
-        """Map OpenAlgo exchange codes to AliceBlue API exchange codes."""
+        """Map BTAlgo exchange codes to AliceBlue API exchange codes."""
         exchange_map = {
             "NSE_INDEX": "NSE",
             "BSE_INDEX": "BSE",
@@ -201,7 +201,7 @@ class BrokerData:
             exchange: Exchange (e.g., NSE, BSE, NFO, NSE_INDEX, BSE_INDEX)
 
         Returns:
-            dict: Quote data in OpenAlgo standard format
+            dict: Quote data in BTAlgo standard format
         """
         MAX_RETRIES = 2  # Total attempts (1 original + 1 retry)
 
@@ -441,7 +441,7 @@ class BrokerData:
             exchange: Exchange (e.g., NSE, BSE, NFO, NSE_INDEX, BSE_INDEX)
 
         Returns:
-            dict: Market depth data in OpenAlgo standard format
+            dict: Market depth data in BTAlgo standard format
         """
         try:
             # Convert symbol to broker format and get token
@@ -515,7 +515,7 @@ class BrokerData:
                 else:
                     asks.append({"price": 0, "quantity": 0})
 
-            # Return in OpenAlgo standard format (matching Angel broker)
+            # Return in BTAlgo standard format (matching Angel broker)
             return {
                 "bids": bids,
                 "asks": asks,

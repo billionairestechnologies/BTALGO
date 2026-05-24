@@ -1,6 +1,6 @@
 # API Reference
 
-This document covers the API modules, stores, and hooks used in the OpenAlgo frontend.
+This document covers the API modules, stores, and hooks used in the BTAlgo frontend.
 
 ## API Modules
 

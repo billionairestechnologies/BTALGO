@@ -139,7 +139,7 @@ def download_firstock_data(output_path):
 
 def process_firstock_nse_data(output_path):
     """
-    Processes the Firstock NSE data (NSE_symbols.csv) to generate OpenAlgo symbols.
+    Processes the Firstock NSE data (NSE_symbols.csv) to generate BTAlgo symbols.
     Separates EQ, BE symbols, and Index symbols.
 
     Index symbols are identified by having 0 values in ISIN, TickSize, and FreezeQty columns.
@@ -169,8 +169,8 @@ def process_firstock_nse_data(output_path):
     # Initialize symbol with brsymbol
     df["symbol"] = df["brsymbol"]
 
-    # Apply transformation for OpenAlgo symbols
-    def get_openalgo_symbol(broker_symbol):
+    # Apply transformation for BTAlgo symbols
+    def get_btalgo_symbol(broker_symbol):
         if "-EQ" in broker_symbol:
             return broker_symbol.replace("-EQ", "")
         elif "-BE" in broker_symbol:
@@ -179,15 +179,15 @@ def process_firstock_nse_data(output_path):
             return broker_symbol
 
     # Update the symbol column (non-index rows get -EQ/-BE stripped)
-    df["symbol"] = df["brsymbol"].apply(get_openalgo_symbol)
+    df["symbol"] = df["brsymbol"].apply(get_btalgo_symbol)
 
-    # For index rows, normalize to OpenAlgo-standard symbol using the
+    # For index rows, normalize to BTAlgo-standard symbol using the
     # comprehensive mapping (symbol_Openalgo.md). Unlisted indices fall
     # through unchanged.
     index_mask = df["is_index"]
     if index_mask.any():
         df.loc[index_mask, "symbol"] = df.loc[index_mask].apply(
-            lambda r: map_to_openalgo_index_symbol(
+            lambda r: map_to_btalgo_index_symbol(
                 r["brsymbol"], r.get("name", ""), "NSE"
             ),
             axis=1,
@@ -242,7 +242,7 @@ def process_firstock_nse_data(output_path):
 
 def process_firstock_nfo_data(output_path):
     """
-    Processes the Firstock NFO data (NFO_symbols.csv) to generate OpenAlgo symbols.
+    Processes the Firstock NFO data (NFO_symbols.csv) to generate BTAlgo symbols.
     Handles both futures and options formatting.
     """
     logger.info("Processing Firstock NFO Data")
@@ -342,11 +342,11 @@ def process_firstock_nfo_data(output_path):
 
 def process_firstock_bse_data(output_path):
     """
-    Processes the Firstock BSE data (BSE_symbols.csv) to generate OpenAlgo symbols.
+    Processes the Firstock BSE data (BSE_symbols.csv) to generate BTAlgo symbols.
 
     Indices (SENSEX, SENSEX50, etc.) are identified by empty ISIN + zero
     TickSize + zero FreezeQty (same heuristic as NSE) and routed to
-    exchange='BSE_INDEX' with OpenAlgo-standard symbol normalization.
+    exchange='BSE_INDEX' with BTAlgo-standard symbol normalization.
     All other BSE rows are treated as equity (instrumenttype='EQ').
     """
     logger.info("Processing Firstock BSE Data")
@@ -376,12 +376,12 @@ def process_firstock_bse_data(output_path):
     # transformation — no -EQ/-BE suffix like NSE).
     df["symbol"] = df["brsymbol"]
 
-    # For index rows, normalize to OpenAlgo-standard symbol (e.g. SENSEX,
+    # For index rows, normalize to BTAlgo-standard symbol (e.g. SENSEX,
     # SENSEX50, BANKEX). Unlisted indices fall through unchanged.
     index_mask = df["is_index"]
     if index_mask.any():
         df.loc[index_mask, "symbol"] = df.loc[index_mask].apply(
-            lambda r: map_to_openalgo_index_symbol(
+            lambda r: map_to_btalgo_index_symbol(
                 r["brsymbol"], r.get("name", ""), "BSE"
             ),
             axis=1,
@@ -422,7 +422,7 @@ def process_firstock_bse_data(output_path):
 
 def process_firstock_bfo_data(output_path):
     """
-    Processes the Firstock BFO data (BFO_symbols.csv) to generate OpenAlgo symbols.
+    Processes the Firstock BFO data (BFO_symbols.csv) to generate BTAlgo symbols.
     Similar to NFO but for BSE derivatives.
     """
     logger.info("Processing Firstock BFO Data")
@@ -520,11 +520,11 @@ def process_firstock_bfo_data(output_path):
     return df_filtered
 
 
-# OpenAlgo standard index symbols per symbol_Openalgo.md.
+# BTAlgo standard index symbols per symbol_Openalgo.md.
 # Matching any fetched idxname/tradingSymbol against these (case- and
-# whitespace-insensitive) normalizes to the OpenAlgo format; unmatched
+# whitespace-insensitive) normalizes to the BTAlgo format; unmatched
 # indices pass through unchanged so new/custom indices still get stored.
-OPENALGO_NSE_INDICES = {
+BTALGO_NSE_INDICES = {
     "NIFTY", "NIFTYNXT50", "FINNIFTY", "BANKNIFTY", "MIDCPNIFTY", "INDIAVIX",
     "HANGSENGBEESNAV",
     "NIFTY100", "NIFTY200", "NIFTY500",
@@ -543,7 +543,7 @@ OPENALGO_NSE_INDICES = {
     "NIFTY50VALUE20",
 }
 
-OPENALGO_BSE_INDICES = {
+BTALGO_BSE_INDICES = {
     "SENSEX", "BANKEX", "SENSEX50",
     "BSE100", "BSE150MIDCAPINDEX", "BSE200", "BSE250LARGEMIDCAPINDEX",
     "BSE400MIDSMALLCAPINDEX", "BSE500",
@@ -557,7 +557,7 @@ OPENALGO_BSE_INDICES = {
     "BSESMALLCAPSELECTINDEX", "BSESMEIPO", "BSETECK", "BSETELECOM",
 }
 
-# Explicit aliases for broker/exchange names that diverge from the OpenAlgo
+# Explicit aliases for broker/exchange names that diverge from the BTAlgo
 # symbol even after whitespace/punctuation normalization (abbreviations,
 # reordered words, etc.). Keys are normalized (see _normalize_index_key).
 INDEX_NAME_ALIASES = {
@@ -606,13 +606,13 @@ def _normalize_index_key(value):
     )
 
 
-# Pre-computed normalized lookup dicts: normalized_key -> canonical OpenAlgo symbol.
+# Pre-computed normalized lookup dicts: normalized_key -> canonical BTAlgo symbol.
 # Built once at module load so tolerant matching is a single dict lookup.
 _NSE_INDEX_NORMALIZED_LOOKUP = {
-    _normalize_index_key(s): s for s in OPENALGO_NSE_INDICES
+    _normalize_index_key(s): s for s in BTALGO_NSE_INDICES
 }
 _BSE_INDEX_NORMALIZED_LOOKUP = {
-    _normalize_index_key(s): s for s in OPENALGO_BSE_INDICES
+    _normalize_index_key(s): s for s in BTALGO_BSE_INDICES
 }
 
 
@@ -620,37 +620,37 @@ def _basic_index_cleanup(value):
     """
     Minimal format cleanup for unlisted indices: uppercase, strip spaces and
     hyphens. Preserves identity (no name/alias transformation) while ensuring
-    the stored symbol is a valid OpenAlgo-format token.
+    the stored symbol is a valid BTAlgo-format token.
     """
     if not value:
         return ""
     return value.upper().replace(" ", "").replace("-", "")
 
 
-def map_to_openalgo_index_symbol(trading_symbol, idxname, br_exchange):
+def map_to_btalgo_index_symbol(trading_symbol, idxname, br_exchange):
     """
-    Resolve the OpenAlgo-standard index symbol for a fetched Firstock index.
+    Resolve the BTAlgo-standard index symbol for a fetched Firstock index.
 
     Match order:
-      1. tradingSymbol is already an OpenAlgo canonical (NIFTY, SENSEX, ...)
+      1. tradingSymbol is already an BTAlgo canonical (NIFTY, SENSEX, ...)
       2. tradingSymbol/idxname normalizes to an explicit alias (e.g. BSEIT)
-      3. tradingSymbol/idxname normalizes to a canonical OpenAlgo symbol
+      3. tradingSymbol/idxname normalizes to a canonical BTAlgo symbol
 
     Unlisted indices fall through with basic cleanup only (uppercase + strip
     spaces/hyphens) so identity is preserved but the stored symbol remains a
-    valid OpenAlgo-format token.
+    valid BTAlgo-format token.
     """
     if br_exchange == "NSE":
         normalized_lookup = _NSE_INDEX_NORMALIZED_LOOKUP
-        openalgo_set = OPENALGO_NSE_INDICES
+        btalgo_set = BTALGO_NSE_INDICES
     elif br_exchange == "BSE":
         normalized_lookup = _BSE_INDEX_NORMALIZED_LOOKUP
-        openalgo_set = OPENALGO_BSE_INDICES
+        btalgo_set = BTALGO_BSE_INDICES
     else:
         return _basic_index_cleanup(trading_symbol)
 
     # Direct tradingSymbol hit (e.g. "NIFTY", "BANKNIFTY", "SENSEX").
-    if trading_symbol in openalgo_set:
+    if trading_symbol in btalgo_set:
         return trading_symbol
 
     ts_norm = _normalize_index_key(trading_symbol)
@@ -731,7 +731,7 @@ def fetch_firstock_indices():
             if not token or not trading_symbol:
                 continue
 
-            openalgo_symbol = map_to_openalgo_index_symbol(
+            btalgo_symbol = map_to_btalgo_index_symbol(
                 trading_symbol, idxname, br_exchange
             )
             oa_exchange = (
@@ -740,7 +740,7 @@ def fetch_firstock_indices():
 
             rows.append(
                 {
-                    "symbol": openalgo_symbol,
+                    "symbol": btalgo_symbol,
                     "brsymbol": trading_symbol,
                     "name": idxname,
                     "exchange": oa_exchange,

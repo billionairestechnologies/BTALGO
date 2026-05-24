@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Angel Broking Margin API https://smartapi.angelbroking.com/docs/Margin
 
 from database.token_db import get_token
@@ -9,10 +9,10 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin position format to Angel Broking margin format.
+    Transform BTAlgo margin position format to Angel Broking margin format.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
 
     Returns:
         List of positions in Angel Broking format
@@ -78,9 +78,9 @@ def transform_margin_positions(positions):
 
 def map_product_type(product):
     """
-    Maps OpenAlgo product type to Angel Broking product type.
+    Maps BTAlgo product type to Angel Broking product type.
 
-    OpenAlgo: CNC, NRML, MIS
+    BTAlgo: CNC, NRML, MIS
     Angel: DELIVERY, CARRYFORWARD, INTRADAY, MARGIN
     """
     product_type_mapping = {
@@ -93,9 +93,9 @@ def map_product_type(product):
 
 def map_order_type(pricetype):
     """
-    Maps OpenAlgo price type to Angel Broking order type.
+    Maps BTAlgo price type to Angel Broking order type.
 
-    OpenAlgo: MARKET, LIMIT, SL, SL-M
+    BTAlgo: MARKET, LIMIT, SL, SL-M
     Angel: MARKET, LIMIT, STOPLOSS_LIMIT, STOPLOSS_MARKET
     """
     order_type_mapping = {
@@ -109,13 +109,13 @@ def map_order_type(pricetype):
 
 def parse_margin_response(response_data):
     """
-    Parse Angel Broking margin calculator response to OpenAlgo standard format.
+    Parse Angel Broking margin calculator response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from Angel Broking margin calculator API
 
     Returns:
-        Standardized margin response matching OpenAlgo format
+        Standardized margin response matching BTAlgo format
     """
     try:
         if not response_data or not isinstance(response_data, dict):
@@ -139,7 +139,7 @@ def parse_margin_response(response_data):
         # Angel API doesn't provide exposure margin explicitly, so set it to 0
         exposure_margin = 0
 
-        # Return standardized format matching OpenAlgo API specification
+        # Return standardized format matching BTAlgo API specification
         return {
             "status": "success",
             "data": {

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers deploying OpenAlgo on an Ubuntu server (20.04/22.04 LTS) with Nginx reverse proxy, systemd services, and SSL configuration for production use.
+This guide covers deploying BTAlgo on an Ubuntu server (20.04/22.04 LTS) with Nginx reverse proxy, systemd services, and SSL configuration for production use.
 
 ## Architecture Diagram
 
@@ -28,19 +28,19 @@ This guide covers deploying OpenAlgo on an Ubuntu server (20.04/22.04 LTS) with 
                     │                       │
                     ▼                       ▼
 ┌─────────────────────────────────────────────────────┐
-│           OpenAlgo (Gunicorn + WebSocket)           │
+│           BTAlgo (Gunicorn + WebSocket)           │
 │                                                     │
 │  Flask App ─────────── localhost:5000               │
 │  WebSocket Thread ──── localhost:8765               │
 │                                                     │
-│  systemd: openalgo                                  │
+│  systemd: btalgo                                  │
 └─────────────────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                          File System                                         │
 │                                                                              │
-│  /opt/openalgo/                                                             │
+│  /opt/btalgo/                                                             │
 │  ├── .venv/              # Virtual environment                              │
 │  ├── db/                 # SQLite databases                                 │
 │  ├── log/                # Application logs                                 │
@@ -72,12 +72,12 @@ sudo apt install -y nodejs
 
 ```bash
 # Create application directory
-sudo mkdir -p /opt/openalgo
-sudo chown $USER:$USER /opt/openalgo
+sudo mkdir -p /opt/btalgo
+sudo chown $USER:$USER /opt/btalgo
 
 # Clone repository
-cd /opt/openalgo
-git clone https://github.com/marketcalls/openalgo.git .
+cd /opt/btalgo
+git clone https://github.com/billionairestechnologies/btalgo.git .
 ```
 
 ### 2. Setup Python Environment
@@ -123,21 +123,21 @@ cd ..
 **Note:** The WebSocket server runs as a thread inside the main app (port 8765), so only ONE systemd service is needed.
 
 ```bash
-sudo nano /etc/systemd/system/openalgo.service
+sudo nano /etc/systemd/system/btalgo.service
 ```
 
 ```ini
 [Unit]
-Description=OpenAlgo Trading Platform
+Description=BTAlgo Trading Platform
 After=network.target
 
 [Service]
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/opt/openalgo
-Environment="PATH=/opt/openalgo/.venv/bin"
-ExecStart=/opt/openalgo/.venv/bin/gunicorn \
+WorkingDirectory=/opt/btalgo
+Environment="PATH=/opt/btalgo/.venv/bin"
+ExecStart=/opt/btalgo/.venv/bin/gunicorn \
     --worker-class eventlet \
     -w 1 \
     --bind 127.0.0.1:5000 \
@@ -156,18 +156,18 @@ WantedBy=multi-user.target
 
 ```bash
 # Set ownership
-sudo chown -R www-data:www-data /opt/openalgo
+sudo chown -R www-data:www-data /opt/btalgo
 
 # Set permissions
-sudo chmod -R 755 /opt/openalgo
-sudo chmod 700 /opt/openalgo/keys
-sudo chmod 600 /opt/openalgo/.env
+sudo chmod -R 755 /opt/btalgo
+sudo chmod 700 /opt/btalgo/keys
+sudo chmod 600 /opt/btalgo/.env
 ```
 
 ### 7. Configure Nginx
 
 ```bash
-sudo nano /etc/nginx/sites-available/openalgo
+sudo nano /etc/nginx/sites-available/btalgo
 ```
 
 ```nginx
@@ -219,7 +219,7 @@ server {
 
     # Static files
     location /static {
-        alias /opt/openalgo/static;
+        alias /opt/btalgo/static;
         expires 30d;
         add_header Cache-Control "public, immutable";
     }
@@ -230,14 +230,14 @@ server {
 
 ```bash
 # Enable Nginx site
-sudo ln -s /etc/nginx/sites-available/openalgo /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/btalgo /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl restart nginx
 
-# Enable and start OpenAlgo service
+# Enable and start BTAlgo service
 sudo systemctl daemon-reload
-sudo systemctl enable openalgo
-sudo systemctl start openalgo
+sudo systemctl enable btalgo
+sudo systemctl start btalgo
 ```
 
 ### 9. Setup SSL (Let's Encrypt)
@@ -250,16 +250,16 @@ sudo certbot --nginx -d your-domain.com
 
 ```bash
 # Check status
-sudo systemctl status openalgo
+sudo systemctl status btalgo
 
 # View logs
-sudo journalctl -u openalgo -f
+sudo journalctl -u btalgo -f
 
 # Restart service
-sudo systemctl restart openalgo
+sudo systemctl restart btalgo
 
 # Stop service
-sudo systemctl stop openalgo
+sudo systemctl stop btalgo
 ```
 
 ## Firewall Configuration
@@ -281,10 +281,10 @@ sudo ufw status
 
 ```bash
 # Stop service
-sudo systemctl stop openalgo
+sudo systemctl stop btalgo
 
 # Pull updates
-cd /opt/openalgo
+cd /opt/btalgo
 git pull origin main
 
 # Update dependencies
@@ -298,25 +298,25 @@ npm run build
 cd ..
 
 # Start service
-sudo systemctl start openalgo
+sudo systemctl start btalgo
 ```
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| 502 Bad Gateway | Check if OpenAlgo service is running: `systemctl status openalgo` |
+| 502 Bad Gateway | Check if BTAlgo service is running: `systemctl status btalgo` |
 | WebSocket fails | Check Nginx /ws proxy config and service logs |
-| Permission denied | Verify www-data ownership: `chown -R www-data:www-data /opt/openalgo` |
+| Permission denied | Verify www-data ownership: `chown -R www-data:www-data /opt/btalgo` |
 | SSL error | Renew certificates: `sudo certbot renew` |
 
 ## Key Files Reference
 
 | File | Purpose |
 |------|---------|
-| `/etc/systemd/system/openalgo.service` | Main service (includes WebSocket) |
-| `/etc/nginx/sites-available/openalgo` | Nginx config |
-| `/opt/openalgo/.env` | Application config |
+| `/etc/systemd/system/btalgo.service` | Main service (includes WebSocket) |
+| `/etc/nginx/sites-available/btalgo` | Nginx config |
+| `/opt/btalgo/.env` | Application config |
 | `/var/log/nginx/` | Nginx logs |
 
-**Note:** There is no separate `openalgo-ws.service`. The WebSocket server runs as a thread inside the main Flask application on port 8765.
+**Note:** There is no separate `btalgo-ws.service`. The WebSocket server runs as a thread inside the main Flask application on port 8765.

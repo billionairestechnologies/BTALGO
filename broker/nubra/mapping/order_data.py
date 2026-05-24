@@ -18,7 +18,7 @@ def map_order_data(order_data):
     - order_data: Response from Nubra API (list of orders or dict with status).
 
     Returns:
-    - The modified order_data normalized to OpenAlgo format.
+    - The modified order_data normalized to BTAlgo format.
     """
     # Nubra API returns a direct list of orders, not wrapped in {status: bool, data: [...]}
     # Handle both cases for compatibility
@@ -46,7 +46,7 @@ def map_order_data(order_data):
         # Get ref_data for symbol information
         ref_data = order.get("ref_data", {})
         
-        # Map Nubra fields to OpenAlgo/Angel-like format
+        # Map Nubra fields to BTAlgo/Angel-like format
         # Nubra: order_side -> transactiontype (BUY/SELL)
         order_side = order.get("order_side", "")
         if order_side == "ORDER_SIDE_BUY":
@@ -71,7 +71,7 @@ def map_order_data(order_data):
         # Nubra uses both order_type and price_type:
         # - order_type: ORDER_TYPE_REGULAR, ORDER_TYPE_STOPLOSS, ORDER_TYPE_ICEBERG
         # - price_type: MARKET, LIMIT
-        # For OpenAlgo we need: MARKET, LIMIT, SL, SL-M (uppercase like Angel)
+        # For BTAlgo we need: MARKET, LIMIT, SL, SL-M (uppercase like Angel)
         order_type = order.get("order_type", "")
         price_type = order.get("price_type", "")
         
@@ -292,7 +292,7 @@ def map_trade_data(trade_data):
         exchange = ref_data.get("exchange", "")
         symboltoken = str(ref_data.get("token", order.get("ref_id", "")))
 
-        # Get OpenAlgo symbol
+        # Get BTAlgo symbol
         symbol_from_db = get_symbol(symboltoken, exchange)
         tradingsymbol = symbol_from_db if symbol_from_db else order.get("display_name", ref_data.get("stock_name", ""))
 
@@ -351,7 +351,7 @@ def map_trade_data(trade_data):
 
 def transform_tradebook_data(tradebook_data):
     """
-    Transform normalized trade data to final OpenAlgo UI format.
+    Transform normalized trade data to final BTAlgo UI format.
     """
     transformed_data = []
     for trade in tradebook_data:
@@ -372,7 +372,7 @@ def transform_tradebook_data(tradebook_data):
 
 def map_position_data(position_data):
     """
-    Map Nubra's positions response to OpenAlgo normalized format.
+    Map Nubra's positions response to BTAlgo normalized format.
     
     Nubra returns positions in portfolio.stock_positions, portfolio.fut_positions, 
     portfolio.opt_positions arrays. Prices are in paise (divide by 100).
@@ -445,7 +445,7 @@ def map_position_data(position_data):
             ltp_paise = pos.get("ltp", 0) or 0
             pnl_rupees = pos.get("pnl", 0) or 0  # Already in rupees
             
-            # Map product type from Nubra format to OpenAlgo format
+            # Map product type from Nubra format to BTAlgo format
             product = pos.get("product", "")
             if product == "ORDER_DELIVERY_TYPE_CNC":
                 producttype = "CNC"
@@ -547,7 +547,7 @@ def transform_positions_data(positions_data):
 
 def transform_holdings_data(holdings_data):
     """
-    Transform mapped Nubra holdings data to final OpenAlgo UI format.
+    Transform mapped Nubra holdings data to final BTAlgo UI format.
 
     Expects the output of map_portfolio_data():
         {"holdings": [...mapped...], "holding_stats": {...}}
@@ -594,7 +594,7 @@ def map_portfolio_data(portfolio_data):
         }
 
     Prices are in paise — this function converts them to rupees (÷100).
-    Symbols are mapped to OpenAlgo format via get_oa_symbol().
+    Symbols are mapped to BTAlgo format via get_oa_symbol().
 
     Returns:
         {"holdings": [...normalized...], "holding_stats": {...converted...}}
@@ -620,7 +620,7 @@ def map_portfolio_data(portfolio_data):
         broker_symbol = h.get("symbol", h.get("displayName", ""))
         ref_id = str(h.get("ref_id", ""))
 
-        # Look up OpenAlgo symbol from database using ref_id or broker symbol
+        # Look up BTAlgo symbol from database using ref_id or broker symbol
         oa_symbol = get_oa_symbol(broker_symbol, exchange)
         tradingsymbol = oa_symbol if oa_symbol else broker_symbol
 

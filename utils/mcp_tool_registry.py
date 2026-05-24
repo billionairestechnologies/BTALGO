@@ -7,7 +7,7 @@ stdio (legacy):
 
 HTTP / SSE (new):
     ``blueprints/mcp_http.py`` imports this module after setting
-    ``OPENALGO_MCP_HTTP_BOOT=1``. We expose:
+    ``BTALGO_MCP_HTTP_BOOT=1``. We expose:
 
     * ``TOOL_SCOPES`` — explicit map of tool_name → required OAuth scope.
       Maintained here (not derived from FastMCP) so security review can
@@ -102,7 +102,7 @@ TOOL_SCOPES: dict[str, str] = {
     # These are exempt from the scope filter because they help clients
     # discover what they can do. Implementing as read:market keeps the
     # check uniform without inventing a fourth scope.
-    "get_openalgo_version": SCOPE_READ_MARKET,
+    "get_btalgo_version": SCOPE_READ_MARKET,
     "validate_order_constants": SCOPE_READ_MARKET,
 }
 
@@ -142,12 +142,12 @@ def _load_mcpserver_module():
     here = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(here)
     target = os.path.join(project_root, "mcp", "mcpserver.py")
-    spec = importlib.util.spec_from_file_location("openalgo_mcp_server", target)
+    spec = importlib.util.spec_from_file_location("btalgo_mcp_server", target)
     if spec is None or spec.loader is None:
         logger.error("Could not build spec for mcp/mcpserver.py")
         return None
     module = importlib.util.module_from_spec(spec)
-    sys.modules["openalgo_mcp_server"] = module  # so its decorators bind
+    sys.modules["btalgo_mcp_server"] = module  # so its decorators bind
     spec.loader.exec_module(module)
     setattr(_load_mcpserver_module, "_module", module)
     return module
@@ -157,7 +157,7 @@ def get_tool_callable(tool_name: str) -> Callable | None:
     """Resolve the underlying Python function for a tool.
 
     The HTTP transport is responsible for setting
-    ``OPENALGO_MCP_HTTP_BOOT=1`` before this module is loaded so the
+    ``BTALGO_MCP_HTTP_BOOT=1`` before this module is loaded so the
     stdio argv check is bypassed.
     """
     if tool_name not in TOOL_SCOPES:

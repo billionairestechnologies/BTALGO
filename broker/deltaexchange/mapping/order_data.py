@@ -8,7 +8,7 @@ logger = get_logger(__name__)
 
 def map_order_data(order_data):
     """
-    Normalises a list of Delta Exchange order dicts to the OpenAlgo internal format.
+    Normalises a list of Delta Exchange order dicts to the BTAlgo internal format.
 
     Delta Exchange order fields used:
         id               – raw integer order ID
@@ -258,7 +258,7 @@ def transform_order_data(orders):
 
 def map_trade_data(trade_data):
     """
-    Normalises a list of Delta Exchange fill/trade dicts to the OpenAlgo internal format.
+    Normalises a list of Delta Exchange fill/trade dicts to the BTAlgo internal format.
 
     Delta Exchange fill fields (from GET /v2/fills or order history):
         id             – fill ID
@@ -330,7 +330,7 @@ def map_trade_data(trade_data):
 
 def transform_tradebook_data(tradebook_data):
     """
-    Transform Delta Exchange fill/trade data to OpenAlgo standard format.
+    Transform Delta Exchange fill/trade data to BTAlgo standard format.
     Expects list of dicts pre-normalised by map_trade_data().
     """
     try:
@@ -380,7 +380,7 @@ def transform_tradebook_data(tradebook_data):
 
 def map_position_data(position_data):
     """
-    Normalises a list of Delta Exchange position dicts to the OpenAlgo internal format.
+    Normalises a list of Delta Exchange position dicts to the BTAlgo internal format.
 
     Delta Exchange /v2/positions/margined fields used:
         product_id       – contract ID (for symbol lookup)
@@ -492,10 +492,10 @@ def map_position_data(position_data):
 
 def transform_positions_data(positions_data):
     """
-    Transform positions data to OpenAlgo standard format.
+    Transform positions data to BTAlgo standard format.
     Matches the structure used by Angel broker for consistency.
 
-    OpenAlgo Standard Fields:
+    BTAlgo Standard Fields:
     - symbol: Trading symbol
     - exchange: Exchange name
     - product: Product type (MIS/CNC/NRML)
@@ -521,7 +521,7 @@ def transform_positions_data(positions_data):
                 logger.warning(f"Skipping non-dictionary position: {type(position)}")
                 continue
 
-            # OpenAlgo standard format (matching Angel broker structure)
+            # BTAlgo standard format (matching Angel broker structure)
             transformed_position = {
                 "symbol": position.get("tradingSymbol", ""),
                 "exchange": position.get("exchangeSegment", ""),
@@ -529,7 +529,7 @@ def transform_positions_data(positions_data):
                 "quantity": position.get("netQty", 0),
                 "average_price": float(
                     position.get("avgCostPrice", 0.0)
-                ),  # Float as per OpenAlgo standard
+                ),  # Float as per BTAlgo standard
                 "ltp": float(position.get("lastTradedPrice", 0.0)),  # Last traded price
                 "pnl": float(position.get("pnlAbsolute", 0.0)),  # Profit and loss
                 "lot_size": float(position.get("lot_size", 1.0)),  # Contract size (e.g. 0.01 ETH for ETHUSD.P)

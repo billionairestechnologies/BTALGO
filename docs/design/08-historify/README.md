@@ -2,7 +2,7 @@
 
 ## Overview
 
-Historify is OpenAlgo's historical market data manager built on DuckDB. It downloads OHLCV data from brokers and stores it locally for backtesting and analysis.
+Historify is BTAlgo's historical market data manager built on DuckDB. It downloads OHLCV data from brokers and stores it locally for backtesting and analysis.
 
 ## Architecture
 

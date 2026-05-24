@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping mStock Type B Margin API https://tradingapi.mstock.com/docs/v1/typeB/Margins/
 
 from database.token_db import get_br_symbol, get_token
@@ -9,10 +9,10 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin position format to mStock Type B margin format.
+    Transform BTAlgo margin position format to mStock Type B margin format.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
 
     Returns:
         List of positions in mStock Type B format
@@ -82,9 +82,9 @@ def transform_margin_positions(positions):
 
 def map_product_type(product):
     """
-    Maps OpenAlgo product type to mStock Type B product type.
+    Maps BTAlgo product type to mStock Type B product type.
 
-    OpenAlgo: CNC, NRML, MIS
+    BTAlgo: CNC, NRML, MIS
     mStock: DELIVERY, CARRYFORWARD, INTRADAY, MARGIN
     """
     product_type_mapping = {
@@ -97,13 +97,13 @@ def map_product_type(product):
 
 def parse_margin_response(response_data):
     """
-    Parse mStock Type B margin calculator response to OpenAlgo standard format.
+    Parse mStock Type B margin calculator response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from mStock Type B margin calculator API
 
     Returns:
-        Standardized margin response matching OpenAlgo format
+        Standardized margin response matching BTAlgo format
     """
     try:
         if not response_data or not isinstance(response_data, dict):
@@ -135,7 +135,7 @@ def parse_margin_response(response_data):
             elif item.get("name") == "EXPOMARGIN":
                 exposure_margin = item.get("amount", 0)
 
-        # Return standardized format matching OpenAlgo API specification
+        # Return standardized format matching BTAlgo API specification
         return {
             "status": "success",
             "data": {

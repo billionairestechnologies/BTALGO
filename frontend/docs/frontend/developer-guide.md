@@ -1,6 +1,6 @@
 # Developer Guide
 
-This guide covers everything you need to know to develop the OpenAlgo frontend.
+This guide covers everything you need to know to develop the BTAlgo frontend.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide covers everything you need to know to develop the OpenAlgo frontend.
 ### 1. Clone and Install
 
 ```bash
-cd openalgo/frontend
+cd btalgo/frontend
 npm install
 ```
 

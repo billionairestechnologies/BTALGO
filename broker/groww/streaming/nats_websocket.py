@@ -695,17 +695,17 @@ class GrowwNATSWebSocket:
             # an existing/future real LTP sub, otherwise the SID stored in
             # nats_sids[sub_key] gets overwritten and the older SID leaks.
             sub_key = spec.get("sub_key")
-            # OpenAlgo-facing exchange (NFO/BFO/NSE_INDEX/...) for dispatch
+            # BTAlgo-facing exchange (NFO/BFO/NSE_INDEX/...) for dispatch
             # back to the adapter; falls back to the broker-side `exchange`
             # arg (NSE/BSE) when not provided. The topic generator still
             # needs the broker-side exchange — see groww_exchange below.
-            openalgo_exchange = spec.get("openalgo_exchange") or exchange
+            btalgo_exchange = spec.get("btalgo_exchange") or exchange
             if sub_type == "depth":
                 if not sub_key:
                     sub_key = f"depth_{exchange}_{segment}_{token}"
                 self.subscriptions[sub_key] = {
                     "symbol": symbol if symbol else f"{token}",
-                    "exchange": openalgo_exchange,
+                    "exchange": btalgo_exchange,
                     "groww_exchange": exchange,
                     "segment": segment,
                     "exchange_token": token,
@@ -718,7 +718,7 @@ class GrowwNATSWebSocket:
                     sub_key = f"ltp_{exchange}_{segment}_{token}"
                 self.subscriptions[sub_key] = {
                     "symbol": symbol if symbol else f"{token}",
-                    "exchange": openalgo_exchange,
+                    "exchange": btalgo_exchange,
                     "groww_exchange": exchange,
                     "segment": segment,
                     "exchange_token": token,
@@ -749,7 +749,7 @@ class GrowwNATSWebSocket:
                 # Prefer the broker-side exchange for topic generation; fall
                 # back to `exchange` for callers that don't provide it
                 # separately (legacy paths). sub_info["exchange"] is now the
-                # OpenAlgo exchange used for dispatch, not the Groww one.
+                # BTAlgo exchange used for dispatch, not the Groww one.
                 topic = self.nats_protocol.format_topic_for_groww(
                     exchange=sub_info.get("groww_exchange") or sub_info.get("exchange", ""),
                     segment=sub_info.get("segment", ""),

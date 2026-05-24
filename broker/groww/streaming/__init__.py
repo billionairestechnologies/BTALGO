@@ -1,5 +1,5 @@
 """
-Groww WebSocket streaming module for OpenAlgo
+Groww WebSocket streaming module for BTAlgo
 """
 
 from .groww_adapter import GrowwWebSocketAdapter

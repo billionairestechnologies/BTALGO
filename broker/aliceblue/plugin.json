@@ -1,10 +1,10 @@
 {
     "Plugin Name": "aliceblue",
-    "Plugin URI": "https://openalgo.in",
-    "Description": "AliceBlue OpenAlgo Plugin",
+    "Plugin URI": "https://billionairestechnologies.com",
+    "Description": "AliceBlue BTAlgo Plugin",
     "Version": "1.0",
     "Author": "Deepanshu Goyal",
-    "Author URI": "https://openalgo.in",
+    "Author URI": "https://billionairestechnologies.com",
     "supported_exchanges": ["NSE", "BSE", "NFO", "BFO", "CDS", "BCD", "MCX", "NSE_INDEX", "BSE_INDEX"],
     "broker_type": "IN_stock",
     "leverage_config": false

@@ -1,4 +1,4 @@
-# Zerodha GTT payload transforms (OpenAlgo ⇄ Kite).
+# Zerodha GTT payload transforms (BTAlgo ⇄ Kite).
 # Kite Connect GTT API reference: https://kite.trade/docs/connect/v3/gtt/
 
 from database.token_db import get_br_symbol, get_oa_symbol
@@ -29,7 +29,7 @@ def _resolve_single_trigger(data):
 
 
 def transform_place_gtt(data):
-    """Transform an OpenAlgo flat place-GTT payload into Kite's `{type, condition, orders}`.
+    """Transform an BTAlgo flat place-GTT payload into Kite's `{type, condition, orders}`.
 
     Expected ``data`` keys (post-schema):
         symbol, exchange, trigger_type ("SINGLE" | "OCO"), action, product,
@@ -73,7 +73,7 @@ def transform_place_gtt(data):
 
 
 def transform_modify_gtt(data):
-    """Transform an OpenAlgo modify-GTT payload (flat shape) into Kite's body.
+    """Transform an BTAlgo modify-GTT payload (flat shape) into Kite's body.
 
     Kite's PUT /gtt/triggers/:id takes the same ``{type, condition, orders}``
     shape as POST, so the place transform is reused.
@@ -82,12 +82,12 @@ def transform_modify_gtt(data):
 
 
 def map_gtt_book(gtt_data):
-    """Normalise Kite's GET /gtt/triggers response into an OpenAlgo-shaped list.
+    """Normalise Kite's GET /gtt/triggers response into an BTAlgo-shaped list.
 
     Kite returns ``{"status": "success", "data": [{...}, ...]}``. Each GTT has
     ``id``, ``user_id``, ``type``, ``status``, ``condition``, ``orders``, ``created_at``, ``updated_at``,
     ``expires_at``, ``meta``. We flatten to a broker-neutral shape and translate the
-    Kite tradingsymbol back to OpenAlgo's symbol.
+    Kite tradingsymbol back to BTAlgo's symbol.
     """
     if not isinstance(gtt_data, dict):
         return []

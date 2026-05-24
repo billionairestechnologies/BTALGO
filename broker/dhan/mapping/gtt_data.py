@@ -1,4 +1,4 @@
-# Dhan Forever Order payload transforms (OpenAlgo ⇄ Dhan).
+# Dhan Forever Order payload transforms (BTAlgo ⇄ Dhan).
 # Dhan v2 reference: https://dhanhq.co/docs/v2/forever/
 
 from broker.dhan.mapping.transform_data import (
@@ -10,7 +10,7 @@ from broker.dhan.mapping.transform_data import (
 from database.token_db import get_oa_symbol, get_token
 
 
-# Dhan Forever Order status → OpenAlgo GTT status.
+# Dhan Forever Order status → BTAlgo GTT status.
 _STATUS_MAP = {
     "TRANSIT": "active",
     "PENDING": "active",
@@ -34,7 +34,7 @@ def _resolve_single_trigger(data):
 
 
 def transform_place_gtt(data):
-    """Transform an OpenAlgo flat place-GTT payload into Dhan's POST /forever/orders body.
+    """Transform an BTAlgo flat place-GTT payload into Dhan's POST /forever/orders body.
 
     SINGLE → ``triggerPrice`` (= resolved trigger) + ``price`` + ``quantity``.
     OCO    → primary (stoploss) leg uses ``price`` (= ``stoploss``) +
@@ -73,7 +73,7 @@ def transform_place_gtt(data):
         body["triggerPrice1"] = float(data["triggerprice_tg"])
         body["quantity1"] = int(data["quantity"])
 
-    # OpenAlgo's ``strategy`` doubles as Dhan's correlationId (max 30 chars).
+    # BTAlgo's ``strategy`` doubles as Dhan's correlationId (max 30 chars).
     correlation_id = data.get("correlation_id") or data.get("strategy") or ""
     if correlation_id:
         body["correlationId"] = str(correlation_id)[:30]
@@ -82,13 +82,13 @@ def transform_place_gtt(data):
 
 
 def transform_modify_gtt(data, leg_name):
-    """Transform an OpenAlgo modify-GTT payload into Dhan's PUT /forever/orders/{id} body.
+    """Transform an BTAlgo modify-GTT payload into Dhan's PUT /forever/orders/{id} body.
 
     Dhan modifies one leg at a time. Field semantics dispatch by
-    ``trigger_type`` (the OpenAlgo flag), not by ``leg_name`` — Dhan's leg
+    ``trigger_type`` (the BTAlgo flag), not by ``leg_name`` — Dhan's leg
     labels for SINGLE orders can be ENTRY_LEG / STOP_LOSS_LEG / TARGET_LEG
     depending on the action+trigger relationship to LTP at place-time, but
-    for OpenAlgo a SINGLE always carries its values in ``price`` and the
+    for BTAlgo a SINGLE always carries its values in ``price`` and the
     resolved trigger.
 
         - SINGLE (any leg_name) → ``price`` + resolved trigger.
@@ -125,12 +125,12 @@ def transform_modify_gtt(data, leg_name):
 
 
 def map_gtt_book(gtt_list):
-    """Normalise Dhan's GET /forever/orders response into an OpenAlgo-shaped list.
+    """Normalise Dhan's GET /forever/orders response into an BTAlgo-shaped list.
 
     Dhan returns a flat list of legs (one row per leg). SINGLE has one leg
     (``ENTRY_LEG``); OCO has two (``STOP_LOSS_LEG`` + ``TARGET_LEG``) sharing
     one ``orderId``. We group by orderId, sort triggers ascending, and emit
-    one OpenAlgo entry per order. ``last_price`` is not returned by Dhan, so
+    one BTAlgo entry per order. ``last_price`` is not returned by Dhan, so
     it is left as 0 — the frontend will display "₹0.00".
     """
     if not isinstance(gtt_list, list):

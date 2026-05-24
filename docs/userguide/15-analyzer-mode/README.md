@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Analyzer Mode is OpenAlgo's sandbox testing environment. It lets you test strategies with real market data but sandbox capital (₹1 Crore), ensuring you never risk real money while learning or validating strategies.
+Analyzer Mode is BTAlgo's sandbox testing environment. It lets you test strategies with real market data but sandbox capital (₹1 Crore), ensuring you never risk real money while learning or validating strategies.
 
 ## What is Analyzer Mode?
 
@@ -31,7 +31,7 @@ Analyzer Mode is OpenAlgo's sandbox testing environment. It lets you test strate
 
 ### 1. Learn Without Risk
 
-- New to OpenAlgo? Learn the interface
+- New to BTAlgo? Learn the interface
 - New to trading? Understand order flow
 - Test features before going live
 
@@ -57,7 +57,7 @@ Analyzer Mode is OpenAlgo's sandbox testing environment. It lets you test strate
 
 ### Method 1: Web Interface
 
-1. Login to OpenAlgo
+1. Login to BTAlgo
 2. Navigate to **Analyzer** page
 3. Click **Enable Analyzer Mode**
 4. Confirm the action
@@ -171,7 +171,7 @@ View sandbox P&L on the Sandbox P&L page:
 
 ### Step 1: Enable Analyzer Mode
 
-Turn on Analyzer Mode in OpenAlgo.
+Turn on Analyzer Mode in BTAlgo.
 
 ### Step 2: Configure TradingView Alert
 

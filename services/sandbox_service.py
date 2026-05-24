@@ -49,7 +49,7 @@ def sandbox_place_order(
 
     Args:
         order_data: Validated order data
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
         original_data: Original request data for logging
         prefetched_quote: Pre-fetched quote from multiquotes batch call (optional).
             When provided, skips per-order REST API quote fetch.
@@ -671,7 +671,7 @@ def sandbox_get_pnl_symbols(
     Returns unrealized P&L, today's realized P&L, and total P&L for today per symbol.
 
     Args:
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
         original_data: Original request data
 
     Returns:

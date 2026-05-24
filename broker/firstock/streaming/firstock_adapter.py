@@ -85,10 +85,10 @@ class FirstockWebSocketAdapter(BaseBrokerWebSocketAdapter):
                     f"Using Firstock user ID '{self.firstock_user_id}' from BROKER_API_KEY"
                 )
             else:
-                # Fallback to OpenAlgo user ID if BROKER_API_KEY not set
+                # Fallback to BTAlgo user ID if BROKER_API_KEY not set
                 self.firstock_user_id = user_id
                 self.logger.warning(
-                    f"BROKER_API_KEY not found in environment. Using OpenAlgo user ID '{user_id}' which may fail authentication"
+                    f"BROKER_API_KEY not found in environment. Using BTAlgo user ID '{user_id}' which may fail authentication"
                 )
 
         else:
@@ -119,10 +119,10 @@ class FirstockWebSocketAdapter(BaseBrokerWebSocketAdapter):
                         f"Using Firstock user ID '{self.firstock_user_id}' from BROKER_API_KEY"
                     )
                 else:
-                    # Fallback to OpenAlgo user ID if BROKER_API_KEY not set
+                    # Fallback to BTAlgo user ID if BROKER_API_KEY not set
                     self.firstock_user_id = user_id
                     self.logger.warning(
-                        f"BROKER_API_KEY not found in environment. Using OpenAlgo user ID '{user_id}' which may fail authentication"
+                        f"BROKER_API_KEY not found in environment. Using BTAlgo user ID '{user_id}' which may fail authentication"
                     )
 
         # Create FirstockWebSocket instance

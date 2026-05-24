@@ -1,7 +1,7 @@
 # services/flow_executor_service.py
 """
 Flow Workflow Executor Service
-Executes workflow nodes using internal OpenAlgo services (synchronous Flask version)
+Executes workflow nodes using internal BTAlgo services (synchronous Flask version)
 """
 
 import json
@@ -19,7 +19,7 @@ from database.flow_db import (
     get_workflow,
     update_execution_status,
 )
-from services.flow_openalgo_client import FlowOpenAlgoClient, get_flow_client
+from services.flow_btalgo_client import FlowBTAlgoClient, get_flow_client
 
 logger = logging.getLogger(__name__)
 
@@ -151,7 +151,7 @@ class WorkflowContext:
 class NodeExecutor:
     """Executes individual workflow nodes"""
 
-    def __init__(self, client: FlowOpenAlgoClient, context: WorkflowContext, logs: list):
+    def __init__(self, client: FlowBTAlgoClient, context: WorkflowContext, logs: list):
         self.client = client
         self.context = context
         self.logs = logs
@@ -1587,7 +1587,7 @@ class NodeExecutor:
     def execute_subscribe_ltp(self, node_data: dict) -> dict:
         """Execute Subscribe LTP node - get real-time LTP via WebSocket
 
-        Connects to OpenAlgo WebSocket server and subscribes to LTP updates.
+        Connects to BTAlgo WebSocket server and subscribes to LTP updates.
         Falls back to REST API if WebSocket fails or times out.
         """
         symbol = self.get_str(node_data, "symbol", "")
@@ -1675,7 +1675,7 @@ class NodeExecutor:
     def execute_subscribe_quote(self, node_data: dict) -> dict:
         """Execute Subscribe Quote node - get real-time quote via WebSocket
 
-        Connects to OpenAlgo WebSocket and subscribes to quote updates (OHLC + volume).
+        Connects to BTAlgo WebSocket and subscribes to quote updates (OHLC + volume).
         Falls back to REST API if WebSocket fails or times out.
         """
         symbol = self.get_str(node_data, "symbol", "")
@@ -1786,7 +1786,7 @@ class NodeExecutor:
     def execute_subscribe_depth(self, node_data: dict) -> dict:
         """Execute Subscribe Depth node - get market depth via WebSocket
 
-        Connects to OpenAlgo WebSocket and subscribes to depth updates (order book).
+        Connects to BTAlgo WebSocket and subscribes to depth updates (order book).
         Falls back to REST API if WebSocket fails or times out.
         """
         symbol = self.get_str(node_data, "symbol", "")

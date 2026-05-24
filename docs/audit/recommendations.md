@@ -2,7 +2,7 @@
 
 ## Overview
 
-When deploying OpenAlgo using `install.sh` on Ubuntu server, most security measures are **automatically configured**. This document covers what's already done and what remains for you.
+When deploying BTAlgo using `install.sh` on Ubuntu server, most security measures are **automatically configured**. This document covers what's already done and what remains for you.
 
 ## What `install.sh` Already Does
 
@@ -58,7 +58,7 @@ When deploying OpenAlgo using `install.sh` on Ubuntu server, most security measu
 
 #### 1. Set Strong Login Password
 
-**When**: First login to OpenAlgo
+**When**: First login to BTAlgo
 
 **How**:
 - Visit `https://yourdomain.com`
@@ -98,8 +98,8 @@ When deploying OpenAlgo using `install.sh` on Ubuntu server, most security measu
 
 **How**:
 ```bash
-# View OpenAlgo logs
-sudo journalctl -u openalgo-yourdomain-broker -f
+# View BTAlgo logs
+sudo journalctl -u btalgo-yourdomain-broker -f
 
 # View Nginx access logs
 sudo tail -f /var/log/nginx/access.log
@@ -117,8 +117,8 @@ sudo tail -f /var/log/nginx/error.log
 # Update Ubuntu packages
 sudo apt update && sudo apt upgrade -y
 
-# Update OpenAlgo dependencies
-cd /var/python/openalgo-flask/*/openalgo
+# Update BTAlgo dependencies
+cd /var/python/btalgo-flask/*/btalgo
 sudo -u www-data uv sync
 ```
 
@@ -222,7 +222,7 @@ Nginx Full                 ALLOW       Anywhere
 ### Check Service Status
 
 ```bash
-sudo systemctl status openalgo-*
+sudo systemctl status btalgo-*
 sudo systemctl status nginx
 ```
 
@@ -256,18 +256,18 @@ sudo certbot renew
 
 ```bash
 # Check logs
-sudo journalctl -u openalgo-yourdomain-broker -n 50
+sudo journalctl -u btalgo-yourdomain-broker -n 50
 
 # Restart service
-sudo systemctl restart openalgo-yourdomain-broker
+sudo systemctl restart btalgo-yourdomain-broker
 ```
 
 ### Permission Issues
 
 ```bash
 # Re-apply permissions
-sudo chown -R www-data:www-data /var/python/openalgo-flask/*/
-sudo chmod -R 755 /var/python/openalgo-flask/*/
+sudo chown -R www-data:www-data /var/python/btalgo-flask/*/
+sudo chmod -R 755 /var/python/btalgo-flask/*/
 ```
 
 ## Security Incident Response
@@ -276,7 +276,7 @@ sudo chmod -R 755 /var/python/openalgo-flask/*/
 
 1. **Immediately disable the service**:
    ```bash
-   sudo systemctl stop openalgo-*
+   sudo systemctl stop btalgo-*
    ```
 
 2. **Revoke broker session**:
@@ -289,7 +289,7 @@ sudo chmod -R 755 /var/python/openalgo-flask/*/
 
 4. **Review logs**:
    ```bash
-   sudo journalctl -u openalgo-* --since "24 hours ago"
+   sudo journalctl -u btalgo-* --since "24 hours ago"
    sudo cat /var/log/nginx/access.log | tail -1000
    ```
 

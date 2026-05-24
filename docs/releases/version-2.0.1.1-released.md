@@ -4,33 +4,33 @@
 
 **Major Feature Release: WhatsApp Bot Integration — Event-Driven Alerts + Slash-Command Queries, Plus a WebSocket Reliability Sweep Across 14 Brokers, New Broker Integrations (IIFLCapital Streaming, Groww Option Chain + WS Depth, Upstox GLOBAL\_INDEX), and Per-Install Fernet Salt Rotation with Crash-Safe Auto-Migration**
 
-This release spans **70+ commits** since v2.0.1.0. The headline change is **WhatsApp** — a self-hosted, event-driven WhatsApp bot that fires order alerts on the same event bus that drives Telegram, accepts slash-command queries (`/orderbook`, `/positions`, `/quote`, …) from the operator's own phone, and exposes a single send endpoint over REST. Pairing happens once from the OpenAlgo admin UI with a QR scan; the encrypted session blob is then stored in `openalgo.db` and the bot auto-reconnects on every server boot. Alongside WhatsApp, this release lands a WebSocket reliability sweep — subscribe batching across 6+ brokers, reconnect hardening across 4+ brokers, file-descriptor leak fixes in two streaming layers, and proxy-level fixes (ZMQ bind, mode normalization, request_id correlation). Three new broker integrations land: IIFLCapital streaming, Groww option chain + WS depth, and Upstox GLOBAL\_INDEX world feeds. Security: a per-install random `FERNET_SALT` now feeds the Fernet KDF, with a crash-safe online migration of existing ciphertext.
+This release spans **70+ commits** since v2.0.1.0. The headline change is **WhatsApp** — a self-hosted, event-driven WhatsApp bot that fires order alerts on the same event bus that drives Telegram, accepts slash-command queries (`/orderbook`, `/positions`, `/quote`, …) from the operator's own phone, and exposes a single send endpoint over REST. Pairing happens once from the BTAlgo admin UI with a QR scan; the encrypted session blob is then stored in `btalgo.db` and the bot auto-reconnects on every server boot. Alongside WhatsApp, this release lands a WebSocket reliability sweep — subscribe batching across 6+ brokers, reconnect hardening across 4+ brokers, file-descriptor leak fixes in two streaming layers, and proxy-level fixes (ZMQ bind, mode normalization, request_id correlation). Three new broker integrations land: IIFLCapital streaming, Groww option chain + WS depth, and Upstox GLOBAL\_INDEX world feeds. Security: a per-install random `FERNET_SALT` now feeds the Fernet KDF, with a crash-safe online migration of existing ciphertext.
 
 ***
 
 **Highlights**
 
 * **WhatsApp Bot — event-driven alerts + slash-command queries** — Brand-new `/whatsapp` admin page with auto-rotating QR pair flow, a single trader-facing `POST /api/v1/whatsapp/notify` endpoint that accepts text + image + document attachments, a dedicated worker thread that satisfies wars's PyO3 unsendable contract, and a `subscribers/whatsapp_subscriber` that wires every order topic on the existing event bus so order/position/batch events fire WhatsApp messages in parallel with Telegram. Single-user gate via WhatsApp's own `is_from_me=True` mark — random contacts who message the operator's number cannot drive the bot.
-* **`client.whatsapp()` in the openalgo Python SDK (1.0.50)** — One unified call for every common case: send to self, to a single E.164 number, to up to 5 numbers (ToS-safety cap), with text, image, or document payloads. `wait_for_delivery=True` by default so the response carries a real per-recipient delivery report.
+* **`client.whatsapp()` in the btalgo Python SDK (1.0.50)** — One unified call for every common case: send to self, to a single E.164 number, to up to 5 numbers (ToS-safety cap), with text, image, or document payloads. `wait_for_delivery=True` by default so the response carries a real per-recipient delivery report.
 * **WebSocket reliability sweep across 14 brokers** — Subscribe batching for Kotak (HSI multi-scrip frames + 50ms debounce), AliceBlue, Nubra, Shoonya, Angel, Flattrade. Reconnect hardening for Dhan (auto-resubscribe + data-stall watchdog), Dhan-Sandbox (eventlet-safe asyncio + single-loop reconnect), Upstox (stall-vs-network reconnect logging), Fyers TBT (batch queue + pong validation + exponential backoff + health check). Cold-subscribe latency cut ~5× on Shoonya; Zerodha lost a ~4s sleep floor.
 * **WebSocket-proxy + client fixes** — Bind ZMQ publisher to `ZMQ_HOST` instead of all interfaces (#1378), normalize subscribe/unsubscribe mode case-insensitively (#1375), correlate ack via request_id (#1376), route cache invalidation through `SharedZmqPublisher` to eliminate the PUB→PUB topology (#1374).
 * **Three new broker integrations** — **IIFLCapital streaming** (full WS adapter; file-descriptor leaks closed across reconnect cycles, #1416 + #1430), **Groww** (full option chain + WS depth, expiry filter for expired contracts, broker-symbol mangling fix, #1392), **Upstox GLOBAL\_INDEX** (US30 / JAPAN225 / HANGSENG world feeds via the existing Upstox WS adapter).
 * **Per-install random Fernet salt** — `FERNET_SALT` env var is now provisioned per install (32-byte hex, generated by `utils/env_check.py`) and feeds the Fernet KDF in `database/auth_db.py`. Crash-safe online migration moves existing ciphertext from the legacy static salt to the new one; if the process dies mid-migration the next boot resumes from the persisted state. Tightens broker-auth-token confidentiality and is the same domain-separated salt the new WhatsApp session blob uses.
-* **Platform version bump** — `2.0.1.0` → `2.0.1.1`. SDK pin (`openalgo`) `1.0.49` → `1.0.50`.
+* **Platform version bump** — `2.0.1.0` → `2.0.1.1`. SDK pin (`btalgo`) `1.0.49` → `1.0.50`.
 
 ***
 
 **WhatsApp Bot — feature deep dive**
 
-WhatsApp brings parity with Telegram for both outbound alerts and interactive command queries, with security choices tuned for the single-user-per-deployment model OpenAlgo runs under.
+WhatsApp brings parity with Telegram for both outbound alerts and interactive command queries, with security choices tuned for the single-user-per-deployment model BTAlgo runs under.
 
-**Architecture in one sentence:** the wars (PyO3 over whatsapp-rust) library hosts a fully linked WhatsApp Web device inside the Flask process; outgoing alerts flow event-bus → `whatsapp_subscriber` → `WhatsAppBotThread` → `wars.send()`; incoming slash-commands flow `wars.on_message` → `is_from_me=True` gate → command dispatcher → OpenAlgo SDK call → reply via the same bot thread.
+**Architecture in one sentence:** the wars (PyO3 over whatsapp-rust) library hosts a fully linked WhatsApp Web device inside the Flask process; outgoing alerts flow event-bus → `whatsapp_subscriber` → `WhatsAppBotThread` → `wars.send()`; incoming slash-commands flow `wars.on_message` → `is_from_me=True` gate → command dispatcher → BTAlgo SDK call → reply via the same bot thread.
 
 **Pairing (admin only)** — `c44a420b`:
 
 * `POST /whatsapp/pair` (session-cookie auth) spawns a temp-DB wars instance, registers an `on_qr` callback that streams `whatsapp_qr` SocketIO events with a `data:image/png` URL, and waits on `wait_until_ready(timeout=300)` for the phone-side scan
 * QR refreshes ~every 30 seconds; React `/whatsapp` page swaps the `<img>` source on each `whatsapp_qr` event without polling
-* On pair success: `export_session()` → Fernet-encrypted → persisted to `whatsapp_config.session_blob` in `openalgo.db` → temp file unlinked
+* On pair success: `export_session()` → Fernet-encrypted → persisted to `whatsapp_config.session_blob` in `btalgo.db` → temp file unlinked
 * Pair-code path (`POST /whatsapp/pair` with `phone` parameter) for users who prefer not to scan a QR
 
 **Encryption at rest** — `database/whatsapp_db.py`:
@@ -51,7 +51,7 @@ WhatsApp brings parity with Telegram for both outbound alerts and interactive co
 * `POST /api/v1/whatsapp/notify` is the **only** public endpoint
 * Pairing, start/stop, config, users, broadcast, stats, preferences live behind the session-authed `/whatsapp/*` blueprint — admin only
 * A leaked API key cannot re-pair the device, enumerate linked recipients, change rate limits, or fan out to the operator's contact list
-* Hard precheck — every send path refuses with `409 "WhatsApp is not paired or not connected. Pair the device first from the /whatsapp page in OpenAlgo before sending."` if `is_ready()` is false; we explicitly do not queue when unpaired
+* Hard precheck — every send path refuses with `409 "WhatsApp is not paired or not connected. Pair the device first from the /whatsapp page in BTAlgo before sending."` if `is_ready()` is false; we explicitly do not queue when unpaired
 
 **Send paths — one unified call**:
 
@@ -60,7 +60,7 @@ WhatsApp brings parity with Telegram for both outbound alerts and interactive co
 * `client.whatsapp("alert", to=[...])` → broadcast (capped at 5 server-side — anything beyond is dropped; ToS-safety guardrail)
 * `client.whatsapp("EOD chart", to="919...", image="/srv/charts/nifty.png", caption="...")` → image with caption
 * `client.whatsapp("report", username="alice", document="/srv/reports/eod.pdf", filename="EOD.pdf")` → document
-* Attachment paths validated against `WHATSAPP_ATTACHMENT_ROOTS` allowlist (default: `<openalgo>/db/attachments/`); paths with `..`, paths under `/etc /proc /sys /root /var/log /C:\Windows`, or paths that resolve outside the allowlist are rejected with `400 image_path is not allowed`
+* Attachment paths validated against `WHATSAPP_ATTACHMENT_ROOTS` allowlist (default: `<btalgo>/db/attachments/`); paths with `..`, paths under `/etc /proc /sys /root /var/log /C:\Windows`, or paths that resolve outside the allowlist are rejected with `400 image_path is not allowed`
 
 **Inbound commands** — `services/whatsapp_bot_service.py`:
 
@@ -78,7 +78,7 @@ WhatsApp brings parity with Telegram for both outbound alerts and interactive co
 | `/closeall` | `client.closeposition()` |
 | `/mode` | live or analyze |
 
-Auth: the bot only responds when `is_from_me=True` (WhatsApp's multi-device protocol marks messages mirrored from the operator's primary phone with this flag). Random contacts who message the operator's WhatsApp number arrive with `is_from_me=False` and are silently ignored. The OpenAlgo SDK calls run with the operator's API key, looked up from `auth_db` by the `owner_username` captured at pair time — there is no `/link` flow because there is no second user to authorize.
+Auth: the bot only responds when `is_from_me=True` (WhatsApp's multi-device protocol marks messages mirrored from the operator's primary phone with this flag). Random contacts who message the operator's WhatsApp number arrive with `is_from_me=False` and are silently ignored. The BTAlgo SDK calls run with the operator's API key, looked up from `auth_db` by the `owner_username` captured at pair time — there is no `/link` flow because there is no second user to authorize.
 
 **Auto-reconnect on app boot** — `app.py:_autostart_whatsapp_bot`:
 
@@ -98,7 +98,7 @@ Auth: the bot only responds when `is_from_me=True` (WhatsApp's multi-device prot
 * Three known-noisy targets silenced at module import (before any `import wars`): `wacore::send` (stale-device warnings), `whatsapp_rust::message` (PN→LID migration chatter), `wacore_libsignal::protocol::session_cipher` (no-current-session errors that the upper layer already handles)
 * `os.environ.setdefault("RUST_LOG", ...)` — operator can still override via shell or `.env` for diagnostics
 
-**openalgo Python SDK 1.0.50** — released to PyPI alongside this version:
+**btalgo Python SDK 1.0.50** — released to PyPI alongside this version:
 
 * New `WhatsAppAPI` mix-in adds `client.whatsapp(...)` with the four recipient forms and image/document payloads
 * Mirrors the `client.telegram()` ergonomics for traders already familiar with the SDK
@@ -176,7 +176,7 @@ What this means operationally:
 * `d63ec927` — drop hero gradient on the home page, use solid `text-primary`
 * `3f4e2b2b` — home: "New in V2 — 12-Tool Options Analytics Suite" pill
 * `624f8726` — home: Integrates With + Made for AI sections
-* `61370758` / `54d83c07` — restyle the MCP OAuth consent page to match OpenAlgo dashboard + fix alignment
+* `61370758` / `54d83c07` — restyle the MCP OAuth consent page to match BTAlgo dashboard + fix alignment
 
 ***
 
@@ -186,14 +186,14 @@ What this means operationally:
 
 * `FERNET_SALT` — new placeholder line auto-rotated on first boot, placed adjacent to `API_KEY_PEPPER`
 * No new keys for WhatsApp — `WHATSAPP_KEY_SALT` reuses the existing `FERNET_SALT` with a `:whatsapp-session` domain suffix (zero new env vars to manage)
-* Optional: `WHATSAPP_ATTACHMENT_ROOTS` (comma-separated absolute dirs; defaults to `<openalgo>/db/attachments/`)
+* Optional: `WHATSAPP_ATTACHMENT_ROOTS` (comma-separated absolute dirs; defaults to `<btalgo>/db/attachments/`)
 * Optional: `RUST_LOG` — defaults to a filter that silences three known-noisy wars/whatsapp-rust modules
 
 `pyproject.toml`:
 
 * `version = "2.0.1.1"`
 * New: `wars==0.1.3` dependency (also added to `requirements.txt` + `requirements-nginx.txt`)
-* SDK pin (`openalgo`) `1.0.49` → `1.0.50`
+* SDK pin (`btalgo`) `1.0.49` → `1.0.50`
 
 `utils/version.py`:
 
@@ -202,7 +202,7 @@ What this means operationally:
 `requirements.txt` + `requirements-nginx.txt`:
 
 * `wars==0.1.3` added after `python-telegram-bot==22.6`
-* `openalgo==1.0.49` → `openalgo==1.0.50`
+* `btalgo==1.0.49` → `btalgo==1.0.50`
 
 `frontend/src/stores/alertStore.ts`:
 
@@ -239,9 +239,9 @@ Idempotent `PRAGMA table_info` migration adds `owner_user_id` + `owner_username`
 
 * New: `docs/api/whatsapp-services/README.md` — architecture + security model + slash-command reference
 * New: `docs/api/whatsapp-services/notify.md` — full endpoint reference for `POST /api/v1/whatsapp/notify`
-* New: `collections/openalgo/IN_stock/whatsapp_notify.bru` — Bruno collection entry (auto-discovered by `/playground`)
+* New: `collections/btalgo/IN_stock/whatsapp_notify.bru` — Bruno collection entry (auto-discovered by `/playground`)
 * Updated: `docs/api/README.md` — adds the WhatsApp Services section under the existing service taxonomy
-* Updated: `docs/prompt/openalgo python sdk.md` — full `client.whatsapp(...)` reference with all four recipient forms, image/document attachments, fire-and-forget vs synchronous delivery, and inbound slash-command reference
+* Updated: `docs/prompt/btalgo python sdk.md` — full `client.whatsapp(...)` reference with all four recipient forms, image/document attachments, fire-and-forget vs synchronous delivery, and inbound slash-command reference
 * `52eb8650` — `docs(mcp): rewrite Remote MCP userguide for traders, drop stale install paths`
 * `3b3054be` — `docs(claude): update CLAUDE.md with new product surfaces, Ruff tooling, and architecture details (#1412)`
 * `1a7d3a0a` — `docs(claude): clarify sandbox terminology and split /sandbox vs /analyzer surfaces`
@@ -258,7 +258,7 @@ Idempotent `PRAGMA table_info` migration adds `owner_user_id` + `owner_username`
 * `647183bd` — `feat(remote-mcp): UI controls for master switch + posture toggles`
 * `9ec851ab` — `fix(mcp): use HOST_SERVER for SDK loopback so install.sh deploys work`
 * `5fa17bd3` — `fix(diagnostics): correct dead secret keys + git info inside Docker (#1388)`
-* `f786e21a` — `chore: add Caddyfile for local https://openalgo.local dev`
+* `f786e21a` — `chore: add Caddyfile for local https://btalgo.local dev`
 * `4e09da8b` — `fix(python-strategy): Stop button works under gunicorn-eventlet (#1404)`
 
 ***
@@ -277,7 +277,7 @@ Idempotent `PRAGMA table_info` migration adds `owner_user_id` + `owner_username`
 **For existing installs (Native Ubuntu):**
 
 ```bash
-cd /var/python/openalgo-flask/<deploy-name>/openalgo
+cd /var/python/btalgo-flask/<deploy-name>/btalgo
 sudo ./install/update.sh
 # update.sh runs migrate_all.py — the new whatsapp_config / whatsapp_users
 # tables and the owner_user_id column are created automatically. The
@@ -288,7 +288,7 @@ sudo ./install/update.sh
 **For existing installs (Docker):**
 
 ```bash
-cd /opt/openalgo/<domain>
+cd /opt/btalgo/<domain>
 sudo docker compose pull
 sudo docker compose up -d
 # The container's start.sh runs migrate_all.py before gunicorn boots.
@@ -306,10 +306,10 @@ uv run app.py
 
 **Enabling WhatsApp** (post-upgrade, optional):
 
-1. Log in to OpenAlgo, open `/whatsapp`.
+1. Log in to BTAlgo, open `/whatsapp`.
 2. Click **Start pairing**. A QR code appears.
 3. On your phone: WhatsApp → Settings → Linked devices → Link a device → scan.
-4. Done. The bot auto-starts and reconnects on every server boot from the encrypted session in `openalgo.db`.
+4. Done. The bot auto-starts and reconnects on every server boot from the encrypted session in `btalgo.db`.
 
 The session blob never leaves your server. There is no second-party service to register with — it's a direct Signal-Protocol connection to WhatsApp.
 
@@ -317,19 +317,19 @@ The session blob never leaves your server. There is no second-party service to r
 
 **Contributors**
 
-* **@marketcalls (Rajandran)** — release management; WhatsApp architecture and full implementation (database schema with Fernet-encrypted session blob + domain-separated salt, dedicated `WhatsAppBotThread` to satisfy PyO3's unsendable contract, event-bus subscriber wired into all 13 order topics, send-only REST API + session-authed admin blueprint, React `/whatsapp` page with auto-rotating QR, RUST_LOG suppression for the three known-noisy wars modules, attachment-path allowlist with traversal-token rejection, lazy own-JID capture from `is_from_me=True` messages, slash-command dispatcher with `is_from_me` gate, auto-reconnect on app boot); openalgo Python SDK 1.0.50 release with new `client.whatsapp(...)` API; WebSocket reliability sweep across 14 brokers (subscribe batching, reconnect hardening, fd-leak fixes); new IIFLCapital streaming adapter (#1416, #1430); Groww option chain + WS depth (#1392); Upstox GLOBAL_INDEX world feeds; Zerodha MCX_INDEX wiring (#1385); per-install Fernet salt rotation with crash-safe migration; websocket-proxy fixes (ZMQ bind #1378, mode normalization #1375, request_id correlation #1376, SharedZmqPublisher topology #1374); UI alignment fixes and stale-chunk auto-reload; comprehensive WhatsApp documentation (endpoint reference, SDK prompt-doc, Bruno collection entry).
+* **@marketcalls (Rajandran)** — release management; WhatsApp architecture and full implementation (database schema with Fernet-encrypted session blob + domain-separated salt, dedicated `WhatsAppBotThread` to satisfy PyO3's unsendable contract, event-bus subscriber wired into all 13 order topics, send-only REST API + session-authed admin blueprint, React `/whatsapp` page with auto-rotating QR, RUST_LOG suppression for the three known-noisy wars modules, attachment-path allowlist with traversal-token rejection, lazy own-JID capture from `is_from_me=True` messages, slash-command dispatcher with `is_from_me` gate, auto-reconnect on app boot); btalgo Python SDK 1.0.50 release with new `client.whatsapp(...)` API; WebSocket reliability sweep across 14 brokers (subscribe batching, reconnect hardening, fd-leak fixes); new IIFLCapital streaming adapter (#1416, #1430); Groww option chain + WS depth (#1392); Upstox GLOBAL_INDEX world feeds; Zerodha MCX_INDEX wiring (#1385); per-install Fernet salt rotation with crash-safe migration; websocket-proxy fixes (ZMQ bind #1378, mode normalization #1375, request_id correlation #1376, SharedZmqPublisher topology #1374); UI alignment fixes and stale-chunk auto-reload; comprehensive WhatsApp documentation (endpoint reference, SDK prompt-doc, Bruno collection entry).
 
 ***
 
 **Links**
 
-* **Repository**: <https://github.com/marketcalls/openalgo>
-* **Documentation**: <https://docs.openalgo.in>
+* **Repository**: <https://github.com/billionairestechnologies/btalgo>
+* **Documentation**: <https://docs.billionairestechnologies.com>
 * **Python SDK on PyPI**: <https://pypi.org/project/openalgo/1.0.50/>
-* **WhatsApp service docs**: <https://docs.openalgo.in/api-documentation/v1/whatsapp-services>
-* **Discord**: <https://www.openalgo.in/discord>
-* **YouTube**: <https://www.youtube.com/@openalgo>
-* **Issue tracker**: <https://github.com/marketcalls/openalgo/issues>
+* **WhatsApp service docs**: <https://docs.billionairestechnologies.com/api-documentation/v1/whatsapp-services>
+* **Discord**: <https://www.billionairestechnologies.com/discord>
+* **YouTube**: <https://www.youtube.com/@BTAlgo>
+* **Issue tracker**: <https://github.com/billionairestechnologies/btalgo/issues>
 
 ***
 
@@ -343,7 +343,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/change-log/release/version-2.0.1.1-released.md?ask=<question>
+GET https://docs.billionairestechnologies.com/change-log/release/version-2.0.1.1-released.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

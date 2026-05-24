@@ -1,5 +1,5 @@
 # mapping/margin_data.py
-# Mapping OpenAlgo margin positions to Delta Exchange margin_required API format
+# Mapping BTAlgo margin positions to Delta Exchange margin_required API format
 # Delta Exchange endpoint: GET /v2/products/{product_id}/margin_required
 
 from broker.deltaexchange.mapping.transform_data import _order_size
@@ -11,9 +11,9 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin position list to Delta Exchange format.
+    Transform BTAlgo margin position list to Delta Exchange format.
 
-    Each OpenAlgo position is converted to a dict with the fields needed
+    Each BTAlgo position is converted to a dict with the fields needed
     to call GET /v2/products/{product_id}/margin_required:
         product_id  (int)  – from token DB (token = product_id on Delta)
         size        (int|float)  – contracts (int) or spot quantity (float)
@@ -22,7 +22,7 @@ def transform_margin_positions(positions):
         limit_price (str)  – required if order_type == "limit_order"
 
     Args:
-        positions: List of dicts in OpenAlgo format
+        positions: List of dicts in BTAlgo format
             {symbol, exchange, action (BUY/SELL), quantity, product,
              price (optional), pricetype (optional)}
 
@@ -108,7 +108,7 @@ def parse_margin_response(response_data):
           }
         }
 
-    OpenAlgo margin format (3 fields):
+    BTAlgo margin format (3 fields):
         total_margin_required  ← initial_margin
         span_margin            ← initial_margin  (Delta has no SPAN concept; use same)
         exposure_margin        ← 0.00            (no separate exposure on crypto)

@@ -1,5 +1,5 @@
 """
-Flattrade WebSocket Adapter for OpenAlgo
+Flattrade WebSocket Adapter for BTAlgo
 Handles market data streaming from Flattrade broker
 """
 

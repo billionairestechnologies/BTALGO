@@ -51,7 +51,7 @@ def authenticate_broker(userid, broker_pin, totp_code, date_of_birth):
             "osversion": "10.0",
             "devicemodel": "PC",
             "manufacturer": "Generic",
-            "productname": "OpenAlgo",
+            "productname": "BTAlgo",
             "productversion": "1.0.0",
             "browsername": "Chrome",
             "browserversion": "120.0",

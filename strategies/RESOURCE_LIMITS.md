@@ -11,7 +11,7 @@ Each strategy runs as a **separate subprocess** (`subprocess.Popen`). It gets it
 | Component | Typical RAM |
 |---|---|
 | Python interpreter baseline | ~20-30 MB |
-| `openalgo` SDK + `requests`/`httpx` | ~5-10 MB |
+| `btalgo` SDK + `requests`/`httpx` | ~5-10 MB |
 | `pandas` + `numpy` (imported) | ~40-60 MB |
 | Historical DataFrame (500 candles, 6 columns) | ~1-2 MB |
 | Historical DataFrame (50,000 candles, 6 columns) | ~10-15 MB |
@@ -58,7 +58,7 @@ If your strategies are simple signal checkers, lower it to 256-512 MB and run mo
 | 0 | stdin (inherited, unused) |
 | 1 | stdout (redirected to strategy log file) |
 | 2 | stderr (merged into stdout) |
-| 3-4 | HTTP connection to OpenAlgo API (socket + TLS) |
+| 3-4 | HTTP connection to BTAlgo API (socket + TLS) |
 | 5-6 | WebSocket connection (if using `client.connect()`) |
 | 7-8 | Occasional: imported library configs, temp files |
 

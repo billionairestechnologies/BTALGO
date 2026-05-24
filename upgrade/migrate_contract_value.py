@@ -33,7 +33,7 @@ def migrate_contract_value():
     """Add contract_value column to symtoken table if it doesn't exist"""
 
     # Get database URL from environment
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
 
     # Adjust path for SQLite if relative (since we're in upgrade folder)
     if DATABASE_URL.startswith("sqlite:///") and not DATABASE_URL.startswith("sqlite:////"):
@@ -75,7 +75,7 @@ def migrate_contract_value():
 def main():
     """Main function to run the migration"""
     logger.info("=" * 60)
-    logger.info("OpenAlgo Contract Value Migration")
+    logger.info("BTAlgo Contract Value Migration")
     logger.info("=" * 60)
     logger.info("Adding contract_value column to symtoken table for crypto support")
     logger.info("-" * 60)

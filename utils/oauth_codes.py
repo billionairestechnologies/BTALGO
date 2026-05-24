@@ -130,7 +130,7 @@ class _CodeStore:
             return len(self._codes)
 
 
-# Module-level singleton — single store per process. Fine for OpenAlgo's
+# Module-level singleton — single store per process. Fine for BTAlgo's
 # single-eventlet-worker production model. Multi-worker deployments
 # would need a shared backend (Redis), but the broader architecture
 # already mandates -w 1 for SocketIO.

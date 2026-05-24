@@ -176,7 +176,7 @@ def get_open_position(
 
     Args:
         position_data: Position data containing symbol, exchange, and product
-        api_key: OpenAlgo API key (for API-based calls)
+        api_key: BTAlgo API key (for API-based calls)
         auth_token: Direct broker authentication token (for internal calls)
         broker: Direct broker name (for internal calls)
 
@@ -197,7 +197,7 @@ def get_open_position(
 
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
-            error_response = {"status": "error", "message": "Invalid openalgo apikey"}
+            error_response = {"status": "error", "message": "Invalid btalgo apikey"}
             # Skip logging for invalid API keys to prevent database flooding
             return False, error_response, 403
 

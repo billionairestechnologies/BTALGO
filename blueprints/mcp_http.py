@@ -204,7 +204,7 @@ def init_http_transport() -> None:
     """Wire the SDK client used by the @mcp.tool() functions.
 
     Must be called from app.py while MCP_HTTP_ENABLED is True. Looks up
-    the admin's existing OpenAlgo API key (stored in db/openalgo.db)
+    the admin's existing BTAlgo API key (stored in db/btalgo.db)
     and points the SDK at the local loopback so tool calls go through
     the existing /api/v1/* surface — same code path as the SDK uses
     everywhere else.
@@ -215,7 +215,7 @@ def init_http_transport() -> None:
 
     # Make the legacy stdio module skip its argv check when the HTTP
     # transport boots it. MUST be set BEFORE loading mcp/mcpserver.py.
-    os.environ["OPENALGO_MCP_HTTP_BOOT"] = "1"
+    os.environ["BTALGO_MCP_HTTP_BOOT"] = "1"
 
     # The local ``mcp/`` directory is not a Python package (no
     # ``__init__.py``) — adding one would shadow the pip-installed
@@ -237,7 +237,7 @@ def init_http_transport() -> None:
     from database.auth_db import get_first_available_api_key
 
     api_key = get_first_available_api_key()
-    # Loopback target the bundled openalgo SDK uses to call back into
+    # Loopback target the bundled btalgo SDK uses to call back into
     # /api/v1/*. Resolution order:
     #   1. MCP_LOOPBACK_URL — explicit override for unusual topologies.
     #   2. HOST_SERVER — set by every official install script
@@ -256,7 +256,7 @@ def init_http_transport() -> None:
 
     if api_key is None:
         logger.warning(
-            "[MCP HTTP] No OpenAlgo API key found in db/openalgo.db. "
+            "[MCP HTTP] No BTAlgo API key found in db/btalgo.db. "
             "Tool calls will fail until the admin creates an API key. "
             "Visit /apikey to generate one."
         )
@@ -304,7 +304,7 @@ def _resource_metadata_url() -> str:
 
 def _unauthorized(error_code: str, description: str = "") -> Response:
     """RFC 6750 §3 — 401 with WWW-Authenticate Bearer challenge."""
-    challenge = f'Bearer realm="openalgo-mcp", error="{error_code}"'
+    challenge = f'Bearer realm="btalgo-mcp", error="{error_code}"'
     if description:
         challenge += f', error_description="{description}"'
     challenge += f', resource_metadata="{_resource_metadata_url()}"'
@@ -445,7 +445,7 @@ def mcp_dispatch():
             rpc_id,
             {
                 "protocolVersion": "2025-06-18",
-                "serverInfo": {"name": "openalgo", "version": _openalgo_version()},
+                "serverInfo": {"name": "btalgo", "version": _btalgo_version()},
                 "capabilities": {"tools": {"listChanged": False}},
             },
         )
@@ -472,7 +472,7 @@ def mcp_dispatch():
     return _jsonrpc_error(rpc_id, -32601, f"Method not found: {method}")
 
 
-def _openalgo_version() -> str:
+def _btalgo_version() -> str:
     try:
         from utils.version import get_version
 
@@ -655,7 +655,7 @@ def _dispatch_tool_call(
         }.get(outcome, "Tool execution failed.")
         return _jsonrpc_error(rpc_id, -32603, "tool_error", data={"reason": client_message})
 
-    # MCP content blocks per spec — tools return a string per OpenAlgo
+    # MCP content blocks per spec — tools return a string per BTAlgo
     # convention (_to_json wraps SDK responses).
     return _jsonrpc_result(
         rpc_id,
@@ -690,7 +690,7 @@ def mcp_sse():
 
     def gen():
         # Initial comment so the client knows the stream is live.
-        yield ": openalgo-mcp connected\n\n"
+        yield ": btalgo-mcp connected\n\n"
         last_keepalive = time.time()
         # Loop until the client disconnects. eventlet's cooperative
         # scheduler handles many of these without blocking other
@@ -717,7 +717,7 @@ def mcp_sse():
 @mcp_http_bp.route("/healthz", methods=["GET"])
 def healthz():
     """Liveness probe for nginx / monitors. No auth; returns minimal info."""
-    return jsonify({"status": "ok", "service": "openalgo-mcp"}), 200
+    return jsonify({"status": "ok", "service": "btalgo-mcp"}), 200
 
 
 @mcp_http_bp.route("/.well-known/oauth-protected-resource", methods=["GET"])

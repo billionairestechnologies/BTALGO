@@ -1,10 +1,10 @@
 """
 Mapping utilities for Kotak broker integration.
-Provides exchange, product, and order type mappings between OpenAlgo and Kotak formats.
+Provides exchange, product, and order type mappings between BTAlgo and Kotak formats.
 """
 
 # Exchange code mappings
-OPENALGO_TO_KOTAK_EXCHANGE = {
+BTALGO_TO_KOTAK_EXCHANGE = {
     "NSE": "nse_cm",
     "nse": "nse_cm",
     "BSE": "bse_cm",
@@ -23,10 +23,10 @@ OPENALGO_TO_KOTAK_EXCHANGE = {
     "BSE_INDEX": "bse_cm",
 }
 
-KOTAK_TO_OPENALGO_EXCHANGE = {v: k for k, v in OPENALGO_TO_KOTAK_EXCHANGE.items()}
+KOTAK_TO_BTALGO_EXCHANGE = {v: k for k, v in BTALGO_TO_KOTAK_EXCHANGE.items()}
 
 # Product type mappings
-OPENALGO_TO_KOTAK_PRODUCT = {
+BTALGO_TO_KOTAK_PRODUCT = {
     "Normal": "NRML",
     "NRML": "NRML",
     "CNC": "CNC",
@@ -44,10 +44,10 @@ OPENALGO_TO_KOTAK_PRODUCT = {
     "bo": "Bracket Order",
 }
 
-KOTAK_TO_OPENALGO_PRODUCT = {v: k for k, v in OPENALGO_TO_KOTAK_PRODUCT.items()}
+KOTAK_TO_BTALGO_PRODUCT = {v: k for k, v in BTALGO_TO_KOTAK_PRODUCT.items()}
 
 # Order type mappings
-OPENALGO_TO_KOTAK_ORDER_TYPE = {
+BTALGO_TO_KOTAK_ORDER_TYPE = {
     "Limit": "L",
     "L": "L",
     "l": "L",
@@ -71,46 +71,46 @@ OPENALGO_TO_KOTAK_ORDER_TYPE = {
     "Three leg": "3L",
 }
 
-KOTAK_TO_OPENALGO_ORDER_TYPE = {v: k for k, v in OPENALGO_TO_KOTAK_ORDER_TYPE.items()}
+KOTAK_TO_BTALGO_ORDER_TYPE = {v: k for k, v in BTALGO_TO_KOTAK_ORDER_TYPE.items()}
 
 
-def get_kotak_exchange(openalgo_exchange: str) -> str:
+def get_kotak_exchange(btalgo_exchange: str) -> str:
     """
-    Convert OpenAlgo exchange code to Kotak exchange code.
+    Convert BTAlgo exchange code to Kotak exchange code.
     """
-    return OPENALGO_TO_KOTAK_EXCHANGE.get(openalgo_exchange, openalgo_exchange)
+    return BTALGO_TO_KOTAK_EXCHANGE.get(btalgo_exchange, btalgo_exchange)
 
 
-def get_openalgo_exchange(kotak_exchange: str) -> str:
+def get_btalgo_exchange(kotak_exchange: str) -> str:
     """
-    Convert Kotak exchange code to OpenAlgo exchange code.
+    Convert Kotak exchange code to BTAlgo exchange code.
     """
-    return KOTAK_TO_OPENALGO_EXCHANGE.get(kotak_exchange, kotak_exchange)
+    return KOTAK_TO_BTALGO_EXCHANGE.get(kotak_exchange, kotak_exchange)
 
 
-def get_kotak_product(openalgo_product: str) -> str:
+def get_kotak_product(btalgo_product: str) -> str:
     """
-    Convert OpenAlgo product type to Kotak product type.
+    Convert BTAlgo product type to Kotak product type.
     """
-    return OPENALGO_TO_KOTAK_PRODUCT.get(openalgo_product, openalgo_product)
+    return BTALGO_TO_KOTAK_PRODUCT.get(btalgo_product, btalgo_product)
 
 
-def get_openalgo_product(kotak_product: str) -> str:
+def get_btalgo_product(kotak_product: str) -> str:
     """
-    Convert Kotak product type to OpenAlgo product type.
+    Convert Kotak product type to BTAlgo product type.
     """
-    return KOTAK_TO_OPENALGO_PRODUCT.get(kotak_product, kotak_product)
+    return KOTAK_TO_BTALGO_PRODUCT.get(kotak_product, kotak_product)
 
 
-def get_kotak_order_type(openalgo_order_type: str) -> str:
+def get_kotak_order_type(btalgo_order_type: str) -> str:
     """
-    Convert OpenAlgo order type to Kotak order type.
+    Convert BTAlgo order type to Kotak order type.
     """
-    return OPENALGO_TO_KOTAK_ORDER_TYPE.get(openalgo_order_type, openalgo_order_type)
+    return BTALGO_TO_KOTAK_ORDER_TYPE.get(btalgo_order_type, btalgo_order_type)
 
 
-def get_openalgo_order_type(kotak_order_type: str) -> str:
+def get_btalgo_order_type(kotak_order_type: str) -> str:
     """
-    Convert Kotak order type to OpenAlgo order type.
+    Convert Kotak order type to BTAlgo order type.
     """
-    return KOTAK_TO_OPENALGO_ORDER_TYPE.get(kotak_order_type, kotak_order_type)
+    return KOTAK_TO_BTALGO_ORDER_TYPE.get(kotak_order_type, kotak_order_type)

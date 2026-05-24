@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Your API key is the authentication token that allows external systems (TradingView, Amibroker, Python scripts) to place orders through OpenAlgo. Managing it properly is crucial for both functionality and security.
+Your API key is the authentication token that allows external systems (TradingView, Amibroker, Python scripts) to place orders through BTAlgo. Managing it properly is crucial for both functionality and security.
 
 ## What is an API Key?
 
@@ -16,18 +16,18 @@ API Key: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
 
 **It allows**:
 - External platforms to send orders
-- Your scripts to communicate with OpenAlgo
+- Your scripts to communicate with BTAlgo
 - Webhooks to trigger trades
 
 **It does NOT**:
-- Give access to OpenAlgo web interface (that's your password)
+- Give access to BTAlgo web interface (that's your password)
 - Give direct access to your broker (that's broker credentials)
 
 ## Generating Your API Key
 
 ### Step 1: Navigate to API Key Page
 
-1. Login to OpenAlgo
+1. Login to BTAlgo
 2. Go to **API Key** in sidebar
 3. Or visit: `http://127.0.0.1:5000/apikey`
 
@@ -142,9 +142,9 @@ result = client.place_order(
 ### In Node.js Scripts
 
 ```javascript
-const OpenAlgo = require('openalgo-node');
+const BTAlgo = require('btalgo-node');
 
-const client = new OpenAlgo({
+const client = new BTAlgo({
   apiKey: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
   host: 'http://127.0.0.1:5000'
 });
@@ -214,12 +214,12 @@ api_key = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
 **Good**:
 ```python
 import os
-api_key = os.environ.get('OPENALGO_API_KEY')
+api_key = os.environ.get('BTALGO_API_KEY')
 ```
 
 Then set the environment variable:
 ```bash
-export OPENALGO_API_KEY="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
+export BTALGO_API_KEY="a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6"
 ```
 
 ## API Key Permissions
@@ -239,7 +239,7 @@ Your API key allows these operations:
 - Get market depth
 
 ### Not Accessible via API Key
-- Change OpenAlgo password
+- Change BTAlgo password
 - Change broker credentials
 - Access admin settings
 - View other users' data
@@ -254,7 +254,7 @@ Your API key allows these operations:
 - Extra spaces
 
 **Solution**:
-- Copy key directly from OpenAlgo
+- Copy key directly from BTAlgo
 - Ensure no spaces before/after
 - Check if key was regenerated
 
@@ -265,7 +265,7 @@ Your API key allows these operations:
 - Key revoked
 
 **Solution**:
-- Verify key matches your OpenAlgo instance
+- Verify key matches your BTAlgo instance
 - Generate new key if needed
 
 ### Issue: "Rate limit exceeded"
@@ -281,7 +281,7 @@ Your API key allows these operations:
 
 ## Rate Limits
 
-OpenAlgo applies rate limits to prevent abuse:
+BTAlgo applies rate limits to prevent abuse:
 
 | Endpoint Type | Default Limit |
 |---------------|---------------|
@@ -338,7 +338,7 @@ Before going live:
 | Length | 32 characters |
 | Format | Alphanumeric |
 | Validity | Until regenerated |
-| Scope | Single OpenAlgo instance |
+| Scope | Single BTAlgo instance |
 | Regeneration | Manual only |
 
 ---

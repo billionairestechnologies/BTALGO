@@ -2,11 +2,11 @@
 
 ## Introduction
 
-You've installed OpenAlgo. Now let's configure it properly for secure operation and connect it to your broker.
+You've installed BTAlgo. Now let's configure it properly for secure operation and connect it to your broker.
 
 ## Setup Wizard Overview
 
-When you first access OpenAlgo, you'll go through these steps:
+When you first access BTAlgo, you'll go through these steps:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@ When you first access OpenAlgo, you'll go through these steps:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Step 1: Access OpenAlgo
+## Step 1: Access BTAlgo
 
-1. Start OpenAlgo:
+1. Start BTAlgo:
    ```bash
    uv run app.py
    ```
@@ -63,7 +63,7 @@ Click **Create Account**.
 
 ## Step 3: Configure Security Keys
 
-Before using OpenAlgo, you MUST set unique security keys.
+Before using BTAlgo, you MUST set unique security keys.
 
 ### Generate Security Keys
 
@@ -94,11 +94,11 @@ API_KEY_PEPPER=z7y6x5w4v3u2t1s0r9q8p7o6n5m4l3k2j1i0h9g8f7e6d5c4b3a2
 - Keep these keys SECRET
 - Never share them
 
-### Restart OpenAlgo
+### Restart BTAlgo
 
 After changing `.env`, restart:
 ```bash
-# Stop OpenAlgo (Ctrl+C)
+# Stop BTAlgo (Ctrl+C)
 # Start again
 uv run app.py
 ```
@@ -145,7 +145,7 @@ BROKER_TOTP_KEY=your_totp_secret
 
 ### Alternative: Configure via Web Interface
 
-1. Login to OpenAlgo
+1. Login to BTAlgo
 2. Go to **Profile** → **Broker Configuration**
 3. Select your broker
 4. Enter credentials
@@ -155,11 +155,11 @@ BROKER_TOTP_KEY=your_totp_secret
 
 ### Login to Your Broker
 
-1. In OpenAlgo, click **Login to Broker**
+1. In BTAlgo, click **Login to Broker**
 2. You'll be redirected to your broker's login page
 3. Enter your broker credentials
-4. Authorize OpenAlgo
-5. You'll be redirected back to OpenAlgo
+4. Authorize BTAlgo
+5. You'll be redirected back to BTAlgo
 
 **Successful connection shows**:
 - Green "Connected" status
@@ -274,7 +274,7 @@ Before proceeding, confirm:
 
 ## What's Next?
 
-Congratulations! OpenAlgo is now set up. Your next steps:
+Congratulations! BTAlgo is now set up. Your next steps:
 
 1. **Learn the Interface**: [Understanding the Interface](../08-understanding-interface/README.md)
 2. **Practice First**: [Analyzer Mode](../15-analyzer-mode/README.md) - Walkforward test with sandbox capital

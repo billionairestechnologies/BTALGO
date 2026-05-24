@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-OpenAlgo is a production-ready algorithmic trading platform built with Flask (backend) and React 19 (frontend). It is **four products in one self-hosted instance**, all sharing a single broker session and WebSocket feed:
+BTAlgo is a production-ready algorithmic trading platform built with Flask (backend) and React 19 (frontend). It is **four products in one self-hosted instance**, all sharing a single broker session and WebSocket feed:
 
 | Surface | Route | Purpose |
 | --- | --- | --- |
@@ -15,15 +15,15 @@ OpenAlgo is a production-ready algorithmic trading platform built with Flask (ba
 
 All surfaces share the Sandbox engine (₹1 Crore sandbox capital, exchange-aligned auto square-off) and support Telegram alerts.
 
-**Repository**: https://github.com/marketcalls/openalgo
-**Documentation**: https://docs.openalgo.in
+**Repository**: https://github.com/billionairestechnologies/btalgo
+**Documentation**: https://docs.billionairestechnologies.com
 
 ## Security and Deployment Model
 
 - **Single user per deployment** — no multi-user, no privilege escalation. One user, one broker session per instance.
 - **Self-hosted on user's own server** — server access = full control. No SaaS component.
 - All official install scripts (`install.sh`, `install-docker.sh`, `install-multi.sh`, `docker-run.sh`, `docker-run.bat`, `start.sh`) auto-generate unique `APP_KEY` and `API_KEY_PEPPER` via `secrets.token_hex(32)`.
-- **SEBI static IP mandate** (effective April 1, 2026): All transactional API orders require broker-side static IP whitelisting. Delta Exchange (crypto) also enforces this. Stolen broker credentials CANNOT be used from an attacker's machine — the broker rejects requests from non-registered IPs. However, attacks routed THROUGH the OpenAlgo server (which has the registered IP) are still viable.
+- **SEBI static IP mandate** (effective April 1, 2026): All transactional API orders require broker-side static IP whitelisting. Delta Exchange (crypto) also enforces this. Stolen broker credentials CANNOT be used from an attacker's machine — the broker rejects requests from non-registered IPs. However, attacks routed THROUGH the BTAlgo server (which has the registered IP) are still viable.
 - External platforms (TradingView, GoCharting, Chartink) send API keys in JSON body or URL query params — they cannot set custom HTTP headers. This is an accepted architectural trade-off.
 - The MCP server (`mcp/mcpserver.py`) is local-only, communicates via stdio with Claude Desktop/Cursor/Windsurf. It is NOT remotely exposed.
 - Indian broker tokens expire daily at ~3:00 AM IST. Session management is aligned to this schedule.
@@ -116,9 +116,9 @@ npm run format
 
 ### Database Architecture
 
-OpenAlgo uses **6 separate databases** for isolation:
+BTAlgo uses **6 separate databases** for isolation:
 
-- `db/openalgo.db` - Main database (users, orders, positions, settings)
+- `db/btalgo.db` - Main database (users, orders, positions, settings)
 - `db/logs.db` - Traffic and API logs
 - `db/latency.db` - Latency monitoring data
 - `db/health.db` - Health monitoring data
@@ -149,7 +149,7 @@ All 30+ brokers follow a standardized structure in `broker/{broker_name}/`:
 2. `api/order_api.py` - Place, modify, cancel orders
 3. `api/data.py` - Quotes, depth, historical data
 4. `api/funds.py` - Account balance and margins
-5. `mapping/` - Transform OpenAlgo format ↔ broker format
+5. `mapping/` - Transform BTAlgo format ↔ broker format
 6. `streaming/` - WebSocket adapter for real-time data
 7. `database/master_contract_db.py` - Symbol mapping
 8. `plugin.json` - Broker metadata
@@ -160,7 +160,7 @@ Reference implementations: `/broker/zerodha/`, `/broker/dhan/`, `/broker/angel/`
 
 Real-time market data flows through a three-layer pipeline:
 
-1. **Broker WebSocket Adapters** (`broker/*/streaming/`): Each broker has a WebSocket adapter that connects to the broker's proprietary feed and normalizes data into OpenAlgo's internal format. Connection pooling is per-broker: `MAX_SYMBOLS_PER_WEBSOCKET` (default: 1000) x `MAX_WEBSOCKET_CONNECTIONS` (default: 3) = 3000 symbols max.
+1. **Broker WebSocket Adapters** (`broker/*/streaming/`): Each broker has a WebSocket adapter that connects to the broker's proprietary feed and normalizes data into BTAlgo's internal format. Connection pooling is per-broker: `MAX_SYMBOLS_PER_WEBSOCKET` (default: 1000) x `MAX_WEBSOCKET_CONNECTIONS` (default: 3) = 3000 symbols max.
 
 2. **ZeroMQ Message Bus** (port 5555): Broker adapters publish normalized tick data to a ZeroMQ PUB socket. This decouples the broker feed from client delivery — the broker adapter runs independently and never blocks on slow clients.
 
@@ -273,7 +273,7 @@ npm run build
 
 Practical implications:
 
-- **Production servers** (clients running OpenAlgo on Ubuntu/Docker/EC2) **do not need Node.js or npm.** A plain `git pull` from `main` already brings the latest UI artifacts. This is the canonical upgrade path documented at https://docs.openalgo.in/installation-guidelines/getting-started/upgrade.
+- **Production servers** (clients running BTAlgo on Ubuntu/Docker/EC2) **do not need Node.js or npm.** A plain `git pull` from `main` already brings the latest UI artifacts. This is the canonical upgrade path documented at https://docs.billionairestechnologies.com/installation-guidelines/getting-started/upgrade.
 - **Backend-only local devs** (editing Python only, not React) also typically don't need to build — whatever CI committed last serves the UI fine.
 - **React developers** still need `cd frontend && npm install && npm run build` (or `npm run dev` for hot reload) to test their own changes locally, since the local `.gitignore` won't track their build output.
 - **Feature branches** that the CI hasn't built yet may have stale or missing `frontend/dist/`. Either build locally or rebase onto a recent `main`.
@@ -320,7 +320,7 @@ Separate database (`sandbox.db`) with ₹1 Crore sandbox capital:
 
 ### Python Strategy Host
 
-In-browser Python editor (`blueprints/python_strategy.py`) powered by **APScheduler** (`services/historify_scheduler_service.py` and `services/flow_scheduler_service.py` share the same scheduler instance). Each strategy runs in a subprocess for process isolation. Logs stream to the UI via SocketIO. Strategy metadata is persisted in `openalgo.db` via `database/strategy_db.py`.
+In-browser Python editor (`blueprints/python_strategy.py`) powered by **APScheduler** (`services/historify_scheduler_service.py` and `services/flow_scheduler_service.py` share the same scheduler instance). Each strategy runs in a subprocess for process isolation. Logs stream to the UI via SocketIO. Strategy metadata is persisted in `btalgo.db` via `database/strategy_db.py`.
 
 ### Flow (No-Code Builder)
 
@@ -332,7 +332,7 @@ Two MCP endpoints exist: `blueprints/mcp_http.py` (streamable HTTP transport for
 
 ### Real-Time Communication (Event-Driven Architecture)
 
-OpenAlgo uses an event-driven architecture where state changes are broadcast to the UI in real-time:
+BTAlgo uses an event-driven architecture where state changes are broadcast to the UI in real-time:
 
 1. **Flask-SocketIO events**: Order placement, modification, cancellation, position updates, and analyzer results all emit SocketIO events (e.g., `order_update`, `analyzer_update`, `cache_loaded`). The React frontend subscribes to these events for live dashboard updates without polling.
 
@@ -366,7 +366,7 @@ There are **two independent versions** in this repo. Do not confuse them.
 
 ### 1. Platform version (e.g. `2.0.1.0`)
 
-This is the OpenAlgo platform itself. Source of truth: `utils/version.py`. Bumping touches **two files** and regenerates the lockfile — **never** the requirements files.
+This is the BTAlgo platform itself. Source of truth: `utils/version.py`. Bumping touches **two files** and regenerates the lockfile — **never** the requirements files.
 
 1. `utils/version.py` — `VERSION = "x.y.z.w"` (runtime source of truth, read by `get_version()`)
 2. `pyproject.toml` — `version = "x.y.z.w"` (line 4, package metadata)
@@ -389,13 +389,13 @@ The platform version surfaces in:
 - API responses that include version metadata
 - Docker image tags built by CI
 
-### 2. OpenAlgo Python SDK pin (e.g. `openalgo==1.0.49`)
+### 2. BTAlgo Python SDK pin (e.g. `btalgo==1.0.49`)
 
 This is a **separate** client library published on PyPI ([`openalgo`](https://pypi.org/project/openalgo/)) that the platform uses internally. It has its own release cycle. Bumping the SDK pin touches the dependency lists, **not** `utils/version.py`:
 
-1. `pyproject.toml` — update `openalgo==X.Y.Z` in the `dependencies` list
-2. `requirements.txt` — update the `openalgo==X.Y.Z` line
-3. `requirements-nginx.txt` — update the `openalgo==X.Y.Z` line
+1. `pyproject.toml` — update `btalgo==X.Y.Z` in the `dependencies` list
+2. `requirements.txt` — update the `btalgo==X.Y.Z` line
+3. `requirements-nginx.txt` — update the `btalgo==X.Y.Z` line
 4. Run `uv sync` to regenerate `uv.lock`
 
 ```bash
@@ -404,7 +404,7 @@ This is a **separate** client library published on PyPI ([`openalgo`](https://py
 uv sync
 ```
 
-**Rule of thumb:** if you are releasing OpenAlgo, bump #1. If a new SDK is on PyPI with a fix you need, bump #2. They are unrelated.
+**Rule of thumb:** if you are releasing BTAlgo, bump #1. If a new SDK is on PyPI with a fix you need, bump #2. They are unrelated.
 
 ## Code Style and Conventions
 
@@ -460,7 +460,7 @@ API keys are generated at `/apikey` and hashed with pepper before storage.
 
 ### Symbol Format
 
-OpenAlgo uses a standardized symbol format across all 30+ brokers. Broker-specific symbols are mapped via `broker/*/mapping/` modules and stored in the `SymToken` table.
+BTAlgo uses a standardized symbol format across all 30+ brokers. Broker-specific symbols are mapped via `broker/*/mapping/` modules and stored in the `SymToken` table.
 
 **Equity:** Just the base symbol — `INFY`, `SBIN`, `TATAMOTORS`
 
@@ -475,7 +475,7 @@ OpenAlgo uses a standardized symbol format across all 30+ brokers. Broker-specif
 - **Price type:** `MARKET`, `LIMIT`, `SL` (stop-loss limit), `SL-M` (stop-loss market)
 - **Action:** `BUY`, `SELL`
 
-**Database schema (`SymToken`):** `symbol` (OpenAlgo format), `brsymbol` (broker format), `exchange`, `brexchange`, `token` (broker instrument token), `expiry`, `strike`, `lotsize`, `instrumenttype`, `tick_size`
+**Database schema (`SymToken`):** `symbol` (BTAlgo format), `brsymbol` (broker format), `exchange`, `brexchange`, `token` (broker instrument token), `expiry`, `strike`, `lotsize`, `instrumenttype`, `tick_size`
 
 ### Database Queries
 
@@ -523,7 +523,7 @@ All logging flows through Python's standard `logging` module, configured in `set
 **Three output handlers (all share the same `SensitiveDataFilter` to redact API keys/tokens):**
 
 1. **Console** (always active): Colored output via `ColoredFormatter`, level controlled by `LOG_LEVEL` env var.
-2. **File** (if `LOG_TO_FILE=True`): Daily-rotated text logs in `log/openalgo_YYYY-MM-DD.log`, retained for `LOG_RETENTION` days.
+2. **File** (if `LOG_TO_FILE=True`): Daily-rotated text logs in `log/btalgo_YYYY-MM-DD.log`, retained for `LOG_RETENTION` days.
 3. **JSON error log** (always active): `log/errors.jsonl` — structured JSON Lines, ERROR+ only.
 
 ### Error Log for Debugging

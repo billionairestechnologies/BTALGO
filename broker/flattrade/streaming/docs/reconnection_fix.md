@@ -1,6 +1,6 @@
 # Flattrade WebSocket Reconnection Issue and Fix
 
-This document outlines a critical session management issue identified with the Flattrade WebSocket API and the corresponding architectural fix implemented in the OpenAlgo proxy.
+This document outlines a critical session management issue identified with the Flattrade WebSocket API and the corresponding architectural fix implemented in the BTAlgo proxy.
 
 ## The Issue: Reconnection Failures
 
@@ -12,7 +12,7 @@ A recurring issue was observed where a client application (e.g., a strategy scri
 2.  The client disconnects (e.g., script is stopped).
 3.  The client is immediately restarted and attempts to reconnect.
 4.  The reconnection attempt fails with an authentication error from the WebSocket server, even though the `susertoken` (session key) is still valid.
-5.  Restarting the main OpenAlgo application would temporarily resolve the problem, allowing the next connection to succeed.
+5.  Restarting the main BTAlgo application would temporarily resolve the problem, allowing the next connection to succeed.
 
 ### Root Cause Analysis:
 

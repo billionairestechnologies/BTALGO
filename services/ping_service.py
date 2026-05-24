@@ -34,7 +34,7 @@ def get_ping(
     Supports both API-based authentication and direct internal calls.
 
     Args:
-        api_key: OpenAlgo API key (for API-based calls)
+        api_key: BTAlgo API key (for API-based calls)
         auth_token: Direct broker authentication token (for internal calls)
         broker: Direct broker name (for internal calls)
 
@@ -48,7 +48,7 @@ def get_ping(
     if api_key and not (auth_token and broker):
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
-            return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
         return ping_with_auth(AUTH_TOKEN, broker_name)
 
     # Case 2: Direct internal call with auth_token and broker

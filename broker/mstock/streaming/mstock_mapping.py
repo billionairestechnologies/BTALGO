@@ -2,7 +2,7 @@ import logging
 
 
 class MstockExchangeMapper:
-    """Maps OpenAlgo exchange codes to mstock-specific exchange types"""
+    """Maps BTAlgo exchange codes to mstock-specific exchange types"""
 
     # Exchange type mapping for mstock broker WebSocket
     # 1=NSECM, 2=NSEFO, 3=BSECM, 4=BSEFO, 13=NSECD

@@ -116,7 +116,7 @@ def _invalidate_position_cache(auth):
 
 
 def get_open_position(tradingsymbol, exchange, producttype, auth):
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search in OpenPosition
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
 
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
     positions_data = _get_cached_positions(auth)
@@ -312,7 +312,7 @@ def close_all_positions(current_api_key, auth):
             "orderQuantity": str(quantity),
             "limitPrice": "0",
             "stopPrice": "0",
-            "orderUniqueIdentifier": "openalgo",
+            "orderUniqueIdentifier": "btalgo",
         }
 
         # Place the order to close the position
@@ -341,7 +341,7 @@ def cancel_order(orderid, auth):
     }
 
     # Prepare the payload
-    payload = json.dumps({"appOrderID": orderid, "orderUniqueIdentifier": "openalgo"})
+    payload = json.dumps({"appOrderID": orderid, "orderUniqueIdentifier": "btalgo"})
 
     # Make the request using the shared client
     response = client.delete(f"{INTERACTIVE_URL}/orders?appOrderID={orderid}", headers=headers)

@@ -15,7 +15,7 @@ def get_chart_preferences(api_key: str) -> tuple[bool, dict[str, Any], int]:
     Get all chart preferences for the user associated with the API key.
 
     Args:
-        api_key: OpenAlgo API key for authentication
+        api_key: BTAlgo API key for authentication
 
     Returns:
         Tuple containing:
@@ -31,7 +31,7 @@ def get_chart_preferences(api_key: str) -> tuple[bool, dict[str, Any], int]:
     user_id = verify_api_key(api_key)
     if not user_id:
         logger.warning("[ChartService] get_chart_preferences: Invalid API Key")
-        return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+        return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
 
     prefs = get_chart_prefs(api_key)
 
@@ -50,7 +50,7 @@ def update_chart_preferences(
     Update chart preferences for the user associated with the API key.
 
     Args:
-        api_key: OpenAlgo API key for authentication
+        api_key: BTAlgo API key for authentication
         data: Dictionary of preference key-value pairs to update
 
     Returns:
@@ -67,7 +67,7 @@ def update_chart_preferences(
     user_id = verify_api_key(api_key)
     if not user_id:
         logger.warning("[ChartService] update_chart_preferences: Invalid API Key")
-        return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+        return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
 
     if not data:
         logger.warning("[ChartService] update_chart_preferences: No data provided")

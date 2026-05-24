@@ -59,7 +59,7 @@ export interface ExecuteBasketDialogProps {
   /** Read-only strategy name — auto-framed by the parent. */
   strategyName: string
   /**
-   * Per-leg tick size, keyed by the leg's OpenAlgo symbol. Sourced from
+   * Per-leg tick size, keyed by the leg's BTAlgo symbol. Sourced from
    * the option-chain response (SymToken.tick_size in the DB). Missing
    * symbols fall back to 0.05, which is the NSE F&O default.
    */
@@ -269,7 +269,7 @@ export function ExecuteBasketDialog({
         </div>
 
         {/* Leg rows — compact rectangular grid. Symbol + side badges share
-            one flex cell so the OpenAlgo symbol has the maximum possible
+            one flex cell so the BTAlgo symbol has the maximum possible
             width and wraps rather than truncates on narrow viewports. */}
         <div className="overflow-hidden rounded-lg border">
           {/* Header */}
@@ -308,7 +308,7 @@ export function ExecuteBasketDialog({
                       />
                     </div>
 
-                    {/* Symbol cell — side/type badges inline, full OpenAlgo
+                    {/* Symbol cell — side/type badges inline, full BTAlgo
                         symbol wraps onto a second line if needed (break-all)
                         instead of truncating. */}
                     <div className="min-w-0 flex-col">

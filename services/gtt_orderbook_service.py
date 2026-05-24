@@ -63,7 +63,7 @@ def get_gtt_orderbook(
     if api_key and not (auth_token and broker):
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
-            return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
         return get_gtt_orderbook_with_auth(AUTH_TOKEN, broker_name, {"apikey": api_key})
 
     if auth_token and broker:

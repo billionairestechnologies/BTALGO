@@ -92,7 +92,7 @@ def calculate_margin_api(positions, auth):
     so we make multiple API calls and aggregate the results.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Authentication token for Kotak
 
     Returns:

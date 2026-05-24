@@ -31,7 +31,7 @@ def calculate_synthetic_future(
         underlying: Underlying symbol (e.g., "NIFTY", "BANKNIFTY")
         exchange: Exchange (e.g., "NSE_INDEX", "NSE")
         expiry_date: Expiry date in DDMMMYY format (e.g., "28OCT25")
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Tuple of (success, response_data, status_code)

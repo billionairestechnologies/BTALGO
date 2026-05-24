@@ -1,4 +1,4 @@
-# OpenAlgo WebSocket API Templates
+# BTAlgo WebSocket API Templates
 
 This folder contains Bruno-style templates for WebSocket message formats.
 

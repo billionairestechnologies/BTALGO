@@ -44,7 +44,7 @@ def get_multi_strike_oi_data(
         exchange: Underlying exchange as selected in the builder header.
         legs: List of leg dicts — only active OPTION legs are used.
         interval: Candle interval (e.g., "1m", "5m").
-        api_key: OpenAlgo API key.
+        api_key: BTAlgo API key.
         days: Calendar-day lookback window.
 
     Returns:

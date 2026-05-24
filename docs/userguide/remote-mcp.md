@@ -1,6 +1,6 @@
 # Remote MCP
 
-Lets hosted AI clients — ChatGPT, Claude.ai, Claude mobile — talk to your OpenAlgo install over the internet so you can ask them to fetch quotes, summarise positions, or place orders in plain English.
+Lets hosted AI clients — ChatGPT, Claude.ai, Claude mobile — talk to your BTAlgo install over the internet so you can ask them to fetch quotes, summarise positions, or place orders in plain English.
 
 Local stdio MCP (Claude Desktop / Cursor / Windsurf on the same machine as your install) keeps working unchanged. Remote MCP is a parallel, opt-in transport that shares the same 40 tools but reaches them over HTTPS.
 
@@ -14,9 +14,9 @@ Local stdio MCP (Claude Desktop / Cursor / Windsurf on the same machine as your 
 
 ## What you need
 
-1. **OpenAlgo on your own domain with HTTPS.** Dashboard reachable at `https://yourdomain.com`, login + broker auth + orders all working through the web UI. If you're not there yet, start with one of the install scripts: `install/install.sh`, `install/install-multi.sh`, `install/install-docker.sh`, or `install/install-docker-multi-custom-ssl.sh`.
-2. **OpenAlgo 2.0.1.0 or later.** Footer of the dashboard shows the version, or `curl https://yourdomain.com/api/v1/openalgo-version`. On older builds run `install/update.sh` first.
-3. **An OpenAlgo API key.** Generate one at **Profile → API Keys**. The MCP server uses it server-side; hosted clients never see it — they get OAuth tokens instead.
+1. **BTAlgo on your own domain with HTTPS.** Dashboard reachable at `https://yourdomain.com`, login + broker auth + orders all working through the web UI. If you're not there yet, start with one of the install scripts: `install/install.sh`, `install/install-multi.sh`, `install/install-docker.sh`, or `install/install-docker-multi-custom-ssl.sh`.
+2. **BTAlgo 2.0.1.0 or later.** Footer of the dashboard shows the version, or `curl https://yourdomain.com/api/v1/btalgo-version`. On older builds run `install/update.sh` first.
+3. **An BTAlgo API key.** Generate one at **Profile → API Keys**. The MCP server uses it server-side; hosted clients never see it — they get OAuth tokens instead.
 4. **A paid AI plan.** ChatGPT Plus / Team / Enterprise, or Claude Pro / Team / Enterprise. Custom MCP servers aren't on the free tiers.
 
 ***
@@ -27,23 +27,23 @@ Local stdio MCP (Claude Desktop / Cursor / Windsurf on the same machine as your 
 
 The installer asks at run time whether to enable Remote MCP. If you said **yes**, it's already on at `https://yourdomain.com/mcp` — skip to *Connecting*.
 
-If you said no and want to flip it now, edit `/var/python/openalgo/.env`:
+If you said no and want to flip it now, edit `/var/python/btalgo/.env`:
 
 ```ini
 MCP_HTTP_ENABLED = 'True'
 MCP_PUBLIC_URL = 'https://yourdomain.com'
 ```
 
-Then `sudo systemctl restart openalgo`.
+Then `sudo systemctl restart btalgo`.
 
 ### Multi-domain native (`install-multi.sh`)
 
-Edit the per-deploy `.env` (typically `/var/python/openalgo-flask/<deploy-name>/.env`) with the same two keys, then `sudo systemctl restart openalgo-<deploy-name>`.
+Edit the per-deploy `.env` (typically `/var/python/btalgo-flask/<deploy-name>/.env`) with the same two keys, then `sudo systemctl restart btalgo-<deploy-name>`.
 
 ### Docker (`install-docker.sh` / `install-docker-multi-custom-ssl.sh`)
 
 ```bash
-cd /path/to/openalgo
+cd /path/to/btalgo
 sudo ./install/enable-remote-mcp-docker.sh
 ```
 
@@ -75,7 +75,7 @@ The first connect is a six-step dance the AI client does mostly automatically. T
 
 ***
 
-### Adding OpenAlgo to ChatGPT
+### Adding BTAlgo to ChatGPT
 
 > Heads up — ChatGPT recently renamed **Connectors → Apps**. Same feature, new menu name. The in-chat menu still says *Connectors*, so don't be confused.
 
@@ -89,8 +89,8 @@ The first connect is a six-step dance the AI client does mostly automatically. T
 
 | Field | Value |
 | --- | --- |
-| Name | `OpenAlgo` |
-| Description | `OpenAlgo trading server` (optional) |
+| Name | `BTAlgo` |
+| Description | `BTAlgo trading server` (optional) |
 | MCP Server URL | `https://yourdomain.com/mcp` |
 | Authentication | `OAuth` |
 
@@ -98,7 +98,7 @@ The first connect is a six-step dance the AI client does mostly automatically. T
 
 Expand **Advanced OAuth settings** → **Registration method** → `Dynamic Client Registration (DCR)`.
 
-The notice *"CIMD is unavailable…"* is expected — OpenAlgo advertises DCR. DCR is the right pick.
+The notice *"CIMD is unavailable…"* is expected — BTAlgo advertises DCR. DCR is the right pick.
 
 Default scopes ChatGPT requests are `read:market read:account`. Add `write:orders` only if you've turned `MCP_OAUTH_WRITE_SCOPE_ENABLED=True` on the server **and** you want this connector to place orders.
 
@@ -114,7 +114,7 @@ ChatGPT will show:
 
 This is normal. Your server saw the registration but is holding it until you approve. Don't dismiss the modal.
 
-#### Step 6 — Approve in OpenAlgo
+#### Step 6 — Approve in BTAlgo
 
 1. New tab → `https://yourdomain.com/admin/remote-mcp`
 2. Sign in (TOTP if MCP 2FA is on)
@@ -129,11 +129,11 @@ This is normal. Your server saw the registration but is holding it until you app
 
 #### Step 8 — Use it
 
-In any new chat, click **+** below the message box → **Connectors** → toggle **OpenAlgo** ON.
+In any new chat, click **+** below the message box → **Connectors** → toggle **BTAlgo** ON.
 
 Try:
 
-> *"Using OpenAlgo, give me the LTP of RELIANCE on NSE."*
+> *"Using BTAlgo, give me the LTP of RELIANCE on NSE."*
 
 ChatGPT calls `get_quote` and shows the price. With `read:account` granted, also try:
 
@@ -154,7 +154,7 @@ ChatGPT calls `get_quote` and shows the price. With `read:account` granted, also
 
 ***
 
-### Adding OpenAlgo to Claude.ai
+### Adding BTAlgo to Claude.ai
 
 #### Step 1 — Connectors page
 
@@ -168,7 +168,7 @@ Top right **+** → **Add custom connector**.
 
 | Field | Value |
 | --- | --- |
-| Name | `OpenAlgo` |
+| Name | `BTAlgo` |
 | Remote MCP server URL | `https://yourdomain.com/mcp` |
 
 Leave **Advanced settings** alone — OAuth is detected automatically. Click **Add**.
@@ -177,17 +177,17 @@ Leave **Advanced settings** alone — OAuth is detected automatically. Click **A
 
 Same as ChatGPT — first attempt fails with a pending-approval error. Keep the page open.
 
-#### Step 5 — Approve in OpenAlgo
+#### Step 5 — Approve in BTAlgo
 
 `https://yourdomain.com/admin/remote-mcp` → **Pending approvals** → **Approve**.
 
 #### Step 6 — Complete OAuth
 
-Back in claude.ai → **Connect** on the connector card → sign in to OpenAlgo (+ TOTP if on) → consent screen (verify redirect URI is `claude.ai`) → **Authorize**. Card switches to **Disconnect** when you're live.
+Back in claude.ai → **Connect** on the connector card → sign in to BTAlgo (+ TOTP if on) → consent screen (verify redirect URI is `claude.ai`) → **Authorize**. Card switches to **Disconnect** when you're live.
 
 #### Step 7 — Tool permissions
 
-Click your **OpenAlgo** connector to expand permissions:
+Click your **BTAlgo** connector to expand permissions:
 
 | Group | Recommendation |
 | --- | --- |
@@ -199,7 +199,7 @@ You can override individual tools — e.g. *Always allow* most things but force 
 
 #### Step 8 — Use it
 
-In any chat, click the **Tools** icon below the message box → toggle **OpenAlgo** on.
+In any chat, click the **Tools** icon below the message box → toggle **BTAlgo** on.
 
 > *"Show me the current LTP of NIFTY 50 and a quick view of my open positions."*
 
@@ -325,9 +325,9 @@ For the full threat model and per-defense rationale, see `docs/prd/remote-mcp.md
 | `unauthorized_client` after Create / Add | DCR client not approved yet | Approve at `/admin/remote-mcp` |
 | `invalid_client` on retry | Client revoked or DB reset; old `client_id` cached | Disconnect + re-add to force fresh DCR |
 | *"Server doesn't implement OAuth"* | Old build | Update to 2.0.1.0+ |
-| *"CIMD is unavailable"* in ChatGPT | OpenAlgo advertises DCR, not CIMD | Expected — pick **DCR** |
+| *"CIMD is unavailable"* in ChatGPT | BTAlgo advertises DCR, not CIMD | Expected — pick **DCR** |
 | Tools missing from chat | Connector not toggled on for that chat | `+` menu (ChatGPT) or Tools menu (Claude) |
-| `bad_arguments` on a tool call | Hosted client guessed parameter names | Update OpenAlgo (newer builds expose strict tool schemas) |
+| `bad_arguments` on a tool call | Hosted client guessed parameter names | Update BTAlgo (newer builds expose strict tool schemas) |
 | Sudden 401 on every call | Refresh token expired or kill switch fired | **Reconnect** on the connector |
 | `place_order` blocked on ChatGPT | OpenAI's safety policy | Use Claude.ai for order placement |
 | *"Failed to connect to the server"* on tool calls | Loopback misconfigured | Confirm `HOST_SERVER` in `.env` matches your dashboard URL; restart |
@@ -348,8 +348,8 @@ If you want MCP on a separate hostname (e.g. `mcp.yourdomain.com`) so its cookie
 Native:
 
 ```bash
-sudo sed -i "s|MCP_HTTP_ENABLED.*|MCP_HTTP_ENABLED = 'False'|" /var/python/openalgo/.env
-sudo systemctl restart openalgo
+sudo sed -i "s|MCP_HTTP_ENABLED.*|MCP_HTTP_ENABLED = 'False'|" /var/python/btalgo/.env
+sudo systemctl restart btalgo
 ```
 
 (`install-multi.sh` users: substitute the per-deploy `.env` and service name.)
@@ -357,8 +357,8 @@ sudo systemctl restart openalgo
 Docker:
 
 ```bash
-sudo sed -i "s|MCP_HTTP_ENABLED.*|MCP_HTTP_ENABLED = 'False'|" /opt/openalgo/<domain>/.env
-cd /opt/openalgo/<domain> && sudo docker compose restart
+sudo sed -i "s|MCP_HTTP_ENABLED.*|MCP_HTTP_ENABLED = 'False'|" /opt/btalgo/<domain>/.env
+cd /opt/btalgo/<domain> && sudo docker compose restart
 ```
 
 OAuth + MCP routes immediately stop responding. Existing tokens hit 404. **Local stdio MCP is unaffected** — it runs over stdin/stdout and doesn't touch the HTTP transport.
@@ -371,7 +371,7 @@ For a softer takedown that keeps Remote MCP enabled but boots every active sessi
 
 - MCP Server Setup Guide — local stdio integration with Claude Desktop / Cursor / Windsurf
 - Tool References — every tool with parameters and example prompts (shared across both transports)
-- OpenAlgo Symbol Format — how equity / future / option symbols are constructed
+- BTAlgo Symbol Format — how equity / future / option symbols are constructed
 - `install/Remote-MCP-readme.md` — operator-focused install + threat model in the source tree
 - `docs/prd/remote-mcp.md` — full architecture and threat model
 
@@ -385,7 +385,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/mcp/remote-mcp.md?ask=<question>
+GET https://docs.billionairestechnologies.com/mcp/remote-mcp.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

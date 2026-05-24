@@ -2,10 +2,10 @@ import logging
 
 
 class JainamXTSExchangeMapper:
-    """Maps between OpenAlgo exchange codes and JainamXTS specific exchange types"""
+    """Maps between BTAlgo exchange codes and JainamXTS specific exchange types"""
 
     # Exchange type mapping for JainamXTS broker
-    # Format: {OpenAlgo_Exchange: JainamXTS_Exchange_Code}
+    # Format: {BTAlgo_Exchange: JainamXTS_Exchange_Code}
     # Based on JainamXTS API documentation:
     # "NSECM": 1, "NSEFO": 2, "NSECD": 3, "BSECM": 11, "BSEFO": 12, "MCXFO": 51
     EXCHANGE_TYPES = {
@@ -29,8 +29,8 @@ class JainamXTSExchangeMapper:
         "MCXFO": 51,  # MCX F&O
     }
 
-    # Reverse mapping for converting JainamXTS exchange codes to OpenAlgo format
-    # Format: {JainamXTS_Exchange_Code: OpenAlgo_Exchange}
+    # Reverse mapping for converting JainamXTS exchange codes to BTAlgo format
+    # Format: {JainamXTS_Exchange_Code: BTAlgo_Exchange}
     REVERSE_EXCHANGE_TYPES = {
         1: "NSE",  # NSECM
         2: "NFO",  # NSEFO
@@ -43,7 +43,7 @@ class JainamXTSExchangeMapper:
     @staticmethod
     def get_exchange_type(exchange):
         """
-        Convert OpenAlgo exchange code to JainamXTS specific exchange type
+        Convert BTAlgo exchange code to JainamXTS specific exchange type
 
         Args:
             exchange: Exchange code (e.g., 'NSE', 'BSE', 'NSEFO')
@@ -62,7 +62,7 @@ class JainamXTSExchangeMapper:
         # Mapping based on JainamXTS API documentation:
         # "NSECM": 1, "NSEFO": 2, "NSECD": 3, "BSECM": 11, "BSEFO": 12, "MCXFO": 51
         all_exchange_mappings = {
-            # OpenAlgo standard codes
+            # BTAlgo standard codes
             "NSE": 1,  # NSE Cash Market
             "NFO": 2,  # NSE F&O
             "CDS": 3,  # NSE Currency Derivatives
@@ -100,15 +100,15 @@ class JainamXTSExchangeMapper:
         return 1
 
     @staticmethod
-    def get_openalgo_exchange(jainamxts_code):
+    def get_btalgo_exchange(jainamxts_code):
         """
-        Convert JainamXTS exchange code to OpenAlgo exchange code
+        Convert JainamXTS exchange code to BTAlgo exchange code
 
         Args:
             jainamxts_code (int): JainamXTS exchange code
 
         Returns:
-            str: OpenAlgo exchange code
+            str: BTAlgo exchange code
         """
         return JainamXTSExchangeMapper.REVERSE_EXCHANGE_TYPES.get(
             jainamxts_code, "NSE"

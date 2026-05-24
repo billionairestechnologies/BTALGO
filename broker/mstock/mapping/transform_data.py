@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping MStock Type B Parameters https://tradingapi.mstock.com/docs/v1/typeB/Orders/
 
 from database.symbol import SymToken
@@ -13,7 +13,7 @@ def get_mstock_symbol(symbol: str, exchange: str) -> str:
     Get mStock broker symbol with priority for -EQ (regular equity) over -BE (book entry).
 
     Args:
-        symbol: OpenAlgo format symbol (e.g., "NHPC")
+        symbol: BTAlgo format symbol (e.g., "NHPC")
         exchange: Exchange code (e.g., "NSE")
 
     Returns:
@@ -61,10 +61,10 @@ def get_mstock_symbol(symbol: str, exchange: str) -> str:
 
 def transform_data(data, token):
     """
-    Transforms the OpenAlgo API request structure to mStock Type B format.
+    Transforms the BTAlgo API request structure to mStock Type B format.
 
     Args:
-        data: OpenAlgo order data
+        data: BTAlgo order data
         token: Symbol token from database
 
     Returns:
@@ -101,10 +101,10 @@ def transform_data(data, token):
 
 def transform_modify_order_data(data, token):
     """
-    Transforms the OpenAlgo modify order request to mStock Type B format.
+    Transforms the BTAlgo modify order request to mStock Type B format.
 
     Args:
-        data: OpenAlgo modify order data
+        data: BTAlgo modify order data
         token: Symbol token from database
 
     Returns:
@@ -137,7 +137,7 @@ def transform_modify_order_data(data, token):
 
 def map_order_type(pricetype):
     """
-    Maps OpenAlgo pricetype to mStock Type B order type.
+    Maps BTAlgo pricetype to mStock Type B order type.
 
     mStock Type B order types: MARKET, LIMIT, STOP_LOSS, STOPLOSS_MARKET
     """
@@ -152,7 +152,7 @@ def map_order_type(pricetype):
 
 def map_product_type(product):
     """
-    Maps OpenAlgo product type to mStock Type B product type.
+    Maps BTAlgo product type to mStock Type B product type.
 
     mStock Type B product types: DELIVERY, INTRADAY, MARGIN, CARRYFORWARD
     """
@@ -166,7 +166,7 @@ def map_product_type(product):
 
 def map_variety(pricetype):
     """
-    Maps OpenAlgo pricetype to mStock Type B variety.
+    Maps BTAlgo pricetype to mStock Type B variety.
 
     mStock Type B varieties: NORMAL, AMO, ROBO, STOPLOSS
     """
@@ -176,7 +176,7 @@ def map_variety(pricetype):
 
 def reverse_map_product_type(product):
     """
-    Reverse maps mStock Type B product type to OpenAlgo product type.
+    Reverse maps mStock Type B product type to BTAlgo product type.
     """
     reverse_product_type_mapping = {
         "DELIVERY": "CNC",

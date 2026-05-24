@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo provides a cross-platform Python strategy hosting system that allows users to upload, run, schedule, and manage trading strategies. Each strategy runs in a separate process for complete isolation with support for Windows, Linux, and macOS.
+BTAlgo provides a cross-platform Python strategy hosting system that allows users to upload, run, schedule, and manage trading strategies. Each strategy runs in a separate process for complete isolation with support for Windows, Linux, and macOS.
 
 ## Architecture Diagram
 
@@ -70,7 +70,7 @@ OpenAlgo provides a cross-platform Python strategy hosting system that allows us
 ## Directory Structure
 
 ```
-openalgo/
+btalgo/
 ├── strategies/
 │   ├── scripts/           # User uploaded strategy files
 │   │   ├── my_strategy.py
@@ -334,14 +334,14 @@ def save_configs():
 1. **Keep strategies stateless** - Don't rely on global state between runs
 2. **Use logging** - Write to stdout/stderr for log capture
 3. **Handle graceful shutdown** - Catch SIGTERM/SIGINT
-4. **Use OpenAlgo API** - Don't bypass the API layer
+4. **Use BTAlgo API** - Don't bypass the API layer
 
 ### Example Strategy Template
 
 ```python
 #!/usr/bin/env python
 """
-Example OpenAlgo Strategy
+Example BTAlgo Strategy
 """
 import requests
 import time
@@ -450,7 +450,7 @@ When running strategies with numerical libraries (NumPy, SciPy, Numba) in Docker
 
 For 2GB containers, set all to `1`. For 4GB+, use `2`. See [Docker Configuration](../11-docker/README.md) for details.
 
-> **Reference**: [GitHub Issue #822](https://github.com/marketcalls/openalgo/issues/822)
+> **Reference**: [GitHub Issue #822](https://github.com/billionairestechnologies/btalgo/issues/822)
 
 ## Key Files Reference
 

@@ -2,17 +2,17 @@
 
 ## Executive Summary
 
-This audit examines HTTP connection management and order execution latency in OpenAlgo, identifying optimization opportunities and current implementation strengths.
+This audit examines HTTP connection management and order execution latency in BTAlgo, identifying optimization opportunities and current implementation strengths.
 
 ## Current Architecture
 
 ### HTTP Client Implementation
 
-OpenAlgo uses `httpx` with a shared singleton pattern for broker API calls:
+BTAlgo uses `httpx` with a shared singleton pattern for broker API calls:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    OpenAlgo Application                      │
+│                    BTAlgo Application                      │
 │  ┌─────────────────────────────────────────────────────────┐│
 │  │            Shared HTTP Client (httpx)                    ││
 │  │  • Connection pooling enabled                            ││
@@ -132,7 +132,7 @@ atexit.register(cleanup_client)
 
 1. **Request Parsing** (~5ms): JSON validation
 2. **Authentication** (~10ms): API key verification
-3. **Symbol Mapping** (~5ms): OpenAlgo → Broker format
+3. **Symbol Mapping** (~5ms): BTAlgo → Broker format
 4. **Broker API Call** (~200-400ms): Network + broker processing
 5. **Response Formatting** (~5ms): Standardize response
 
@@ -186,7 +186,7 @@ Based on testing with various brokers:
 
 ## Conclusion
 
-OpenAlgo's HTTP connection management is well-implemented with httpx connection pooling. Order execution latency meets the <500ms PRD target. Minor improvements in master contract downloads and client lifecycle management would provide incremental gains.
+BTAlgo's HTTP connection management is well-implemented with httpx connection pooling. Order execution latency meets the <500ms PRD target. Minor improvements in master contract downloads and client lifecycle management would provide incremental gains.
 
 ---
 

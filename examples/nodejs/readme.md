@@ -1,1 +1,1 @@
-OpenAlgo Nodejs SDK Examples
+BTAlgo Nodejs SDK Examples

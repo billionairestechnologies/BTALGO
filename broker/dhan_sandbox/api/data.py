@@ -792,7 +792,7 @@ class BrokerData:
 
     def _parse_option_contract(self, symbol: str):
         """
-        Parse option symbol in OpenAlgo format.
+        Parse option symbol in BTAlgo format.
         Returns (underlying, strike, option_type) or None.
         """
         match = re.match(
@@ -1036,7 +1036,7 @@ class BrokerData:
             bids = [{"price": 0, "quantity": 0} for _ in range(5)]
             asks = [{"price": 0, "quantity": 0} for _ in range(5)]
 
-            # Return depth data in common format matching OpenAlgo REST API response
+            # Return depth data in common format matching BTAlgo REST API response
             return {
                 "bids": bids,
                 "asks": asks,

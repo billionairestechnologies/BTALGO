@@ -1,6 +1,6 @@
 # Trend
 
-Trend indicators help identify the direction and strength of market trends. All examples use real market data fetched via OpenAlgo API.
+Trend indicators help identify the direction and strength of market trends. All examples use real market data fetched via BTAlgo API.
 
 ### Data Setup
 
@@ -490,7 +490,7 @@ plt.tight_layout()
 plt.show()
 ```
 
-This documentation demonstrates how to use OpenAlgo trend indicators with real market data fetched via the OpenAlgo API, maintaining pandas DataFrame structure throughout the analysis process.
+This documentation demonstrates how to use BTAlgo trend indicators with real market data fetched via the BTAlgo API, maintaining pandas DataFrame structure throughout the analysis process.
 
 
 ---
@@ -502,7 +502,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/trading-platform/python/indicators/trend.md?ask=<question>
+GET https://docs.billionairestechnologies.com/trading-platform/python/indicators/trend.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

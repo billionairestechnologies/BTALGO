@@ -3,7 +3,7 @@
 WhatsApp delivery via the unofficial multi-device protocol, powered by the
 [`wars`](https://pypi.org/project/wars/) library (Rust core via PyO3).
 
-OpenAlgo runs one paired WhatsApp Web session per install. Once paired
+BTAlgo runs one paired WhatsApp Web session per install. Once paired
 from the `/whatsapp` admin page, the bot stays connected in the same
 Flask process that serves orders, so notifications fire from the same
 event bus that drives Telegram alerts. Linked users can also run slash
@@ -30,7 +30,7 @@ Why this stance:
 - The paired session blob (~300 KB of Signal Protocol private keys) is
   encrypted at rest with a Fernet key derived from
   `API_KEY_PEPPER + FERNET_SALT + ":whatsapp-session"`. Anyone with the
-  `openalgo.db` file **and** the `.env` secrets can impersonate the
+  `btalgo.db` file **and** the `.env` secrets can impersonate the
   device — keep both secret.
 
 ## REST endpoint
@@ -55,7 +55,7 @@ Performed on the logged-in `/whatsapp` page. Not exposed via API key:
 - **Preferences**: per-user notification toggles.
 
 These are all routed through `blueprints/whatsapp.py` with
-`@check_session_validity`, so only the logged-in OpenAlgo admin can
+`@check_session_validity`, so only the logged-in BTAlgo admin can
 invoke them.
 
 ## Quick example: trade alert to yourself
@@ -92,7 +92,7 @@ unlinked by Meta.
 Once paired, any WhatsApp user can message the bot and run queries:
 
 ```
-/link <YOUR_API_KEY>        # one-time, links this WhatsApp number to your OpenAlgo user
+/link <YOUR_API_KEY>        # one-time, links this WhatsApp number to your BTAlgo user
 /orderbook                  # today's orders
 /positions                  # open positions
 /funds                      # available cash
@@ -102,7 +102,7 @@ Once paired, any WhatsApp user can message the bot and run queries:
 /help                       # full command list
 ```
 
-Each command runs against the OpenAlgo SDK using the linked user's API
+Each command runs against the BTAlgo SDK using the linked user's API
 key, so results are identical to what you would get from the REST API.
 
 ## Event-driven order alerts

@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping IndMoney Margin API https://api.indstocks.com/margin
 
 from database.token_db import get_token
@@ -9,13 +9,13 @@ logger = get_logger(__name__)
 
 def transform_margin_positions(positions):
     """
-    Transform OpenAlgo margin position format to IndMoney margin format.
+    Transform BTAlgo margin position format to IndMoney margin format.
 
     Note: IndMoney margin API calculates margin for single orders only,
     not batch calculations like Angel Broking.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
 
     Returns:
         List of positions in IndMoney format
@@ -81,9 +81,9 @@ def transform_margin_positions(positions):
 
 def map_segment(exchange):
     """
-    Maps OpenAlgo exchange to IndMoney segment.
+    Maps BTAlgo exchange to IndMoney segment.
 
-    OpenAlgo: NSE, BSE, NFO, BFO, CDS, BCD, MCX
+    BTAlgo: NSE, BSE, NFO, BFO, CDS, BCD, MCX
     IndMoney: DERIVATIVE, EQUITY
     """
     segment_mapping = {
@@ -100,9 +100,9 @@ def map_segment(exchange):
 
 def map_exchange_type(exchange):
     """
-    Maps OpenAlgo exchange to IndMoney exchange format.
+    Maps BTAlgo exchange to IndMoney exchange format.
 
-    OpenAlgo: NSE, BSE, NFO, BFO, CDS, BCD, MCX
+    BTAlgo: NSE, BSE, NFO, BFO, CDS, BCD, MCX
     IndMoney: NSE, BSE
     """
     exchange_mapping = {
@@ -119,9 +119,9 @@ def map_exchange_type(exchange):
 
 def map_product_type(product):
     """
-    Maps OpenAlgo product type to IndMoney product type.
+    Maps BTAlgo product type to IndMoney product type.
 
-    OpenAlgo: CNC, NRML, MIS
+    BTAlgo: CNC, NRML, MIS
     IndMoney: MARGIN, INTRADAY, CNC
     """
     product_type_mapping = {
@@ -134,13 +134,13 @@ def map_product_type(product):
 
 def parse_margin_response(response_data):
     """
-    Parse IndMoney margin calculator response to OpenAlgo standard format.
+    Parse IndMoney margin calculator response to BTAlgo standard format.
 
     Args:
         response_data: Raw response from IndMoney margin calculator API
 
     Returns:
-        Standardized margin response matching OpenAlgo format
+        Standardized margin response matching BTAlgo format
     """
     try:
         if not response_data or not isinstance(response_data, dict):
@@ -156,12 +156,12 @@ def parse_margin_response(response_data):
         # Extract margin data from IndMoney's margin calculator response
         data = response_data.get("data", {})
 
-        # Extract only the three required values as per OpenAlgo API specification
+        # Extract only the three required values as per BTAlgo API specification
         total_margin = data.get("total_margin", 0)
         span_margin = data.get("span_margin", 0)
         exposure_margin = data.get("exposure_margin", 0)
 
-        # Return standardized format matching OpenAlgo API specification
+        # Return standardized format matching BTAlgo API specification
         # Only return the three essential margin fields
         return {
             "status": "success",

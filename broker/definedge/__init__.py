@@ -1,1 +1,1 @@
-# DefinedGe Securities Broker Integration for OpenAlgo
+# DefinedGe Securities Broker Integration for BTAlgo

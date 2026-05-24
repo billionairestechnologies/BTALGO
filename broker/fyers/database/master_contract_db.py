@@ -207,7 +207,7 @@ def download_csv_fyers_data(output_path: str) -> tuple[bool, list[str], str | No
 
 def reformat_symbol_detail(s):
     parts = s.split()  # Split the string into parts
-    # Reorder and format the parts to match the OpenAlgo standard symbol format
+    # Reorder and format the parts to match the BTAlgo standard symbol format
     # Input format: "Name DD Mon YY Strike" (e.g., "NIFTY 02 Mar 26 30600")
     # Output format: Name + DD + MMM + YY + Strike (e.g., "NIFTY02MAR2630600")
     # This matches the DDMMMYY convention used by all other brokers
@@ -260,7 +260,7 @@ def process_fyers_nse_csv(path):
         .str.replace(" ", "", regex=False)
         .str.replace("-", "", regex=False)
     )
-    # Override specific symbols where normalized name differs from OpenAlgo standard
+    # Override specific symbols where normalized name differs from BTAlgo standard
     df_filtered.loc[nse_idx_mask, "symbol"] = df_filtered.loc[nse_idx_mask, "symbol"].replace(
         {"NIFTYMID50": "NIFTYMIDCAP50"}
     )
@@ -329,7 +329,7 @@ def process_fyers_bse_csv(path):
 
     df_filtered.loc[:, "symbol"] = df_filtered["Underlying symbol"]
 
-    # Normalize BSE_INDEX symbols to OpenAlgo standard format
+    # Normalize BSE_INDEX symbols to BTAlgo standard format
     bse_idx_mask = df_filtered["exchange"] == "BSE_INDEX"
     bse_index_map = {
         "SENSEX": "SENSEX",
@@ -497,7 +497,7 @@ def process_fyers_cds_json(path):
     # Convert dict-of-dicts to DataFrame
     df = pd.DataFrame(list(data.values()))
 
-    # Map JSON fields to OpenAlgo schema
+    # Map JSON fields to BTAlgo schema
     df["token"] = df["fyToken"]
     df["name"] = df["symbolDetails"]
 
@@ -631,7 +631,7 @@ def process_fyers_mcx_json(path):
     # Convert dict-of-dicts to DataFrame
     df = pd.DataFrame(list(data.values()))
 
-    # Map JSON fields to OpenAlgo schema
+    # Map JSON fields to BTAlgo schema
     df["token"] = df["fyToken"]
     df["name"] = df["symbolDetails"]
 

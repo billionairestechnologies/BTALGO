@@ -1,11 +1,11 @@
 """
 RELIANCE 5-Minute Chart with Williams Vix Fix (CM_Williams_Vix_Fix)
-Author : OpenAlgo GPT
+Author : BTAlgo GPT
 Description: Plots RELIANCE candlestick with Williams Vix Fix indicator
-             Converted from Pine Script v3 to Python using OpenAlgo ta library
+             Converted from Pine Script v3 to Python using BTAlgo ta library
 """
 
-print("🔁 OpenAlgo Python Bot is running.")
+print("🔁 BTAlgo Python Bot is running.")
 
 from datetime import datetime
 
@@ -60,7 +60,7 @@ def fetch_historical_data():
     # Print the raw response
     print(f"History Response: {response}")
 
-    # OpenAlgo history() returns DataFrame directly (not a dict)
+    # BTAlgo history() returns DataFrame directly (not a dict)
     if isinstance(response, pd.DataFrame):
         df = response.copy()
     else:

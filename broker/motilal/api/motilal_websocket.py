@@ -876,7 +876,7 @@ class MotilalWebSocket:
             exchange (str): Exchange code (BSE, NSE, NSEFO, NSECD, MCX, BSEFO)
             exchange_type (str): Exchange type (CASH, DERIVATIVES)
             scrip_code (int): Scrip code/token
-            symbol (str): OpenAlgo symbol (optional, for reference)
+            symbol (str): BTAlgo symbol (optional, for reference)
 
         Returns:
             bool: True if registration successful, False otherwise

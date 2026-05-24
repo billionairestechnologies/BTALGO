@@ -120,7 +120,7 @@ HEALTH_THREAD_CRITICAL_THRESHOLD=100
 <!DOCTYPE html>
 <html>
 <head>
-    <title>System Health Monitor - OpenAlgo</title>
+    <title>System Health Monitor - BTAlgo</title>
     <!-- Add your styles -->
 </head>
 <body>
@@ -196,8 +196,8 @@ HEALTH_THREAD_CRITICAL_THRESHOLD=100
 {
     "status": "pass",
     "version": "1.0",
-    "serviceId": "openalgo",
-    "description": "OpenAlgo Trading Platform"
+    "serviceId": "btalgo",
+    "description": "BTAlgo Trading Platform"
 }
 ```
 
@@ -234,8 +234,8 @@ readinessProbe:
 **docker-compose.yml**:
 ```yaml
 services:
-  openalgo:
-    image: openalgo:latest
+  btalgo:
+    image: btalgo:latest
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
@@ -267,7 +267,7 @@ curl http://localhost:5000/health/check
 ### Test 3: Verify Background Collection
 ```bash
 # Check logs for collector startup
-tail -f logs/openalgo.log | grep -i health
+tail -f logs/btalgo.log | grep -i health
 
 # Expected:
 # "Health monitoring initialized successfully (background mode)"
@@ -310,8 +310,8 @@ for f in files:
 {
   "status": "pass",
   "version": "1.0",
-  "serviceId": "openalgo",
-  "description": "OpenAlgo Trading Platform"
+  "serviceId": "btalgo",
+  "description": "BTAlgo Trading Platform"
 }
 ```
 
@@ -320,12 +320,12 @@ for f in files:
 {
   "status": "pass",
   "version": "1.0",
-  "serviceId": "openalgo",
-  "description": "OpenAlgo Trading Platform",
+  "serviceId": "btalgo",
+  "description": "BTAlgo Trading Platform",
   "checks": {
     "database:connectivity": [
       {
-        "componentId": "openalgo",
+        "componentId": "btalgo",
         "status": "pass",
         "time": "2026-01-30T10:15:30Z"
       },
@@ -376,7 +376,7 @@ for f in files:
   "database": {
     "total": 5,
     "connections": {
-      "openalgo": 2,
+      "btalgo": 2,
       "logs": 1,
       "latency": 1,
       "apilog": 0,
@@ -425,8 +425,8 @@ for f in files:
 # Export metrics to Prometheus format
 from prometheus_client import Gauge
 
-fd_gauge = Gauge('openalgo_fd_count', 'File descriptor count')
-memory_gauge = Gauge('openalgo_memory_mb', 'Memory usage in MB')
+fd_gauge = Gauge('btalgo_fd_count', 'File descriptor count')
+memory_gauge = Gauge('btalgo_memory_mb', 'Memory usage in MB')
 
 # Update in collector loop
 fd_gauge.set(fd_metrics['count'])
@@ -455,7 +455,7 @@ if severity == 'fail':
 echo $HEALTH_MONITOR_ENABLED  # Should be "true"
 
 # Check logs
-tail -f logs/openalgo.log | grep -i health
+tail -f logs/btalgo.log | grep -i health
 
 # Manually start
 python -c "from utils.health_monitor import start_health_collector; start_health_collector()"

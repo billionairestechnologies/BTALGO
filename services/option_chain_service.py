@@ -227,7 +227,7 @@ def get_option_chain(
         exchange: Exchange (NSE_INDEX, NSE, NFO, BSE_INDEX, BSE, BFO, MCX, CDS)
         expiry_date: Expiry date in DDMMMYY format (e.g., 28NOV25)
         strike_count: Number of strikes above and below ATM
-        api_key: OpenAlgo API key
+        api_key: BTAlgo API key
 
     Returns:
         Tuple of (success, response_data, status_code)
@@ -282,7 +282,7 @@ def get_option_chain(
             # and module import inside the same request.
             _auth, _feed, _broker = get_auth_token_broker(api_key, include_feed_token=True)
             if _auth is None:
-                return False, {"status": "error", "message": "Invalid openalgo apikey"}, 403
+                return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
             _bmod = import_broker_module(_broker)
             if _bmod is None:
                 return False, {"status": "error", "message": "Broker module not found"}, 404

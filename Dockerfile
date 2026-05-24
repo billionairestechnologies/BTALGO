@@ -46,7 +46,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #     appuser ends up at a different UID (which can happen on ARM64 base
 #     images that already have system users at low UIDs, or if the base
 #     image bumps its useradd defaults), the bind-mounted .env becomes
-#     unwritable to the running process. See marketcalls/openalgo#1394.
+#     unwritable to the running process. See marketcalls/btalgo#1394.
 RUN groupadd --gid 1000 appuser && \
     useradd --create-home --uid 1000 --gid 1000 appuser
 WORKDIR /app
@@ -64,7 +64,7 @@ COPY --from=frontend-builder --chown=appuser:appuser /app/frontend/dist /app/fro
 #     appuser process can read/execute /app but cannot create new files
 #     there — which breaks any atomic-write helper that needs to put a
 #     temp file in /app (e.g. utils/env_check.py rotating FERNET_SALT in
-#     /app/.env). See marketcalls/openalgo#1394.
+#     /app/.env). See marketcalls/btalgo#1394.
 RUN mkdir -p /app/log /app/log/strategies /app/db /app/tmp /app/tmp/numba_cache /app/tmp/matplotlib /app/strategies /app/strategies/scripts /app/strategies/examples /app/keys && \
     chown appuser:appuser /app && \
     chown -R appuser:appuser /app/log /app/db /app/tmp /app/strategies /app/keys && \
@@ -76,7 +76,7 @@ COPY --chown=appuser:appuser start.sh /app/start.sh
 RUN sed -i 's/\r$//' /app/start.sh && chmod +x /app/start.sh
 # ---- RUNTIME ENVS --------------------------------------------------------- #
 # Limit OpenBLAS/NumPy threads to prevent RLIMIT_NPROC exhaustion in Docker
-# See: https://github.com/marketcalls/openalgo/issues/822
+# See: https://github.com/billionairestechnologies/btalgo/issues/822
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \

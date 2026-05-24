@@ -1,10 +1,10 @@
 {
     "Plugin Name": "Wisdom Capital (XTS)",
-    "Plugin URI": "https://openalgo.in",
+    "Plugin URI": "https://billionairestechnologies.com",
     "Description":"Wisdom Capital XTS Plugin",
     "Version": "1.0",
     "Author": "Kalaivani",
-    "Author URI": "https://openalgo.in",
+    "Author URI": "https://billionairestechnologies.com",
     "supported_exchanges": ["NSE", "BSE", "NFO", "BFO", "CDS", "MCX", "NSE_INDEX", "BSE_INDEX"],
     "broker_type": "IN_stock",
     "leverage_config": false

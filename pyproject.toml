@@ -1,6 +1,6 @@
 [project]
 requires-python = ">=3.12"
-name = "openalgoUI"
+name = "btalgoUI"
 version = "2.0.1.1"
 description = "Broker-agnostic open-source trading automation"
 dependencies = [

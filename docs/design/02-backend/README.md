@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo backend is a production-ready Flask application providing a unified API layer across **29 Indian brokers**. It features a plugin-based broker system, multi-database architecture, real-time WebSocket streaming, and comprehensive security layers.
+BTAlgo backend is a production-ready Flask application providing a unified API layer across **29 Indian brokers**. It features a plugin-based broker system, multi-database architecture, real-time WebSocket streaming, and comprehensive security layers.
 
 ## Technology Stack
 
@@ -64,7 +64,7 @@ OpenAlgo backend is a production-ready Flask application providing a unified API
 │                           Database Layer (5 DBs)                              │
 │                                                                               │
 │  ┌──────────────┐  ┌──────────┐  ┌────────────┐  ┌───────────┐  ┌─────────┐ │
-│  │ openalgo.db  │  │ logs.db  │  │ latency.db │  │sandbox.db │  │historify│ │
+│  │ btalgo.db  │  │ logs.db  │  │ latency.db │  │sandbox.db │  │historify│ │
 │  │   (main)     │  │(traffic) │  │ (metrics)  │  │  (paper)  │  │ .duckdb │ │
 │  └──────────────┘  └──────────┘  └────────────┘  └───────────┘  └─────────┘ │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -73,7 +73,7 @@ OpenAlgo backend is a production-ready Flask application providing a unified API
 ## Directory Structure
 
 ```
-openalgo/
+btalgo/
 ├── app.py                      # Application entry point
 ├── extensions.py               # Flask extensions (SocketIO)
 ├── limiter.py                  # Rate limiting configuration
@@ -227,8 +227,8 @@ broker/zerodha/
 ```json
 {
     "Plugin Name": "zerodha",
-    "Plugin URI": "https://openalgo.in",
-    "Description": "Zerodha OpenAlgo Plugin",
+    "Plugin URI": "https://billionairestechnologies.com",
+    "Description": "Zerodha BTAlgo Plugin",
     "Version": "1.0",
     "Author": "Rajandran R"
 }
@@ -370,7 +370,7 @@ API_KEY_PEPPER=<32+ char pepper>
 VALID_BROKERS=zerodha,dhan,angel
 
 # Database
-DATABASE_URL=sqlite:///db/openalgo.db
+DATABASE_URL=sqlite:///db/btalgo.db
 
 # WebSocket
 WEBSOCKET_HOST=127.0.0.1

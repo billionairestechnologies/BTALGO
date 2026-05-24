@@ -25,7 +25,7 @@ def get_database_url():
     from dotenv import load_dotenv
 
     load_dotenv()
-    return os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+    return os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
 
 
 def table_exists(engine, table_name):

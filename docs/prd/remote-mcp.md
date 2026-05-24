@@ -8,15 +8,15 @@
 
 ## Goal
 
-Let a self-hosted OpenAlgo install expose its MCP tools to **hosted AI clients** (chatgpt.com, claude.ai, claude mobile) in addition to the existing local stdio integration with Claude Desktop / Cursor / Windsurf.
+Let a self-hosted BTAlgo install expose its MCP tools to **hosted AI clients** (chatgpt.com, claude.ai, claude mobile) in addition to the existing local stdio integration with Claude Desktop / Cursor / Windsurf.
 
-Concrete outcome: after running `install/install.sh` and pointing a domain at the server, the user can connect a hosted MCP client to `https://mcp.<their-domain>/mcp` and use OpenAlgo tools through standard OAuth.
+Concrete outcome: after running `install/install.sh` and pointing a domain at the server, the user can connect a hosted MCP client to `https://mcp.<their-domain>/mcp` and use BTAlgo tools through standard OAuth.
 
 ## Non-goals
 
-- **Multi-user**: a remote MCP server is still single-user, single-broker. The single OpenAlgo admin authorizes the client; there's no per-user MCP access.
+- **Multi-user**: a remote MCP server is still single-user, single-broker. The single BTAlgo admin authorizes the client; there's no per-user MCP access.
 - **Replacing the local stdio MCP**: stdio stays the default and works unchanged. Remote MCP is purely additive — opt-in, off by default.
-- **A SaaS hosted MCP**: nothing runs on infrastructure operated by the OpenAlgo project.
+- **A SaaS hosted MCP**: nothing runs on infrastructure operated by the BTAlgo project.
 
 ## Coexistence requirement
 
@@ -53,7 +53,7 @@ They share **one** tool registry. No tool is implemented twice.
              ▼                              │  ┌─────────────────────────────────┐   │
         ┌────────────────────────────────┐  │  │ blueprints/mcp_http.py          │   │
         │ mcp/tool_registry.py            │  │  │   POST /mcp (JSON-RPC dispatch) │   │
-        │   mcp = FastMCP("openalgo")     │◀─┼──│   GET  /mcp (SSE stream)        │   │
+        │   mcp = FastMCP("btalgo")     │◀─┼──│   GET  /mcp (SSE stream)        │   │
         │   @mcp.tool()                   │  │  └─────────────────────────────────┘   │
         │   def place_order(...): ...     │  │                                        │
         │   ... (all tools)               │  │  ┌─────────────────────────────────┐   │
@@ -80,7 +80,7 @@ They share **one** tool registry. No tool is implemented twice.
 3. claude.ai fetches resource metadata, then authorization-server metadata.
 4. claude.ai POSTs to /oauth/register (DCR) with its redirect_uri.
 5. claude.ai redirects user to /oauth/authorize?... (with PKCE challenge).
-6. User logs in to OpenAlgo (existing session) and approves scopes on a consent page.
+6. User logs in to BTAlgo (existing session) and approves scopes on a consent page.
 7. Server redirects back to claude.ai with an authorization code.
 8. claude.ai POSTs the code + verifier to /oauth/token; receives access + refresh.
 9. claude.ai retries POST /mcp with Authorization: Bearer <access_token>.
@@ -89,21 +89,21 @@ They share **one** tool registry. No tool is implemented twice.
 
 ### User authentication at the consent step
 
-**Decision: the OpenAlgo dashboard login (username + password + TOTP), not the API key.**
+**Decision: the BTAlgo dashboard login (username + password + TOTP), not the API key.**
 
 There are two distinct credentials in play, which are easy to conflate:
 
 | Credential | Who holds it | Where it's used in remote MCP |
 |---|---|---|
-| OpenAlgo login (username + password + TOTP) | Admin user, interactively at the browser | Gates `/oauth/authorize` — proves the human at the keyboard is the OpenAlgo admin and consents to grant the MCP client access |
-| OpenAlgo API key | Server-side `.env` value | Used **inside** the tool implementations when they call back to `/api/v1/*` — the user never sees or enters it during OAuth |
+| BTAlgo login (username + password + TOTP) | Admin user, interactively at the browser | Gates `/oauth/authorize` — proves the human at the keyboard is the BTAlgo admin and consents to grant the MCP client access |
+| BTAlgo API key | Server-side `.env` value | Used **inside** the tool implementations when they call back to `/api/v1/*` — the user never sees or enters it during OAuth |
 
 The user-facing OAuth flow looks like:
 
 ```
 1. claude.ai redirects to https://mcp.example/oauth/authorize?...
 2. /oauth/authorize is gated by @check_session_validity:
-   - If no valid session → standard OpenAlgo login page (username + password + TOTP)
+   - If no valid session → standard BTAlgo login page (username + password + TOTP)
    - On successful login → redirected back to the consent screen
 3. Consent screen shows: "claude.ai wants: read:market, read:account [, write:orders]"
                          [Authorize]  [Deny]
@@ -115,7 +115,7 @@ Why login, not API key:
 - **TOTP gate.** The login flow already enforces TOTP. API keys do not. Authorizing an order-placement client is exactly the moment a TOTP step is appropriate.
 - **Right level of friction.** OAuth consent is a one-time interactive step. Pasting an API key on a consent screen is awkward and trains users to expose API keys in browsers.
 - **Aligns with industry norm.** Kite, Google, GitHub, etc. all gate their OAuth `/authorize` with the same login the user uses for the dashboard, not with an API token.
-- **Recovery story.** A user who loses their API key still has password+TOTP and can revoke MCP access; a user who loses password+TOTP would already be locked out of OpenAlgo entirely, so MCP is not a new dependency.
+- **Recovery story.** A user who loses their API key still has password+TOTP and can revoke MCP access; a user who loses password+TOTP would already be locked out of BTAlgo entirely, so MCP is not a new dependency.
 
 #### Fresh-auth requirement (MUST-HAVE for v1)
 
@@ -129,7 +129,7 @@ For sensitive scope grants, the existing session alone is not enough. Rules:
 
 | Value | Behavior |
 |---|---|
-| `session` | Any valid OpenAlgo session passes (least friction) |
+| `session` | Any valid BTAlgo session passes (least friction) |
 | `totp` (**default**) | Fresh TOTP within 60s required for any `write:orders` grant |
 | `password+totp` | Full re-auth on every `/authorize`, regardless of scope |
 
@@ -163,7 +163,7 @@ Each tool is annotated with its required scope in the registry. Token verificati
 
 ### Database
 
-New file `database/oauth_db.py` with three tables in `db/openalgo.db`:
+New file `database/oauth_db.py` with three tables in `db/btalgo.db`:
 
 - `oauth_clients` — DCR-registered clients. Fields: `client_id`, `client_name`, `redirect_uris[]`, `created_at`, `approved` (bool, optional admin approval).
 - `oauth_refresh_tokens` — `id`, `client_id`, `token_hash`, `scopes`, `created_at`, `expires_at`, `revoked_at`, `last_used_at`, `parent_token_id` (chain for rotation audit).
@@ -247,8 +247,8 @@ Internet → Cloudflare/WAF (recommended) → nginx → Flask
 3. **Write tools off by default.** `MCP_OAUTH_WRITE_SCOPE_ENABLED=False` is the default. Even with `MCP_HTTP_ENABLED=True`, the `write:orders` scope is not advertised in discovery and any token request that asks for it returns `invalid_scope`. The admin must explicitly opt in by flipping the env var and restarting.
 4. **DCR requires admin approval by default.** `MCP_OAUTH_REQUIRE_APPROVAL=True`. New DCR registrations land in `pending` state and cannot complete the OAuth flow until the admin approves them on `/admin/oauth-clients` (new admin tile). This stops the "anyone in the world can start an OAuth flow against your server" attack.
 5. **Pre-flight refusal in debug mode.** If `FLASK_DEBUG=True` *and* `MCP_HTTP_ENABLED=True`, app startup fails with a clear error. Debug mode leaks tokens via `werkzeug` tracebacks and must never coexist with the MCP transport.
-6. **Tokens hashed with `API_KEY_PEPPER`.** Refresh tokens never persist in plaintext. Same Argon2/HMAC pipeline as OpenAlgo API keys.
-7. **Signing key on disk.** RS256 private key in `keys/mcp_oauth_signing.pem`, chmod `600`, owned by the OpenAlgo process user. Auto-generated by install scripts. Not in git, not in `.env`.
+6. **Tokens hashed with `API_KEY_PEPPER`.** Refresh tokens never persist in plaintext. Same Argon2/HMAC pipeline as BTAlgo API keys.
+7. **Signing key on disk.** RS256 private key in `keys/mcp_oauth_signing.pem`, chmod `600`, owned by the BTAlgo process user. Auto-generated by install scripts. Not in git, not in `.env`.
 8. **Audit log for every tool call.** Append-only `log/mcp.jsonl`. Contains `ts`, `jti`, `client_id`, `tool`, `scope`, `params_hash` (SHA-256 of the JSON-canonical params), `duration_ms`, `outcome`, `request_ip`. Params are NOT logged in full — only hashed for correlation against the existing trade log.
 9. **Telegram notification on every write tool call** when the existing Telegram bot is configured. The notification fires **before** the order goes to the broker so the admin gets a chance to see "MCP is about to place X" and revoke if surprising. Re-uses existing `services/telegram_bot_service.py`.
 10. **Kill switch endpoint.** `POST /admin/mcp/disable` (admin-session-gated) atomically: sets a runtime flag that 503s every `/mcp` request, revokes all refresh tokens, dumps the in-memory access-token allowlist. One click stops the world without restarting Gunicorn.
@@ -264,7 +264,7 @@ Internet → Cloudflare/WAF (recommended) → nginx → Flask
 ### SHOULD-HAVE for v1 (default-on, configurable)
 
 19. **Optional IP allowlist for `/mcp`.** `MCP_HTTP_IP_ALLOWLIST=1.2.3.4,5.6.7.0/24`. When set, all MCP requests are rejected unless the source IP matches. Empty (default) = no IP filtering. Useful if the user's MCP client lives on a known fixed egress.
-20. **Kill switch on session timeout.** *(Not yet implemented in v2.0.1.0.)* If the OpenAlgo admin hasn't logged in for the configurable session inactivity window (`MCP_INACTIVITY_REVOKE_DAYS`, default 7), all refresh tokens are revoked. A live admin must re-authorize the MCP client. Catches the "user forgot they enabled this" failure mode.
+20. **Kill switch on session timeout.** *(Not yet implemented in v2.0.1.0.)* If the BTAlgo admin hasn't logged in for the configurable session inactivity window (`MCP_INACTIVITY_REVOKE_DAYS`, default 7), all refresh tokens are revoked. A live admin must re-authorize the MCP client. Catches the "user forgot they enabled this" failure mode.
 21. **Inbound order quantity cap.** *(Not yet implemented in v2.0.1.0.)* `MCP_MAX_ORDER_QTY` (default `0` = no cap). When set, any tool placing an order with `quantity > cap` is rejected at the dispatcher before reaching the broker.
 22. **Confirmation token for high-value writes.** *(Not yet implemented in v2.0.1.0.)* Optional `MCP_CONFIRM_WRITES=True`. When set, write tools require an additional `confirm_token` parameter that the client obtains from a separate `/oauth/confirm-write` endpoint, which displays an admin consent prompt for that single tool call. Adds a per-trade human-in-the-loop step.
 23. **Telegram-driven kill switch.** *(Not yet implemented in v2.0.1.0.)* If Telegram is configured, the user can reply `/mcp_disable` in the bot to trigger the same kill switch. Useful when away from the dashboard.
@@ -297,7 +297,7 @@ Internet → Cloudflare/WAF (recommended) → nginx → Flask
 | SEBI static-IP bypass | Not exploitable — broker calls still originate from registered server IP. The trust boundary is the admin's OAuth approval, not the IP. |
 | Log-based credential leak | (15) `SensitiveDataFilter` extended for OAuth fields |
 | Privilege escalation across scopes | Token signature includes `scope` claim; verifier rejects tools whose required scope isn't in the token's scope set |
-| Compromised OpenAlgo admin password → MCP takeover | Same blast radius as compromised admin already. Mitigation is on the OpenAlgo side (Argon2, rate-limited login). MCP doesn't widen this. |
+| Compromised BTAlgo admin password → MCP takeover | Same blast radius as compromised admin already. Mitigation is on the BTAlgo side (Argon2, rate-limited login). MCP doesn't widen this. |
 | Discovery endpoint leak of internal hostnames | Discovery returns only the configured `MCP_PUBLIC_URL`, never internal IPs |
 
 ### Configuration (`.sample.env`)
@@ -337,7 +337,7 @@ MCP_RATE_LIMIT_WRITE = '5 per minute'
 `install/install.sh` gains an optional MCP block:
 
 ```
-[?] Enable remote MCP server (allows ChatGPT/Claude.ai to call OpenAlgo)? [y/N]
+[?] Enable remote MCP server (allows ChatGPT/Claude.ai to call BTAlgo)? [y/N]
 [?] MCP subdomain (e.g. mcp.yourdomain.com):
   - Generates RS256 signing key under keys/
   - Adds nginx server block with Let's Encrypt cert
@@ -361,11 +361,11 @@ Defaults to **No**. The install scripts that already handle TLS (`install-docker
 1. **Authlib vs hand-rolled** — Authlib brings ~600KB of dep weight but removes a category of crypto bugs. Default: Authlib. Will revisit if it conflicts with eventlet.
 2. **Discovery URL shape** — RFC 8414 says `/.well-known/oauth-authorization-server`. MCP spec also references resource metadata at `/.well-known/oauth-protected-resource`. Implementing both.
 3. **Per-tool re-auth for high-value writes** — should `place_order` require a token issued in the last 60s? Adds friction. Default: no re-auth, instead rely on rate limits + audit. Re-evaluate after security review.
-4. **Single-tenant simplification** — DCR allows arbitrary client registration. For a single-user install we could short-circuit with one pre-approved client per OpenAlgo install. Default: keep DCR (matches MCP spec); add `MCP_OAUTH_REQUIRE_APPROVAL` for friction-on-demand.
+4. **Single-tenant simplification** — DCR allows arbitrary client registration. For a single-user install we could short-circuit with one pre-approved client per BTAlgo install. Default: keep DCR (matches MCP spec); add `MCP_OAUTH_REQUIRE_APPROVAL` for friction-on-demand.
 5. **Mobile / native client UX** — claude.ai mobile follows the same OAuth flow but the redirect dance feels heavy. No special handling planned for v1.
 
 ### Out of scope for this branch
 
 - ChatGPT custom GPTs / OpenAI's MCP support — same protocol, should "just work" but won't be explicitly tested in v1
-- Multi-broker switching via MCP (the current OpenAlgo session ties one user to one broker)
+- Multi-broker switching via MCP (the current BTAlgo session ties one user to one broker)
 - Streaming tool responses for very large reads (history, instruments) — v1 returns whole payloads

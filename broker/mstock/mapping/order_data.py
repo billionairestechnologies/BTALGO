@@ -6,18 +6,18 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def map_broker_exchange_to_openalgo(broker_exchange, instrumenttype=""):
+def map_broker_exchange_to_btalgo(broker_exchange, instrumenttype=""):
     """
-    Maps mStock broker exchange to OpenAlgo exchange format.
+    Maps mStock broker exchange to BTAlgo exchange format.
     mStock returns NSE for both equity and derivatives,
-    but OpenAlgo uses NFO for derivatives.
+    but BTAlgo uses NFO for derivatives.
 
     Parameters:
     - broker_exchange: Exchange from mStock API (e.g., 'NSE', 'BSE', 'MCX')
     - instrumenttype: Instrument type (e.g., 'OPTIDX', 'OPTSTK', 'FUTIDX', 'FUTSTK')
 
     Returns:
-    - OpenAlgo exchange format (e.g., 'NFO' for NSE derivatives)
+    - BTAlgo exchange format (e.g., 'NFO' for NSE derivatives)
     """
     if instrumenttype in ["OPTIDX", "OPTSTK", "FUTIDX", "FUTSTK"]:
         if broker_exchange == "NSE":
@@ -32,7 +32,7 @@ def map_broker_exchange_to_openalgo(broker_exchange, instrumenttype=""):
 def map_order_data(order_data):
     """
     Processes and modifies order data from mStock Type B API.
-    Converts broker symbols to OpenAlgo symbols and maps product types.
+    Converts broker symbols to BTAlgo symbols and maps product types.
 
     Parameters:
     - order_data: Response from mStock Type B orders API
@@ -64,7 +64,7 @@ def map_order_data(order_data):
                 elif exchange == "BSE":
                     lookup_exchange = "BFO"
 
-            # Get OpenAlgo symbol from database using symboltoken
+            # Get BTAlgo symbol from database using symboltoken
             if symboltoken and exchange:
                 symbol_from_db = get_symbol(symboltoken, lookup_exchange)
                 if symbol_from_db:
@@ -84,7 +84,7 @@ def map_order_data(order_data):
                                 f"Symbol not found for token {symboltoken} or brsymbol {broker_tradingsymbol} on {lookup_exchange}. Keeping original."
                             )
 
-            # Map product types to OpenAlgo format
+            # Map product types to BTAlgo format
             producttype = order.get("producttype", "")
             if (exchange in ["NSE", "BSE"]) and producttype == "DELIVERY":
                 order["producttype"] = "CNC"
@@ -153,13 +153,13 @@ def calculate_order_statistics(order_data):
 
 def transform_order_data(orders):
     """
-    Transforms mStock Type B order data to OpenAlgo format.
+    Transforms mStock Type B order data to BTAlgo format.
 
     Parameters:
     - orders: List of order dictionaries from mStock Type B API
 
     Returns:
-    - List of orders in OpenAlgo format
+    - List of orders in BTAlgo format
     """
     if isinstance(orders, dict):
         orders = [orders]
@@ -173,14 +173,14 @@ def transform_order_data(orders):
             )
             continue
 
-        # Map order type to OpenAlgo format
+        # Map order type to BTAlgo format
         ordertype = order.get("ordertype", "")
         if ordertype == "STOP_LOSS":
             ordertype = "SL"
         elif ordertype == "STOPLOSS_MARKET":
             ordertype = "SL-M"
 
-        # Normalize status to OpenAlgo format (lowercase)
+        # Normalize status to BTAlgo format (lowercase)
         status = order.get("status", "")
         if status == "Traded" or "TRADE CONFIRMED" in status:
             order_status = "complete"
@@ -216,7 +216,7 @@ def transform_order_data(orders):
 
         transformed_order = {
             "symbol": order.get("tradingsymbol", ""),
-            "exchange": map_broker_exchange_to_openalgo(
+            "exchange": map_broker_exchange_to_btalgo(
                 order.get("exchange", ""), order.get("instrumenttype", "")
             ),
             "action": order.get("transactiontype", ""),
@@ -268,7 +268,7 @@ def map_trade_data(trade_data):
                 lookup_exchange = "BFO"
 
         if exchange:
-            # First try: Get OpenAlgo symbol using symboltoken
+            # First try: Get BTAlgo symbol using symboltoken
             if symboltoken:
                 symbol_from_db = get_symbol(symboltoken, lookup_exchange)
                 if symbol_from_db:
@@ -317,7 +317,7 @@ def map_trade_data(trade_data):
         else:
             trade["tradingsymbol"] = symbol if symbol else ""
 
-        # Map product types to OpenAlgo format
+        # Map product types to BTAlgo format
         # Type B API returns: CNC, INTRADAY (some might return DELIVERY)
         producttype = trade.get("PRODUCT", "")
         if (lookup_exchange in ["NSE", "BSE"]) and producttype == "DELIVERY":
@@ -336,13 +336,13 @@ def map_trade_data(trade_data):
 
 def transform_tradebook_data(tradebook_data):
     """
-    Transforms mStock Type B tradebook data to OpenAlgo format.
+    Transforms mStock Type B tradebook data to BTAlgo format.
 
     Parameters:
     - tradebook_data: List of trade dictionaries from mStock Type B API
 
     Returns:
-    - List of trades in OpenAlgo format
+    - List of trades in BTAlgo format
     """
     transformed_data = []
     for trade in tradebook_data:
@@ -374,7 +374,7 @@ def transform_tradebook_data(tradebook_data):
 
         transformed_trade = {
             "symbol": trade.get("tradingsymbol", ""),  # Mapped by map_trade_data
-            "exchange": map_broker_exchange_to_openalgo(
+            "exchange": map_broker_exchange_to_btalgo(
                 trade.get("EXCHANGE", ""), trade.get("INSTRUMENT_NAME", "")
             ),
             "product": trade.get("producttype", ""),  # Mapped by map_trade_data
@@ -423,7 +423,7 @@ def map_position_data(position_data):
                 elif exchange == "BSE":
                     lookup_exchange = "BFO"
 
-            # Get OpenAlgo symbol from database using symboltoken
+            # Get BTAlgo symbol from database using symboltoken
             if symboltoken and exchange:
                 symbol_from_db = get_symbol(symboltoken, lookup_exchange)
                 if symbol_from_db:
@@ -446,7 +446,7 @@ def map_position_data(position_data):
                     else:
                         position["tradingsymbol"] = ""
 
-            # Map product types to OpenAlgo format
+            # Map product types to BTAlgo format
             producttype = position.get("producttype", "")
             if (exchange in ["NSE", "BSE"]) and producttype == "DELIVERY":
                 position["producttype"] = "CNC"
@@ -460,13 +460,13 @@ def map_position_data(position_data):
 
 def transform_positions_data(positions_data):
     """
-    Transforms mStock Type B positions data to OpenAlgo format.
+    Transforms mStock Type B positions data to BTAlgo format.
 
     Parameters:
     - positions_data: List of position dictionaries (already mapped by map_position_data)
 
     Returns:
-    - List of positions in OpenAlgo format
+    - List of positions in BTAlgo format
     """
     transformed_data = []
 
@@ -500,7 +500,7 @@ def transform_positions_data(positions_data):
 
         transformed_position = {
             "symbol": position.get("tradingsymbol", ""),
-            "exchange": map_broker_exchange_to_openalgo(
+            "exchange": map_broker_exchange_to_btalgo(
                 position.get("exchange", ""), position.get("instrumenttype", "")
             ),
             "product": position.get("producttype", ""),  # Already mapped by map_position_data
@@ -516,7 +516,7 @@ def transform_positions_data(positions_data):
 
 def transform_holdings_data(holdings_data):
     """
-    Transforms mStock Type B holdings data to OpenAlgo format.
+    Transforms mStock Type B holdings data to BTAlgo format.
 
     Can handle two input formats:
     1. Raw API response: {"status": "true", "data": [...]}
@@ -530,7 +530,7 @@ def transform_holdings_data(holdings_data):
     - holdings_data: Response from holdings API or mapped portfolio data
 
     Returns:
-    - List of holdings in OpenAlgo format
+    - List of holdings in BTAlgo format
     """
     transformed_data = []
 
@@ -625,7 +625,7 @@ def map_portfolio_data(portfolio_data):
     data = portfolio_data["data"]
 
     # mStock Type B returns data as a flat array, not nested under 'holdings'
-    # Convert to expected format for compatibility with OpenAlgo
+    # Convert to expected format for compatibility with BTAlgo
     if isinstance(data, list):
         # Process each holding in the flat array
         holdings = []
@@ -633,7 +633,7 @@ def map_portfolio_data(portfolio_data):
             symbol = holding.get("tradingsymbol", "")
             exchange = holding.get("exchange") or "NSE"
 
-            # Get OpenAlgo symbol from broker symbol
+            # Get BTAlgo symbol from broker symbol
             if symbol:
                 oa_symbol = get_oa_symbol(symbol, exchange)
                 if oa_symbol:

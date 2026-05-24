@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo implements connection pooling for WebSocket symbol subscriptions to optimize performance and manage broker API limits. The system uses `ConnectionPool` with a `SharedZmqPublisher` singleton to handle multiple WebSocket connections per broker, aggregating data through ZeroMQ for unified distribution.
+BTAlgo implements connection pooling for WebSocket symbol subscriptions to optimize performance and manage broker API limits. The system uses `ConnectionPool` with a `SharedZmqPublisher` singleton to handle multiple WebSocket connections per broker, aggregating data through ZeroMQ for unified distribution.
 
 ## Architecture Diagram
 

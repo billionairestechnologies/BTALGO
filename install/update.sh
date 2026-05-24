@@ -7,7 +7,7 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# OpenAlgo Update Banner
+# BTAlgo Update Banner
 echo -e "${BLUE}"
 echo "  ██████╗ ██████╗ ███████╗███╗   ██╗ █████╗ ██╗      ██████╗  ██████╗ "
 echo " ██╔═══██╗██╔══██╗██╔════╝████╗  ██║██╔══██╗██║     ██╔════╝ ██╔═══██╗"
@@ -18,8 +18,8 @@ echo "  ╚═════╝ ╚═╝     ╚══════╝╚═╝  �
 echo "                          UPDATE  SCRIPT                                "
 echo -e "${NC}"
 
-# OpenAlgo Update Script
-# Updates an existing OpenAlgo installation to the latest version using the UV method.
+# BTAlgo Update Script
+# Updates an existing BTAlgo installation to the latest version using the UV method.
 # Supports both server deployments (installed via install.sh) and local development setups.
 
 # Create logs directory if it doesn't exist
@@ -47,7 +47,7 @@ check_status() {
 }
 
 # Start logging
-log_message "Starting OpenAlgo update log at: $LOG_FILE" "$BLUE"
+log_message "Starting BTAlgo update log at: $LOG_FILE" "$BLUE"
 log_message "----------------------------------------" "$BLUE"
 
 # Detect OS type
@@ -111,14 +111,14 @@ detect_uv() {
 # Find server deployments installed via install.sh
 #
 # Two layouts are supported:
-#   1. Simple (current install.sh)   /var/python/openalgo, service "openalgo"
-#   2. Legacy multi-deploy           /var/python/openalgo-flask/<deploy>/openalgo,
-#                                    service "openalgo-<deploy>" (still produced
+#   1. Simple (current install.sh)   /var/python/btalgo, service "btalgo"
+#   2. Legacy multi-deploy           /var/python/btalgo-flask/<deploy>/btalgo,
+#                                    service "btalgo-<deploy>" (still produced
 #                                    by install/install-multi.sh)
 # We try the simple layout first because it's unambiguous; only fall back
 # to scanning the legacy parent dir when the simple path is absent.
-SIMPLE_PATH="/var/python/openalgo"
-DEPLOY_BASE="/var/python/openalgo-flask"
+SIMPLE_PATH="/var/python/btalgo"
+DEPLOY_BASE="/var/python/btalgo-flask"
 SERVER_MODE=false
 STASHED=false
 
@@ -126,7 +126,7 @@ find_deployments() {
     local deployments=()
     if [ -d "$DEPLOY_BASE" ]; then
         for dir in "$DEPLOY_BASE"/*/; do
-            if [ -d "${dir}openalgo/.git" ]; then
+            if [ -d "${dir}btalgo/.git" ]; then
                 deploy_name=$(basename "$dir")
                 deployments+=("$deploy_name")
             fi
@@ -137,13 +137,13 @@ find_deployments() {
 
 if [ -d "$SIMPLE_PATH/.git" ] && [ -f "$SIMPLE_PATH/.env" ]; then
     SERVER_MODE=true
-    SELECTED_DEPLOY="openalgo"
+    SELECTED_DEPLOY="btalgo"
     BASE_PATH="$SIMPLE_PATH"
-    OPENALGO_PATH="$SIMPLE_PATH"
+    BTALGO_PATH="$SIMPLE_PATH"
     VENV_PATH="$SIMPLE_PATH/.venv"
-    SERVICE_NAME="openalgo"
+    SERVICE_NAME="btalgo"
 
-    log_message "Found OpenAlgo install at $SIMPLE_PATH" "$GREEN"
+    log_message "Found BTAlgo install at $SIMPLE_PATH" "$GREEN"
     log_message "Service: $SERVICE_NAME" "$BLUE"
 else
     DEPLOYMENTS=($(find_deployments))
@@ -175,39 +175,39 @@ if [ "$SERVER_MODE" = false ] && [ ${#DEPLOYMENTS[@]} -gt 0 ]; then
 
     # Derive paths from deployment name (legacy multi-deploy layout)
     BASE_PATH="$DEPLOY_BASE/$SELECTED_DEPLOY"
-    OPENALGO_PATH="$BASE_PATH/openalgo"
+    BTALGO_PATH="$BASE_PATH/btalgo"
     VENV_PATH="$BASE_PATH/venv"
-    SERVICE_NAME="openalgo-$SELECTED_DEPLOY"
+    SERVICE_NAME="btalgo-$SELECTED_DEPLOY"
 
     log_message "\nUpdating deployment: $SELECTED_DEPLOY" "$BLUE"
-    log_message "Path: $OPENALGO_PATH" "$BLUE"
+    log_message "Path: $BTALGO_PATH" "$BLUE"
     log_message "Service: $SERVICE_NAME" "$BLUE"
 fi
 
 if [ "$SERVER_MODE" = false ]; then
-    # Check if we're in or near an openalgo git repo (local development)
+    # Check if we're in or near an btalgo git repo (local development)
     if [ -d ".git" ] && [ -f "app.py" ]; then
-        OPENALGO_PATH="$(pwd)"
+        BTALGO_PATH="$(pwd)"
     elif [ -d "$SCRIPT_DIR/../.git" ] && [ -f "$SCRIPT_DIR/../app.py" ]; then
-        OPENALGO_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
+        BTALGO_PATH="$(cd "$SCRIPT_DIR/.." && pwd)"
     else
-        log_message "Error: No OpenAlgo deployment found." "$RED"
+        log_message "Error: No BTAlgo deployment found." "$RED"
         log_message "For server deployments, ensure install.sh was run first." "$YELLOW"
-        log_message "For local development, run this script from the openalgo directory." "$YELLOW"
+        log_message "For local development, run this script from the btalgo directory." "$YELLOW"
         exit 1
     fi
 
-    log_message "Detected local development setup at: $OPENALGO_PATH" "$GREEN"
+    log_message "Detected local development setup at: $BTALGO_PATH" "$GREEN"
 fi
 
 # Detect uv
 detect_uv
 
 # Get current version info before update
-cd "$OPENALGO_PATH"
+cd "$BTALGO_PATH"
 if [ "$SERVER_MODE" = true ]; then
-    CURRENT_COMMIT=$(sudo git -C "$OPENALGO_PATH" rev-parse --short HEAD 2>/dev/null || echo "unknown")
-    CURRENT_BRANCH=$(sudo git -C "$OPENALGO_PATH" branch --show-current 2>/dev/null || echo "main")
+    CURRENT_COMMIT=$(sudo git -C "$BTALGO_PATH" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    CURRENT_BRANCH=$(sudo git -C "$BTALGO_PATH" branch --show-current 2>/dev/null || echo "main")
 else
     CURRENT_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
     CURRENT_BRANCH=$(git branch --show-current 2>/dev/null || echo "main")
@@ -234,10 +234,10 @@ fi
 # Step 2: Backup databases
 # ============================================
 log_message "\n[Step 2/7] Backing up databases..." "$BLUE"
-BACKUP_DIR="$OPENALGO_PATH/db/backup_${TIMESTAMP}"
+BACKUP_DIR="$BTALGO_PATH/db/backup_${TIMESTAMP}"
 BACKUP_COUNT=0
 
-if [ -d "$OPENALGO_PATH/db" ]; then
+if [ -d "$BTALGO_PATH/db" ]; then
     if [ "$SERVER_MODE" = true ]; then
         sudo mkdir -p "$BACKUP_DIR"
     else
@@ -245,12 +245,12 @@ if [ -d "$OPENALGO_PATH/db" ]; then
     fi
 
     # Backup SQLite databases
-    for db_file in openalgo.db logs.db latency.db sandbox.db; do
-        if [ -f "$OPENALGO_PATH/db/$db_file" ]; then
+    for db_file in btalgo.db logs.db latency.db sandbox.db; do
+        if [ -f "$BTALGO_PATH/db/$db_file" ]; then
             if [ "$SERVER_MODE" = true ]; then
-                sudo cp "$OPENALGO_PATH/db/$db_file" "$BACKUP_DIR/$db_file"
+                sudo cp "$BTALGO_PATH/db/$db_file" "$BACKUP_DIR/$db_file"
             else
-                cp "$OPENALGO_PATH/db/$db_file" "$BACKUP_DIR/$db_file"
+                cp "$BTALGO_PATH/db/$db_file" "$BACKUP_DIR/$db_file"
             fi
             log_message "  Backed up: $db_file" "$GREEN"
             BACKUP_COUNT=$((BACKUP_COUNT + 1))
@@ -258,11 +258,11 @@ if [ -d "$OPENALGO_PATH/db" ]; then
     done
 
     # Backup DuckDB database
-    if [ -f "$OPENALGO_PATH/db/historify.duckdb" ]; then
+    if [ -f "$BTALGO_PATH/db/historify.duckdb" ]; then
         if [ "$SERVER_MODE" = true ]; then
-            sudo cp "$OPENALGO_PATH/db/historify.duckdb" "$BACKUP_DIR/historify.duckdb"
+            sudo cp "$BTALGO_PATH/db/historify.duckdb" "$BACKUP_DIR/historify.duckdb"
         else
-            cp "$OPENALGO_PATH/db/historify.duckdb" "$BACKUP_DIR/historify.duckdb"
+            cp "$BTALGO_PATH/db/historify.duckdb" "$BACKUP_DIR/historify.duckdb"
         fi
         log_message "  Backed up: historify.duckdb" "$GREEN"
         BACKUP_COUNT=$((BACKUP_COUNT + 1))
@@ -286,11 +286,11 @@ fi
 # Step 3: Pull latest code
 # ============================================
 log_message "\n[Step 3/7] Pulling latest code from repository..." "$BLUE"
-cd "$OPENALGO_PATH"
+cd "$BTALGO_PATH"
 
 # Check for local modifications (excluding untracked files)
 if [ "$SERVER_MODE" = true ]; then
-    LOCAL_CHANGES=$(sudo git -C "$OPENALGO_PATH" status --porcelain 2>/dev/null | grep -v "^??" | head -20)
+    LOCAL_CHANGES=$(sudo git -C "$BTALGO_PATH" status --porcelain 2>/dev/null | grep -v "^??" | head -20)
 else
     LOCAL_CHANGES=$(git status --porcelain 2>/dev/null | grep -v "^??" | head -20)
 fi
@@ -300,7 +300,7 @@ if [ -n "$LOCAL_CHANGES" ]; then
     echo "$LOCAL_CHANGES" | tee -a "$LOG_FILE"
     log_message "\nStashing local changes..." "$YELLOW"
     if [ "$SERVER_MODE" = true ]; then
-        sudo git -C "$OPENALGO_PATH" stash push -m "auto-stash before update $TIMESTAMP"
+        sudo git -C "$BTALGO_PATH" stash push -m "auto-stash before update $TIMESTAMP"
     else
         git stash push -m "auto-stash before update $TIMESTAMP"
     fi
@@ -309,7 +309,7 @@ fi
 
 # Pull latest code
 if [ "$SERVER_MODE" = true ]; then
-    sudo git -C "$OPENALGO_PATH" pull origin "$CURRENT_BRANCH"
+    sudo git -C "$BTALGO_PATH" pull origin "$CURRENT_BRANCH"
 else
     git pull origin "$CURRENT_BRANCH"
 fi
@@ -317,7 +317,7 @@ check_status "Failed to pull latest code. Please resolve any conflicts and try a
 
 # Get new commit hash
 if [ "$SERVER_MODE" = true ]; then
-    NEW_COMMIT=$(sudo git -C "$OPENALGO_PATH" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+    NEW_COMMIT=$(sudo git -C "$BTALGO_PATH" rev-parse --short HEAD 2>/dev/null || echo "unknown")
 else
     NEW_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 fi
@@ -337,10 +337,10 @@ fi
 # ============================================
 log_message "\n[Step 4/7] Checking environment configuration..." "$BLUE"
 
-if [ -f "$OPENALGO_PATH/.env" ] && [ -f "$OPENALGO_PATH/.sample.env" ]; then
+if [ -f "$BTALGO_PATH/.env" ] && [ -f "$BTALGO_PATH/.sample.env" ]; then
     # Extract variable names from both files and compare
-    SAMPLE_VARS=$(grep -oP "^[A-Z_][A-Z_0-9]+ *=" "$OPENALGO_PATH/.sample.env" 2>/dev/null | sed 's/ *=$//' | sort -u)
-    CURRENT_VARS=$(grep -oP "^[A-Z_][A-Z_0-9]+ *=" "$OPENALGO_PATH/.env" 2>/dev/null | sed 's/ *=$//' | sort -u)
+    SAMPLE_VARS=$(grep -oP "^[A-Z_][A-Z_0-9]+ *=" "$BTALGO_PATH/.sample.env" 2>/dev/null | sed 's/ *=$//' | sort -u)
+    CURRENT_VARS=$(grep -oP "^[A-Z_][A-Z_0-9]+ *=" "$BTALGO_PATH/.env" 2>/dev/null | sed 's/ *=$//' | sort -u)
 
     NEW_VARS=$(comm -23 <(echo "$SAMPLE_VARS") <(echo "$CURRENT_VARS") 2>/dev/null)
 
@@ -353,12 +353,12 @@ if [ -f "$OPENALGO_PATH/.env" ] && [ -f "$OPENALGO_PATH/.sample.env" ]; then
     else
         log_message "Environment configuration is up to date" "$GREEN"
     fi
-elif [ ! -f "$OPENALGO_PATH/.env" ]; then
+elif [ ! -f "$BTALGO_PATH/.env" ]; then
     log_message "Warning: No .env file found. Creating from .sample.env..." "$YELLOW"
     if [ "$SERVER_MODE" = true ]; then
-        sudo cp "$OPENALGO_PATH/.sample.env" "$OPENALGO_PATH/.env"
+        sudo cp "$BTALGO_PATH/.sample.env" "$BTALGO_PATH/.env"
     else
-        cp "$OPENALGO_PATH/.sample.env" "$OPENALGO_PATH/.env"
+        cp "$BTALGO_PATH/.sample.env" "$BTALGO_PATH/.env"
     fi
 
     # Generate fresh APP_KEY and API_KEY_PEPPER and substitute the placeholders.
@@ -369,16 +369,16 @@ elif [ ! -f "$OPENALGO_PATH/.env" ]; then
     NEW_APP_KEY=$($PYTHON_CMD -c "import secrets; print(secrets.token_hex(32))")
     NEW_PEPPER=$($PYTHON_CMD -c "import secrets; print(secrets.token_hex(32))")
     if [ "$SERVER_MODE" = true ]; then
-        sudo sed -i "s|OPENALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$NEW_APP_KEY|g" "$OPENALGO_PATH/.env"
-        sudo sed -i "s|OPENALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$NEW_PEPPER|g" "$OPENALGO_PATH/.env"
-        sudo chmod 600 "$OPENALGO_PATH/.env"
+        sudo sed -i "s|BTALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$NEW_APP_KEY|g" "$BTALGO_PATH/.env"
+        sudo sed -i "s|BTALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$NEW_PEPPER|g" "$BTALGO_PATH/.env"
+        sudo chmod 600 "$BTALGO_PATH/.env"
     else
-        sed -i.bak "s|OPENALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$NEW_APP_KEY|g" "$OPENALGO_PATH/.env" && rm -f "$OPENALGO_PATH/.env.bak"
-        sed -i.bak "s|OPENALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$NEW_PEPPER|g" "$OPENALGO_PATH/.env" && rm -f "$OPENALGO_PATH/.env.bak"
-        chmod 600 "$OPENALGO_PATH/.env"
+        sed -i.bak "s|BTALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE|$NEW_APP_KEY|g" "$BTALGO_PATH/.env" && rm -f "$BTALGO_PATH/.env.bak"
+        sed -i.bak "s|BTALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE|$NEW_PEPPER|g" "$BTALGO_PATH/.env" && rm -f "$BTALGO_PATH/.env.bak"
+        chmod 600 "$BTALGO_PATH/.env"
     fi
-    log_message "Generated fresh APP_KEY and API_KEY_PEPPER in $OPENALGO_PATH/.env" "$GREEN"
-    log_message "Please edit $OPENALGO_PATH/.env with your broker credentials and settings." "$RED"
+    log_message "Generated fresh APP_KEY and API_KEY_PEPPER in $BTALGO_PATH/.env" "$GREEN"
+    log_message "Please edit $BTALGO_PATH/.env with your broker credentials and settings." "$RED"
 fi
 
 # ============================================
@@ -389,44 +389,44 @@ fi
 # `chmod -R 755`) and they don't have TRUST_PROXY_HEADERS set so the
 # default-secure value of FALSE would silently disable IP-based features
 # behind their nginx proxy.
-if [ -f "$OPENALGO_PATH/.env" ]; then
+if [ -f "$BTALGO_PATH/.env" ]; then
     # Tighten .env to mode 0o600 if it isn't already (server mode only —
     # the file is owned by the web user and gunicorn runs as that user, so
     # owner-only read is correct).
     if [ "$SERVER_MODE" = true ]; then
-        ENV_PERMS=$(stat -c '%a' "$OPENALGO_PATH/.env" 2>/dev/null || stat -f '%Lp' "$OPENALGO_PATH/.env" 2>/dev/null)
+        ENV_PERMS=$(stat -c '%a' "$BTALGO_PATH/.env" 2>/dev/null || stat -f '%Lp' "$BTALGO_PATH/.env" 2>/dev/null)
         if [ "$ENV_PERMS" != "600" ]; then
-            sudo chmod 600 "$OPENALGO_PATH/.env"
+            sudo chmod 600 "$BTALGO_PATH/.env"
             log_message "Tightened .env perms: $ENV_PERMS -> 600 (owner-only)" "$GREEN"
         fi
     fi
 
     # Add TRUST_PROXY_HEADERS to .env if missing. Auto-detect whether nginx
     # is configured for this deployment so the default matches reality.
-    if ! grep -q "^TRUST_PROXY_HEADERS" "$OPENALGO_PATH/.env"; then
-        # Detect nginx in front of openalgo: any sites-enabled/ or conf.d/
+    if ! grep -q "^TRUST_PROXY_HEADERS" "$BTALGO_PATH/.env"; then
+        # Detect nginx in front of btalgo: any sites-enabled/ or conf.d/
         # config that mentions a unix-socket proxy_pass or the deployment name.
         BEHIND_NGINX="false"
         if [ -d /etc/nginx/sites-enabled ]; then
-            if find /etc/nginx/sites-enabled -type f -o -type l 2>/dev/null | xargs grep -l "unix:.*\.sock\|openalgo\|gunicorn" 2>/dev/null | head -1 | grep -q .; then
+            if find /etc/nginx/sites-enabled -type f -o -type l 2>/dev/null | xargs grep -l "unix:.*\.sock\|btalgo\|gunicorn" 2>/dev/null | head -1 | grep -q .; then
                 BEHIND_NGINX="true"
             fi
         fi
         if [ "$BEHIND_NGINX" = "false" ] && [ -d /etc/nginx/conf.d ]; then
-            if find /etc/nginx/conf.d -type f -name "*.conf" 2>/dev/null | xargs grep -l "unix:.*\.sock\|openalgo\|gunicorn" 2>/dev/null | head -1 | grep -q .; then
+            if find /etc/nginx/conf.d -type f -name "*.conf" 2>/dev/null | xargs grep -l "unix:.*\.sock\|btalgo\|gunicorn" 2>/dev/null | head -1 | grep -q .; then
                 BEHIND_NGINX="true"
             fi
         fi
         if [ "$BEHIND_NGINX" = "true" ]; then
-            echo "" | sudo tee -a "$OPENALGO_PATH/.env" >/dev/null
-            echo "# Auto-added by update.sh — nginx reverse proxy detected." | sudo tee -a "$OPENALGO_PATH/.env" >/dev/null
-            echo "TRUST_PROXY_HEADERS = 'TRUE'" | sudo tee -a "$OPENALGO_PATH/.env" >/dev/null
+            echo "" | sudo tee -a "$BTALGO_PATH/.env" >/dev/null
+            echo "# Auto-added by update.sh — nginx reverse proxy detected." | sudo tee -a "$BTALGO_PATH/.env" >/dev/null
+            echo "TRUST_PROXY_HEADERS = 'TRUE'" | sudo tee -a "$BTALGO_PATH/.env" >/dev/null
             log_message "Added TRUST_PROXY_HEADERS=TRUE to .env (nginx reverse proxy detected)" "$GREEN"
         else
-            echo "" | sudo tee -a "$OPENALGO_PATH/.env" >/dev/null
-            echo "# Auto-added by update.sh — set to TRUE only if behind a reverse proxy" | sudo tee -a "$OPENALGO_PATH/.env" >/dev/null
-            echo "# that strips client-supplied X-Forwarded-For / CF-Connecting-IP / X-Real-IP." | sudo tee -a "$OPENALGO_PATH/.env" >/dev/null
-            echo "TRUST_PROXY_HEADERS = 'FALSE'" | sudo tee -a "$OPENALGO_PATH/.env" >/dev/null
+            echo "" | sudo tee -a "$BTALGO_PATH/.env" >/dev/null
+            echo "# Auto-added by update.sh — set to TRUE only if behind a reverse proxy" | sudo tee -a "$BTALGO_PATH/.env" >/dev/null
+            echo "# that strips client-supplied X-Forwarded-For / CF-Connecting-IP / X-Real-IP." | sudo tee -a "$BTALGO_PATH/.env" >/dev/null
+            echo "TRUST_PROXY_HEADERS = 'FALSE'" | sudo tee -a "$BTALGO_PATH/.env" >/dev/null
             log_message "Added TRUST_PROXY_HEADERS=FALSE to .env (no proxy detected)" "$YELLOW"
         fi
     fi
@@ -439,7 +439,7 @@ log_message "\n[Step 5/7] Updating Python dependencies..." "$BLUE"
 
 if [ "$SERVER_MODE" = true ]; then
     # Server mode: use uv pip install with the deployment venv
-    sudo $UV_CMD pip install --python "$VENV_PATH/bin/python" -r "$OPENALGO_PATH/requirements-nginx.txt"
+    sudo $UV_CMD pip install --python "$VENV_PATH/bin/python" -r "$BTALGO_PATH/requirements-nginx.txt"
     check_status "Failed to update Python dependencies"
 
     # Ensure gunicorn and eventlet are installed
@@ -454,7 +454,7 @@ if [ "$SERVER_MODE" = true ]; then
     fi
 else
     # Local mode: use uv sync (reads pyproject.toml)
-    cd "$OPENALGO_PATH"
+    cd "$BTALGO_PATH"
     $UV_CMD sync
     check_status "Failed to update Python dependencies"
 fi
@@ -472,25 +472,25 @@ if [ "$SERVER_MODE" = true ]; then
     sudo chmod -R 755 "$BASE_PATH"
 
     # Ensure required directories exist with correct ownership
-    sudo mkdir -p "$OPENALGO_PATH/db"
-    sudo mkdir -p "$OPENALGO_PATH/tmp/numba_cache"
-    sudo mkdir -p "$OPENALGO_PATH/tmp/matplotlib"
-    sudo mkdir -p "$OPENALGO_PATH/strategies/scripts"
-    sudo mkdir -p "$OPENALGO_PATH/strategies/examples"
-    sudo mkdir -p "$OPENALGO_PATH/log/strategies"
-    sudo mkdir -p "$OPENALGO_PATH/keys"
-    sudo chown -R "$WEB_USER:$WEB_GROUP" "$OPENALGO_PATH"
-    sudo chmod 700 "$OPENALGO_PATH/keys"
+    sudo mkdir -p "$BTALGO_PATH/db"
+    sudo mkdir -p "$BTALGO_PATH/tmp/numba_cache"
+    sudo mkdir -p "$BTALGO_PATH/tmp/matplotlib"
+    sudo mkdir -p "$BTALGO_PATH/strategies/scripts"
+    sudo mkdir -p "$BTALGO_PATH/strategies/examples"
+    sudo mkdir -p "$BTALGO_PATH/log/strategies"
+    sudo mkdir -p "$BTALGO_PATH/keys"
+    sudo chown -R "$WEB_USER:$WEB_GROUP" "$BTALGO_PATH"
+    sudo chmod 700 "$BTALGO_PATH/keys"
 
     log_message "Permissions set successfully" "$GREEN"
 
     # Run migrations as the web user (database files are owned by web user)
-    if [ -f "$OPENALGO_PATH/upgrade/migrate_all.py" ]; then
+    if [ -f "$BTALGO_PATH/upgrade/migrate_all.py" ]; then
         log_message "Running database migrations..." "$BLUE"
-        sudo -u "$WEB_USER" bash -c "source $VENV_PATH/bin/activate && cd $OPENALGO_PATH && python upgrade/migrate_all.py" 2>&1 | tee -a "$LOG_FILE"
+        sudo -u "$WEB_USER" bash -c "source $VENV_PATH/bin/activate && cd $BTALGO_PATH && python upgrade/migrate_all.py" 2>&1 | tee -a "$LOG_FILE"
         if [ ${PIPESTATUS[0]} -ne 0 ]; then
             log_message "Retrying migrations with elevated permissions..." "$YELLOW"
-            sudo bash -c "source $VENV_PATH/bin/activate && cd $OPENALGO_PATH && python upgrade/migrate_all.py" 2>&1 | tee -a "$LOG_FILE"
+            sudo bash -c "source $VENV_PATH/bin/activate && cd $BTALGO_PATH && python upgrade/migrate_all.py" 2>&1 | tee -a "$LOG_FILE"
         fi
         log_message "Database migrations completed" "$GREEN"
     else
@@ -498,8 +498,8 @@ if [ "$SERVER_MODE" = true ]; then
     fi
 else
     log_message "\n[Step 6/7] Running database migrations..." "$BLUE"
-    if [ -f "$OPENALGO_PATH/upgrade/migrate_all.py" ]; then
-        cd "$OPENALGO_PATH"
+    if [ -f "$BTALGO_PATH/upgrade/migrate_all.py" ]; then
+        cd "$BTALGO_PATH"
         $UV_CMD run upgrade/migrate_all.py 2>&1 | tee -a "$LOG_FILE"
         log_message "Database migrations completed" "$GREEN"
     else
@@ -516,7 +516,7 @@ if [ "$SERVER_MODE" = true ]; then
     # Reload systemd in case service file changed
     sudo systemctl daemon-reload
 
-    # Start the OpenAlgo service
+    # Start the BTAlgo service
     sudo systemctl start "$SERVICE_NAME"
     check_status "Failed to start $SERVICE_NAME"
 
@@ -538,10 +538,10 @@ else
     log_message "\n[Step 7/7] Finalizing update..." "$BLUE"
 
     # Build frontend if dist/ directory is missing and npm is available
-    if [ ! -d "$OPENALGO_PATH/frontend/dist" ]; then
+    if [ ! -d "$BTALGO_PATH/frontend/dist" ]; then
         if command -v npm >/dev/null 2>&1; then
             log_message "Building React frontend (dist/ not found)..." "$BLUE"
-            cd "$OPENALGO_PATH/frontend"
+            cd "$BTALGO_PATH/frontend"
             npm install && npm run build
             if [ $? -eq 0 ]; then
                 log_message "Frontend built successfully" "$GREEN"
@@ -561,11 +561,11 @@ fi
 # Summary
 # ============================================
 log_message "\n========================================" "$GREEN"
-log_message "  OpenAlgo Update Summary" "$GREEN"
+log_message "  BTAlgo Update Summary" "$GREEN"
 log_message "========================================" "$GREEN"
 log_message "Version: $CURRENT_COMMIT -> $NEW_COMMIT" "$BLUE"
 log_message "Branch: $CURRENT_BRANCH" "$BLUE"
-log_message "Path: $OPENALGO_PATH" "$BLUE"
+log_message "Path: $BTALGO_PATH" "$BLUE"
 if [ -d "$BACKUP_DIR" ]; then
     log_message "Database Backup: $BACKUP_DIR" "$BLUE"
 fi

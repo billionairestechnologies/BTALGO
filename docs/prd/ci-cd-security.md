@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document details the security scanning tools and configurations in the OpenAlgo CI/CD pipeline.
+This document details the security scanning tools and configurations in the BTAlgo CI/CD pipeline.
 
 ## Security Tools
 
@@ -72,7 +72,7 @@ requests    2.25.0   PYSEC-2021-123   2.25.1
 ```yaml
 - uses: aquasecurity/trivy-action@master
   with:
-    image-ref: 'openalgo:ci'
+    image-ref: 'btalgo:ci'
     exit-code: '0'
     severity: 'CRITICAL,HIGH'
     format: 'table'
@@ -201,7 +201,7 @@ The following secrets must be configured in GitHub repository settings:
 
 ### Critical Vulnerabilities
 
-1. **Immediate assessment:** Determine if vulnerability is exploitable in OpenAlgo context
+1. **Immediate assessment:** Determine if vulnerability is exploitable in BTAlgo context
 2. **Patch or mitigate:** Update dependency or implement workaround
 3. **Release:** Create patch release if in production
 

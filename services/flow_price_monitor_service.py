@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Dict, Optional, Set
 
-from services.flow_openalgo_client import FlowOpenAlgoClient, get_flow_client
+from services.flow_btalgo_client import FlowBTAlgoClient, get_flow_client
 
 logger = logging.getLogger(__name__)
 

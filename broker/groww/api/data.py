@@ -134,9 +134,9 @@ class BrokerData:
             {"max_days": float("inf"), "min_interval": "10080"},  # >1080 days: 10080 min minimum
         ]
 
-    def _convert_openalgo_to_groww_derivative_symbol(self, symbol):
+    def _convert_btalgo_to_groww_derivative_symbol(self, symbol):
         """
-        Convert OpenAlgo NFO/BFO symbol format to Groww format
+        Convert BTAlgo NFO/BFO symbol format to Groww format
 
         Examples:
         - SBIN30SEP25FUT -> SBIN25SEPFUT
@@ -220,7 +220,7 @@ class BrokerData:
                 logger.debug(f"Found broker symbol in database: {trading_symbol}")
             else:
                 # If not in database, convert format
-                trading_symbol = self._convert_openalgo_to_groww_derivative_symbol(symbol)
+                trading_symbol = self._convert_btalgo_to_groww_derivative_symbol(symbol)
                 logger.debug(f"Converted derivative symbol: {symbol} -> {trading_symbol}")
         else:
             # For equity, use broker symbol if available
@@ -886,7 +886,7 @@ class BrokerData:
                 }
 
                 # Create the DataFrame with timestamp as a column (not an index)
-                # NOTE: For OpenAlgoXTS, return non-indexed DataFrame with timestamp as a column
+                # NOTE: For BTAlgoXTS, return non-indexed DataFrame with timestamp as a column
                 # This matches the FivePaisa pattern that has been proven to work correctly
                 result_df = pd.DataFrame(data)
 
@@ -933,7 +933,7 @@ class BrokerData:
 
     def get_intervals(self) -> dict[str, dict[str, list[str]]]:
         """
-        Get supported timeframes for Groww historical data in the OpenAlgo format.
+        Get supported timeframes for Groww historical data in the BTAlgo format.
 
         Note that Groww has time-based constraints on minimum interval size:
         - 0-3 days: 1 min minimum
@@ -958,7 +958,7 @@ class BrokerData:
             "months": [],  # Groww doesn't support month-level data
         }
 
-        # Return in the standard OpenAlgo format
+        # Return in the standard BTAlgo format
         return {"status": "success", "data": intervals}
 
     def get_valid_interval(self, start_time: str, end_time: str, requested_interval: str) -> str:
@@ -1060,7 +1060,7 @@ class BrokerData:
             timeout: Timeout in seconds.
 
         Returns:
-            Dict[str, Any]: Quote data in OpenAlgo format
+            Dict[str, Any]: Quote data in BTAlgo format
         """
         # Back-compat: legacy callers passed timeout in the second positional slot.
         if isinstance(exchange, int) and not isinstance(exchange, bool):
@@ -1142,7 +1142,7 @@ class BrokerData:
                 # Get token for this symbol
                 token = get_token(symbol, exchange)
 
-                # Map OpenAlgo exchange to Groww exchange format
+                # Map BTAlgo exchange to Groww exchange format
                 if exchange == "NSE":
                     groww_exchange = EXCHANGE_NSE
                     segment = SEGMENT_CASH
@@ -1168,7 +1168,7 @@ class BrokerData:
                 if br_symbol:
                     trading_symbol = br_symbol
                 elif exchange in ("NFO", "BFO"):
-                    trading_symbol = self._convert_openalgo_to_groww_derivative_symbol(symbol)
+                    trading_symbol = self._convert_btalgo_to_groww_derivative_symbol(symbol)
                 else:
                     trading_symbol = symbol
 
@@ -1262,13 +1262,13 @@ class BrokerData:
 
                             logger.info(f"Processed OHLC data: {ohlc}")
 
-                            # Create quote_item in OpenAlgo format
+                            # Create quote_item in BTAlgo format
                             # Print each field being extracted for debugging
                             logger.info(f"last_price: {response.get('last_price')}")
                             logger.info(f"ohlc: {ohlc}")
                             logger.info(f"volume: {response.get('volume')}")
 
-                            # CRITICAL: Build the quote item directly with values extracted from the response, using field names that OpenAlgo understands
+                            # CRITICAL: Build the quote item directly with values extracted from the response, using field names that BTAlgo understands
                             # The quote_item should use the frontend-compatible field names
                             last_price = safe_float(response.get("last_price"))
                             logger.info(f"EXTRACTED last_price = {last_price}")
@@ -1466,7 +1466,7 @@ class BrokerData:
             logger.warning("No quote data found for the requested symbols")
             return {"status": "error", "message": "No data retrieved"}
 
-        # Single symbol case - return in simpler format for OpenAlgo frontend
+        # Single symbol case - return in simpler format for BTAlgo frontend
         if isinstance(symbol_list, (str, dict)) or len(symbol_list) == 1:
             logger.info("Returning data for single symbol")
 
@@ -1482,7 +1482,7 @@ class BrokerData:
         return {"status": "success", "data": quote_data}
 
     def _format_single_quote_response(self, quote_data):
-        """Helper method to convert from standard dict to the format expected by OpenAlgo frontend
+        """Helper method to convert from standard dict to the format expected by BTAlgo frontend
 
         Returns only the data portion without status wrapper - status added by the caller
         """
@@ -1508,7 +1508,7 @@ class BrokerData:
             "oi": quote.get("oi", 0),  # Add Open Interest field
         }
 
-        logger.debug(f"Final OpenAlgo quote format (data only): {result}")
+        logger.debug(f"Final BTAlgo quote format (data only): {result}")
         return result
 
         # Commented out alternate implementation
@@ -1525,9 +1525,9 @@ class BrokerData:
         #    quote = quote_data[0] if isinstance(quote_data, list) and len(quote_data) > 0 else {}
 
         logger.info(f"EXTRACTED QUOTE: {quote}")
-        logger.info(f"Formatting single quote response for OpenAlgo frontend: {quote}")
+        logger.info(f"Formatting single quote response for BTAlgo frontend: {quote}")
 
-        # Based on the sample response, OpenAlgo expects exactly these fields
+        # Based on the sample response, BTAlgo expects exactly these fields
         # Keep this extremely simple - just the required fields
         simple_data = {
             "ltp": 0,
@@ -1543,7 +1543,7 @@ class BrokerData:
 
         # Now grab values from our quote data, using the field that matches best
 
-        # LTP - preferred field name in OpenAlgo
+        # LTP - preferred field name in BTAlgo
         if "ltp" in quote and quote["ltp"] is not None:
             simple_data["ltp"] = float(quote["ltp"])
         elif "last_price" in quote and quote["last_price"] is not None:
@@ -1590,11 +1590,11 @@ class BrokerData:
         for key, value in simple_data.items():
             logger.info(f"{{key}}: {value}")
 
-        # Return exact structure expected by OpenAlgo
+        # Return exact structure expected by BTAlgo
         result = {"status": "success", "data": simple_data}
 
         logger.info(f"FINAL FORMATTED RESULT: {result}")
-        logger.info(f"Formatted result for OpenAlgo frontend: {result}")
+        logger.info(f"Formatted result for BTAlgo frontend: {result}")
 
         return result
 
@@ -1612,7 +1612,7 @@ class BrokerData:
             timeout: Timeout in seconds.
 
         Returns:
-            Dict[str, Any]: Market depth data in OpenAlgo format
+            Dict[str, Any]: Market depth data in BTAlgo format
         """
         # Back-compat: legacy callers passed timeout in the second positional
         # slot. If we got an int there, treat it as the timeout and ignore.
@@ -1680,7 +1680,7 @@ class BrokerData:
         # Get token for this symbol
         token = get_token(symbol, exchange)
 
-        # Map OpenAlgo exchange to Groww exchange format
+        # Map BTAlgo exchange to Groww exchange format
         if exchange == "NSE":
             groww_exchange = EXCHANGE_NSE
             segment = SEGMENT_CASH
@@ -1706,7 +1706,7 @@ class BrokerData:
                 logger.debug(f"Found broker symbol in database: {trading_symbol}")
             else:
                 # If not in database, convert format
-                trading_symbol = self._convert_openalgo_to_groww_derivative_symbol(symbol)
+                trading_symbol = self._convert_btalgo_to_groww_derivative_symbol(symbol)
                 logger.debug(f"Converted derivative symbol: {symbol} -> {trading_symbol}")
         else:
             # For equity, use broker symbol if available
@@ -1743,7 +1743,7 @@ class BrokerData:
             payload = response["payload"]
             logger.info(f"Extracted payload with keys: {list(payload.keys())[:10]}")
 
-            # Create a properly formatted response for OpenAlgo
+            # Create a properly formatted response for BTAlgo
             depth_response = {}
 
             # Safely convert values to float/int, handling None values
@@ -1832,7 +1832,7 @@ class BrokerData:
             # Determine if this is a derivative instrument
             is_derivative = exchange in ["NFO", "BFO"] or segment == SEGMENT_FNO
 
-            # Format the depth response according to OpenAlgo requirements
+            # Format the depth response according to BTAlgo requirements
             depth_response = {
                 "bids": bids,
                 "asks": asks,
@@ -1935,16 +1935,16 @@ class BrokerData:
             try:
                 # Get broker symbol from database. The brsymbol stored in
                 # SymToken is already the format Groww expects (mirrors what
-                # the CSV's trading_symbol provides). Re-running the OpenAlgo
+                # the CSV's trading_symbol provides). Re-running the BTAlgo
                 # → Groww regex on it would mangle valid Groww symbols whose
-                # shape happens to match the OpenAlgo pattern (e.g. JUN26
+                # shape happens to match the BTAlgo pattern (e.g. JUN26
                 # contracts: "NIFTY26JUN22350PE" → "NIFTY22JUN350PE").
-                # Only convert from OpenAlgo when DB lookup misses.
+                # Only convert from BTAlgo when DB lookup misses.
                 br_symbol = get_br_symbol(symbol, exchange)
 
                 if not br_symbol:
                     if exchange in ["NFO", "BFO"]:
-                        br_symbol = self._convert_openalgo_to_groww_derivative_symbol(symbol)
+                        br_symbol = self._convert_btalgo_to_groww_derivative_symbol(symbol)
                     if not br_symbol:
                         logger.warning(
                             f"Skipping symbol {symbol} on {exchange}: could not resolve broker symbol"

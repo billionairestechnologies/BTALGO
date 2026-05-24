@@ -19,7 +19,7 @@ Historify uses DuckDB for efficient columnar storage of historical OHLCV data wi
 ## Database Location
 
 ```
-openalgo/
+btalgo/
 └── db/
     └── historify.duckdb    # Historical data storage
 ```

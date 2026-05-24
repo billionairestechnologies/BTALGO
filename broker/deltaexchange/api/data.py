@@ -167,7 +167,7 @@ class BrokerData:
     data endpoint is needed (e.g. personal trade history).
     """
 
-    # Delta Exchange supported candle resolutions mapped from OpenAlgo interval codes.
+    # Delta Exchange supported candle resolutions mapped from BTAlgo interval codes.
     # The API caps responses to ~4,000 candles (most recent) per request regardless
     # of the requested range. CHUNK_DAYS below are sized accordingly.
     TIMEFRAME_MAP = {
@@ -187,7 +187,7 @@ class BrokerData:
     }
 
     def __init__(self, auth_token: str):
-        """Initialise with the api_key stored in the OpenAlgo auth DB."""
+        """Initialise with the api_key stored in the BTAlgo auth DB."""
         self.auth_token = auth_token
         # Keep timeframe_map as an instance attribute for get_intervals() compatibility
         self.timeframe_map = self.TIMEFRAME_MAP
@@ -202,7 +202,7 @@ class BrokerData:
 
         Calls: GET /v2/tickers/{brsymbol}
 
-        Field mapping (ticker result → OpenAlgo):
+        Field mapping (ticker result → BTAlgo):
             ltp        ← mark_price          (string → float)
             open       ← open                (number)
             high       ← high                (number)
@@ -593,7 +593,7 @@ class BrokerData:
         Args:
             underlying: The underlying symbol prefix, e.g. ``"BTC"``, ``"ETH"``.
                         Matched as a case-insensitive prefix of the canonical symbol.
-            exchange:   OpenAlgo exchange code.  ``"CRYPTO"`` for all Delta
+            exchange:   BTAlgo exchange code.  ``"CRYPTO"`` for all Delta
                         Exchange India listed options.
             expiry:     Optional expiry filter in ``"DD-MON-YY"`` format as
                         stored by the master DB, e.g. ``"28-FEB-25"``.
@@ -659,7 +659,7 @@ class BrokerData:
 
     def get_intervals(self) -> list:
         """
-        Return the list of supported OpenAlgo interval codes for Delta Exchange.
+        Return the list of supported BTAlgo interval codes for Delta Exchange.
         """
         return list(self.TIMEFRAME_MAP.keys())
 
@@ -669,7 +669,7 @@ class BrokerData:
 
     def _get_br_symbol(self, symbol: str, exchange: str) -> str:
         """
-        Resolve OpenAlgo symbol → Delta Exchange contract symbol (brsymbol).
+        Resolve BTAlgo symbol → Delta Exchange contract symbol (brsymbol).
 
         On Delta Exchange, brsymbol == symbol for most contracts  (e.g. "BTCUSD").
         Falls back to the symbol itself if not found in the master contract DB.

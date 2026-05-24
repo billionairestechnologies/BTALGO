@@ -1,1 +1,1 @@
-OpenAlgo Go SDK Examples
+BTAlgo Go SDK Examples

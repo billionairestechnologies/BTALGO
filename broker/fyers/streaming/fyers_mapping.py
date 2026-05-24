@@ -1,6 +1,6 @@
 """
 Fyers Data Mapping
-Maps Fyers HSM data to OpenAlgo format for compatibility
+Maps Fyers HSM data to BTAlgo format for compatibility
 """
 
 import logging
@@ -13,22 +13,22 @@ logger = logging.getLogger(__name__)
 
 class FyersDataMapper:
     """
-    Maps Fyers HSM WebSocket data to OpenAlgo format
+    Maps Fyers HSM WebSocket data to BTAlgo format
     """
 
     def __init__(self):
         """Initialize the data mapper"""
         pass
 
-    def map_to_openalgo_ltp(self, fyers_data: dict[str, Any]) -> dict[str, Any] | None:
+    def map_to_btalgo_ltp(self, fyers_data: dict[str, Any]) -> dict[str, Any] | None:
         """
-        Map Fyers data to OpenAlgo LTP format
+        Map Fyers data to BTAlgo LTP format
 
         Args:
             fyers_data: Raw data from Fyers HSM WebSocket
 
         Returns:
-            OpenAlgo LTP format dict or None if mapping fails
+            BTAlgo LTP format dict or None if mapping fails
         """
         try:
             if not fyers_data or "ltp" not in fyers_data:
@@ -68,8 +68,8 @@ class FyersDataMapper:
             # Round to precision
             ltp = round(ltp, precision)
 
-            # Map to OpenAlgo LTP format
-            openalgo_data = {
+            # Map to BTAlgo LTP format
+            btalgo_data = {
                 "symbol": f"{exchange}:{symbol_name}",
                 "exchange": exchange,
                 "token": fyers_data.get("exchange_token", ""),
@@ -78,21 +78,21 @@ class FyersDataMapper:
                 "data_type": "LTP",
             }
 
-            return openalgo_data
+            return btalgo_data
 
         except Exception as e:
             logger.debug(f"Error mapping LTP data: {e}")
             return None
 
-    def map_to_openalgo_quote(self, fyers_data: dict[str, Any]) -> dict[str, Any] | None:
+    def map_to_btalgo_quote(self, fyers_data: dict[str, Any]) -> dict[str, Any] | None:
         """
-        Map Fyers data to OpenAlgo Quote format
+        Map Fyers data to BTAlgo Quote format
 
         Args:
             fyers_data: Raw data from Fyers HSM WebSocket
 
         Returns:
-            OpenAlgo Quote format dict or None if mapping fails
+            BTAlgo Quote format dict or None if mapping fails
         """
         try:
             if not fyers_data:
@@ -134,8 +134,8 @@ class FyersDataMapper:
                 # Apply multiplier and segment conversion
                 return round(value / multiplier / segment_divisor, precision)
 
-            # Map to OpenAlgo Quote format
-            openalgo_data = {
+            # Map to BTAlgo Quote format
+            btalgo_data = {
                 "symbol": f"{exchange}:{symbol_name}",
                 "exchange": exchange,
                 "token": fyers_data.get("exchange_token", ""),
@@ -164,21 +164,21 @@ class FyersDataMapper:
                 "data_type": "Quote",
             }
 
-            return openalgo_data
+            return btalgo_data
 
         except Exception as e:
             logger.debug(f"Error mapping Quote data: {e}")
             return None
 
-    def map_to_openalgo_depth(self, fyers_data: dict[str, Any]) -> dict[str, Any] | None:
+    def map_to_btalgo_depth(self, fyers_data: dict[str, Any]) -> dict[str, Any] | None:
         """
-        Map Fyers depth data to OpenAlgo Depth format
+        Map Fyers depth data to BTAlgo Depth format
 
         Args:
             fyers_data: Raw depth data from Fyers HSM WebSocket
 
         Returns:
-            OpenAlgo Depth format dict or None if mapping fails
+            BTAlgo Depth format dict or None if mapping fails
         """
         try:
             if not fyers_data or fyers_data.get("type") != "dp":
@@ -255,8 +255,8 @@ class FyersDataMapper:
             if buy_levels and sell_levels:
                 ltp = (buy_levels[0]["price"] + sell_levels[0]["price"]) / 2
 
-            # Map to OpenAlgo Depth format (matching other brokers)
-            openalgo_data = {
+            # Map to BTAlgo Depth format (matching other brokers)
+            btalgo_data = {
                 "symbol": f"{exchange}:{symbol_name}",
                 "exchange": exchange,
                 "token": fyers_data.get("exchange_token", ""),
@@ -266,26 +266,26 @@ class FyersDataMapper:
                 "data_type": "Depth",
             }
 
-            return openalgo_data
+            return btalgo_data
 
         except Exception as e:
             logger.debug(f"Error mapping Depth data: {e}")
             return None
 
-    def map_tbt_depth_to_openalgo(
+    def map_tbt_depth_to_btalgo(
         self, ticker: str, tbt_depth: dict[str, Any], symbol: str, exchange: str
     ) -> dict[str, Any] | None:
         """
-        Map Fyers TBT 50-level depth data to OpenAlgo Depth format
+        Map Fyers TBT 50-level depth data to BTAlgo Depth format
 
         Args:
             ticker: Original Fyers ticker (e.g., 'NSE:RELIANCE-EQ')
             tbt_depth: Depth data from TBT WebSocket
-            symbol: OpenAlgo symbol name
-            exchange: OpenAlgo exchange name
+            symbol: BTAlgo symbol name
+            exchange: BTAlgo exchange name
 
         Returns:
-            OpenAlgo Depth format dict or None if mapping fails
+            BTAlgo Depth format dict or None if mapping fails
         """
         try:
             if not tbt_depth:
@@ -307,8 +307,8 @@ class FyersDataMapper:
                 elif best_ask > 0:
                     ltp = best_ask
 
-            # Map to OpenAlgo Depth format
-            openalgo_data = {
+            # Map to BTAlgo Depth format
+            btalgo_data = {
                 "symbol": symbol,
                 "exchange": exchange,
                 "token": ticker,
@@ -323,7 +323,7 @@ class FyersDataMapper:
                 "is_50_depth": True,
             }
 
-            return openalgo_data
+            return btalgo_data
 
         except Exception as e:
             logger.debug(f"Error mapping TBT Depth data: {e}")
@@ -331,14 +331,14 @@ class FyersDataMapper:
 
     def map_index_to_synthetic_depth(self, fyers_data: dict[str, Any]) -> dict[str, Any] | None:
         """
-        Map Fyers index data to synthetic OpenAlgo Depth format
+        Map Fyers index data to synthetic BTAlgo Depth format
         Since indices don't have real depth, create synthetic depth from quote data
 
         Args:
             fyers_data: Raw index data from Fyers HSM WebSocket
 
         Returns:
-            OpenAlgo Depth format dict or None if mapping fails
+            BTAlgo Depth format dict or None if mapping fails
         """
         try:
             if not fyers_data or fyers_data.get("type") != "if":
@@ -407,8 +407,8 @@ class FyersDataMapper:
                     }
                 )
 
-            # Map to OpenAlgo Depth format
-            openalgo_data = {
+            # Map to BTAlgo Depth format
+            btalgo_data = {
                 "symbol": f"{exchange}:{symbol_name}",
                 "exchange": exchange,
                 "token": fyers_data.get("exchange_token", ""),
@@ -418,7 +418,7 @@ class FyersDataMapper:
                 "data_type": "Depth",
             }
 
-            return openalgo_data
+            return btalgo_data
 
         except Exception as e:
             logger.debug(f"Error mapping Index to synthetic Depth data: {e}")
@@ -428,14 +428,14 @@ class FyersDataMapper:
         self, fyers_data: dict[str, Any], requested_type: str = "Quote"
     ) -> dict[str, Any] | None:
         """
-        Map Fyers data to appropriate OpenAlgo format based on requested type
+        Map Fyers data to appropriate BTAlgo format based on requested type
 
         Args:
             fyers_data: Raw data from Fyers HSM WebSocket
             requested_type: Requested data type ("LTP", "Quote", or "Depth")
 
         Returns:
-            Mapped OpenAlgo data or None if mapping fails
+            Mapped BTAlgo data or None if mapping fails
         """
         if not fyers_data:
             return None
@@ -444,29 +444,29 @@ class FyersDataMapper:
         fyers_type = fyers_data.get("type", "sf")
 
         if requested_type == "LTP":
-            return self.map_to_openalgo_ltp(fyers_data)
+            return self.map_to_btalgo_ltp(fyers_data)
         elif requested_type == "Quote":
-            return self.map_to_openalgo_quote(fyers_data)
+            return self.map_to_btalgo_quote(fyers_data)
         elif requested_type == "Depth" and fyers_type == "dp":
-            return self.map_to_openalgo_depth(fyers_data)
+            return self.map_to_btalgo_depth(fyers_data)
         elif requested_type == "Depth" and fyers_type == "if":
             # Index depth request - create synthetic depth from index data
             return self.map_index_to_synthetic_depth(fyers_data)
         elif fyers_type == "sf":
             # Default to Quote for symbol feed
-            return self.map_to_openalgo_quote(fyers_data)
+            return self.map_to_btalgo_quote(fyers_data)
         elif fyers_type == "if":
             # Index data - treat as Quote
-            return self.map_to_openalgo_quote(fyers_data)
+            return self.map_to_btalgo_quote(fyers_data)
         elif fyers_type == "dp":
             # Depth data
-            return self.map_to_openalgo_depth(fyers_data)
+            return self.map_to_btalgo_depth(fyers_data)
 
         return None
 
     def extract_symbol_info(self, symbol: str) -> dict[str, str]:
         """
-        Extract exchange and symbol from OpenAlgo format
+        Extract exchange and symbol from BTAlgo format
 
         Args:
             symbol: Symbol in format "EXCHANGE:SYMBOL" or just "SYMBOL"

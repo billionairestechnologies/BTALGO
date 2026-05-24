@@ -46,7 +46,7 @@ class HistorifyScheduler:
                 return
 
             if db_url is None:
-                db_url = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+                db_url = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
 
             self._api_key = api_key
             self._socketio = socketio

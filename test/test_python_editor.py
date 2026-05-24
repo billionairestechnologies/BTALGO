@@ -56,7 +56,7 @@ def test_editor_functionality():
             return False
         print("[OK] Server is running")
     except requests.exceptions.ConnectionError:
-        print("[ERROR] Cannot connect to server. Make sure OpenAlgo is running.")
+        print("[ERROR] Cannot connect to server. Make sure BTAlgo is running.")
         return False
 
     # Step 2: Create a test strategy file

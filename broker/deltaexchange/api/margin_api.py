@@ -70,12 +70,12 @@ def calculate_margin_api(positions, auth):
     Results are aggregated across all positions.
 
     Args:
-        positions: List of OpenAlgo-format position dicts
+        positions: List of BTAlgo-format position dicts
             {symbol, exchange, action, quantity, product, price, pricetype}
-        auth (str): api_key stored in the OpenAlgo auth DB.
+        auth (str): api_key stored in the BTAlgo auth DB.
 
     Returns:
-        Tuple of (MockResponse, response_data) matching OpenAlgo broker interface.
+        Tuple of (MockResponse, response_data) matching BTAlgo broker interface.
     """
     api_key = auth
     api_secret = os.getenv("BROKER_API_SECRET", "")

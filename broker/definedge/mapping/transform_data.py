@@ -4,14 +4,14 @@ logger = get_logger(__name__)
 
 
 def transform_data(data, token_id):
-    """Transform OpenAlgo order data to DefinedGe Securities format"""
+    """Transform BTAlgo order data to DefinedGe Securities format"""
     from database.token_db import get_br_symbol
 
     try:
         # Get broker symbol format
         symbol = get_br_symbol(data["symbol"], data["exchange"])
 
-        # Map OpenAlgo fields to DefinedGe fields based on API docs
+        # Map BTAlgo fields to DefinedGe fields based on API docs
         transformed_data = {
             "tradingsymbol": symbol,
             "exchange": map_exchange(data["exchange"]),
@@ -138,7 +138,7 @@ def transform_modify_order_data(data, token_id):
 
 
 def map_exchange(exchange):
-    """Map OpenAlgo exchange to DefinedGe exchange"""
+    """Map BTAlgo exchange to DefinedGe exchange"""
     exchange_mapping = {
         "NSE": "NSE",
         "BSE": "BSE",
@@ -151,7 +151,7 @@ def map_exchange(exchange):
 
 
 def reverse_map_exchange(exchange):
-    """Map DefinedGe exchange to OpenAlgo exchange"""
+    """Map DefinedGe exchange to BTAlgo exchange"""
     reverse_mapping = {
         "NSE": "NSE",
         "BSE": "BSE",
@@ -164,7 +164,7 @@ def reverse_map_exchange(exchange):
 
 
 def map_product_type(product):
-    """Map OpenAlgo product type to DefinedGe product type"""
+    """Map BTAlgo product type to DefinedGe product type"""
     product_mapping = {
         "MIS": "INTRADAY",
         "CNC": "NORMAL",
@@ -176,7 +176,7 @@ def map_product_type(product):
 
 
 def reverse_map_product_type(product):
-    """Map DefinedGe product type to OpenAlgo product type"""
+    """Map DefinedGe product type to BTAlgo product type"""
     reverse_mapping = {
         "INTRADAY": "MIS",
         "NORMAL": "CNC",  # For NSE/BSE cash segment
@@ -188,7 +188,7 @@ def reverse_map_product_type(product):
 
 
 def map_price_type(pricetype):
-    """Map OpenAlgo price type to DefinedGe price type"""
+    """Map BTAlgo price type to DefinedGe price type"""
     price_mapping = {
         "MARKET": "MARKET",
         "LIMIT": "LIMIT",
@@ -199,13 +199,13 @@ def map_price_type(pricetype):
 
 
 def map_definedge_price_type(pricetype):
-    """Map OpenAlgo price type to DefinedGe API price type (for modify order)"""
+    """Map BTAlgo price type to DefinedGe API price type (for modify order)"""
     price_mapping = {"MARKET": "MARKET", "LIMIT": "LIMIT", "SL": "SL-LIMIT", "SL-M": "SL-MARKET"}
     return price_mapping.get(pricetype, "LIMIT")
 
 
 def map_product_type_for_modify(product):
-    """Map OpenAlgo product type to DefinedGe product type for modify order"""
+    """Map BTAlgo product type to DefinedGe product type for modify order"""
     product_mapping = {
         "MIS": "INTRADAY",
         "CNC": "CNC",  # DefinedGe modify API expects CNC for equity
@@ -215,7 +215,7 @@ def map_product_type_for_modify(product):
 
 
 def reverse_map_price_type(pricetype):
-    """Map DefinedGe price type to OpenAlgo price type"""
+    """Map DefinedGe price type to BTAlgo price type"""
     reverse_mapping = {
         "MARKET": "MARKET",
         "LIMIT": "LIMIT",
@@ -226,7 +226,7 @@ def reverse_map_price_type(pricetype):
 
 
 def map_order_status(status):
-    """Map DefinedGe order status to OpenAlgo status"""
+    """Map DefinedGe order status to BTAlgo status"""
     status_mapping = {
         "COMPLETE": "COMPLETE",
         "OPEN": "OPEN",
@@ -239,7 +239,7 @@ def map_order_status(status):
 
 
 def transform_order_data(order):
-    """Transform DefinedGe order data to OpenAlgo format"""
+    """Transform DefinedGe order data to BTAlgo format"""
     try:
         transformed_order = {
             "symbol": order.get("tradingsymbol", ""),
@@ -265,7 +265,7 @@ def transform_order_data(order):
 
 
 def transform_position_data(position):
-    """Transform DefinedGe position data to OpenAlgo format"""
+    """Transform DefinedGe position data to BTAlgo format"""
     try:
         transformed_position = {
             "symbol": position.get("tradingsymbol", ""),
@@ -286,7 +286,7 @@ def transform_position_data(position):
 
 
 def transform_holding_data(holding):
-    """Transform DefinedGe holding data to OpenAlgo format"""
+    """Transform DefinedGe holding data to BTAlgo format"""
     try:
         # DefinedGe holdings have multiple trading symbols for different exchanges
         trading_symbols = holding.get("tradingsymbol", [])

@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo provides a secure multi-step password reset flow that supports both email-based reset tokens and TOTP verification for accounts with 2FA enabled.
+BTAlgo provides a secure multi-step password reset flow that supports both email-based reset tokens and TOTP verification for accounts with 2FA enabled.
 
 ## Architecture Diagram
 

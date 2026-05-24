@@ -2,7 +2,7 @@
 
 ## Introduction
 
-OpenAlgo supports 29 Indian brokers through a unified interface. This guide covers connecting your broker account and understanding the authentication process.
+BTAlgo supports 29 Indian brokers through a unified interface. This guide covers connecting your broker account and understanding the authentication process.
 
 ## Supported Brokers
 
@@ -99,7 +99,7 @@ OpenAlgo supports 29 Indian brokers through a unified interface. This guide cove
 
 **Cost**: Free
 
-## Configuring Broker in OpenAlgo
+## Configuring Broker in BTAlgo
 
 ### Method 1: Via .env File
 
@@ -125,7 +125,7 @@ BROKER_TOTP_KEY=your_totp_secret
 
 ### Method 2: Via Web Interface
 
-1. Login to OpenAlgo
+1. Login to BTAlgo
 2. Go to **Profile** → **Broker Configuration**
 3. Select your broker from dropdown
 4. Enter credentials in the form
@@ -135,21 +135,21 @@ BROKER_TOTP_KEY=your_totp_secret
 
 ### OAuth2 Brokers (Zerodha, Fyers, etc.)
 
-1. In OpenAlgo, click **Login to Broker**
+1. In BTAlgo, click **Login to Broker**
 2. You're redirected to broker's login page
 3. Enter your broker credentials
 4. Approve the connection
-5. Automatically redirected back to OpenAlgo
+5. Automatically redirected back to BTAlgo
 
 ```
-OpenAlgo → Broker Login Page → Enter Credentials → Approve → Back to OpenAlgo
+BTAlgo → Broker Login Page → Enter Credentials → Approve → Back to BTAlgo
 ```
 
 ### API Key Brokers (Dhan, Angel, etc.)
 
 1. Credentials already in .env or profile
 2. Click **Login to Broker**
-3. OpenAlgo uses stored credentials
+3. BTAlgo uses stored credentials
 4. Connection established automatically
 
 ## Understanding Authentication
@@ -162,7 +162,7 @@ Most brokers require you to login every trading day:
 ┌─────────────────────────────────────────────────────────────────┐
 │                    Typical Trading Day                          │
 │                                                                  │
-│  8:30 AM  - Login to OpenAlgo                                   │
+│  8:30 AM  - Login to BTAlgo                                   │
 │  8:35 AM  - Login to Broker                                     │
 │  9:15 AM  - Market Opens (you're ready to trade)                │
 │  3:30 PM  - Market Closes                                       │
@@ -194,7 +194,7 @@ Some brokers support automatic login using TOTP:
 
 ### Token Storage
 
-OpenAlgo stores broker tokens:
+BTAlgo stores broker tokens:
 - Encrypted in database
 - Never stored in plain text
 - Auto-deleted on logout
@@ -203,7 +203,7 @@ OpenAlgo stores broker tokens:
 
 ### Checking Connection
 
-In OpenAlgo dashboard, you'll see:
+In BTAlgo dashboard, you'll see:
 
 | Status | Meaning |
 |--------|---------|
@@ -231,7 +231,7 @@ When connected, you can:
 
 1. Update `BROKER=` in `.env` to new broker
 2. Update corresponding credentials
-3. Restart OpenAlgo
+3. Restart BTAlgo
 4. Login to new broker
 
 **Note**: Only one broker active at a time per instance
@@ -240,7 +240,7 @@ When connected, you can:
 
 To use multiple brokers simultaneously:
 
-1. Install OpenAlgo in separate folders
+1. Install BTAlgo in separate folders
 2. Configure each with different broker
 3. Run on different ports
 

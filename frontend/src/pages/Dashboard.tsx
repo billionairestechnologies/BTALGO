@@ -196,7 +196,7 @@ export default function Dashboard() {
   const quickAccessCards = [
     {
       href: '/search',
-      label: 'OpenAlgo Symbols',
+      label: 'BTAlgo Symbols',
       description: 'Universal symbology across brokers',
       icon: Search,
       gradient: 'from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10',
@@ -216,7 +216,7 @@ export default function Dashboard() {
       borderColor: 'border-violet-500/20 hover:border-violet-500/40',
     },
     {
-      href: 'https://docs.openalgo.in',
+      href: 'https://docs.billionairestechnologies.com',
       label: 'Documentation',
       description: 'Tutorials, API docs & features',
       icon: BookOpen,

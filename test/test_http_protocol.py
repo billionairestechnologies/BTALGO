@@ -114,7 +114,7 @@ def test_broker_protocol():
         except Exception as e:
             print(f"  Could not connect: {str(e)[:50]}")
 
-    # Test with the actual OpenAlgo client
+    # Test with the actual BTAlgo client
     print("\n" + "=" * 60)
     print("Testing with your current httpx_client configuration:")
     print("-" * 40)

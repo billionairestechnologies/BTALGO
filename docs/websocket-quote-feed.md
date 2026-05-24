@@ -1,10 +1,10 @@
 # WebSocket Quote Feed - Integration Guide
 
-This guide demonstrates how to integrate with OpenAlgo's WebSocket quote feed for real-time market data streaming.
+This guide demonstrates how to integrate with BTAlgo's WebSocket quote feed for real-time market data streaming.
 
 ## Overview
 
-OpenAlgo provides a unified WebSocket server (port 8765) that streams market data from 29 brokers in a normalized format. Clients can subscribe to LTP, Quote, or Depth modes.
+BTAlgo provides a unified WebSocket server (port 8765) that streams market data from 29 brokers in a normalized format. Clients can subscribe to LTP, Quote, or Depth modes.
 
 ## Connection Details
 
@@ -29,7 +29,7 @@ OpenAlgo provides a unified WebSocket server (port 8765) that streams market dat
 // Response
 {
     "status": "authenticated",
-    "message": "Connected to OpenAlgo WebSocket"
+    "message": "Connected to BTAlgo WebSocket"
 }
 ```
 

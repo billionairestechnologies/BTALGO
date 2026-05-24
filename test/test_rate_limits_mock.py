@@ -190,7 +190,7 @@ def test_multiple_clients(api, endpoint, limit):
 
 def main():
     """Run all mock tests"""
-    print("\nOpenAlgo Rate Limit Mock Tests")
+    print("\nBTAlgo Rate Limit Mock Tests")
     print("=" * 60)
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 60)

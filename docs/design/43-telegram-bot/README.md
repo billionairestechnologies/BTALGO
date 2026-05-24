@@ -2,7 +2,7 @@
 
 ## Overview
 
-OpenAlgo integrates with Telegram to provide real-time trading notifications, account information, and bot commands. Users can configure their Telegram bot to receive order alerts, position updates, and execute queries.
+BTAlgo integrates with Telegram to provide real-time trading notifications, account information, and bot commands. Users can configure their Telegram bot to receive order alerts, position updates, and execute queries.
 
 ## Architecture Diagram
 
@@ -31,7 +31,7 @@ OpenAlgo integrates with Telegram to provide real-time trading notifications, ac
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        OpenAlgo Backend                                      │
+│                        BTAlgo Backend                                      │
 │                                                                              │
 │  ┌─────────────────────────────────────────────────────────────────────┐   │
 │  │                    Telegram Blueprint                                │   │
@@ -66,7 +66,7 @@ OpenAlgo integrates with Telegram to provide real-time trading notifications, ac
 │  │  │  /stoppython - Stop running Python strategies                 │  │   │
 │  │  │  /mode       - Toggle Live / Analyze mode                     │  │   │
 │  │  │  /menu       - Interactive menu                               │  │   │
-│  │  │  /link       - Link OpenAlgo account                          │  │   │
+│  │  │  /link       - Link BTAlgo account                          │  │   │
 │  │  │  /unlink     - Unlink account                                 │  │   │
 │  │  └──────────────────────────────────────────────────────────────┘  │   │
 │  └─────────────────────────────────────────────────────────────────────┘   │
@@ -91,7 +91,7 @@ OpenAlgo integrates with Telegram to provide real-time trading notifications, ac
 │ Column           │ Type         │ Description                  │
 ├──────────────────┼──────────────┼──────────────────────────────┤
 │ id               │ INTEGER PK   │ Auto-increment               │
-│ user_id          │ VARCHAR(255) │ OpenAlgo user ID             │
+│ user_id          │ VARCHAR(255) │ BTAlgo user ID             │
 │ telegram_id      │ BIGINT       │ Telegram chat ID             │
 │ username         │ VARCHAR(255) │ Telegram username            │
 │ first_name       │ VARCHAR(255) │ User's first name            │
@@ -110,7 +110,7 @@ OpenAlgo integrates with Telegram to provide real-time trading notifications, ac
 │ Column           │ Type         │ Description                  │
 ├──────────────────┼──────────────┼──────────────────────────────┤
 │ id               │ INTEGER PK   │ Auto-increment               │
-│ user_id          │ VARCHAR(255) │ OpenAlgo user ID (unique)    │
+│ user_id          │ VARCHAR(255) │ BTAlgo user ID (unique)    │
 │ bot_token        │ TEXT         │ Encrypted bot token          │
 │ webhook_url      │ VARCHAR(500) │ Webhook endpoint             │
 │ is_enabled       │ BOOLEAN      │ Bot enabled status           │
@@ -164,7 +164,7 @@ OpenAlgo integrates with Telegram to provide real-time trading notifications, ac
 |---------|-------------|---------|
 | /start | Initialize bot and link account | /start |
 | /help | Display available commands | /help |
-| /link `<api_key> <host_url>` | Link your OpenAlgo account | /link abc123 http://127.0.0.1:5000 |
+| /link `<api_key> <host_url>` | Link your BTAlgo account | /link abc123 http://127.0.0.1:5000 |
 | /unlink | Unlink your account | /unlink |
 | /status | Check broker connection | /status |
 | /funds | Get account balance and margin | /funds |
@@ -212,7 +212,7 @@ If no strategies are running, the bot replies `ℹ️ No Python strategies runni
 │           └──► Receive bot token                                           │
 │                       │                                                     │
 │                       ▼                                                     │
-│  2. Configure in OpenAlgo ─────────────────────────────────────────────►   │
+│  2. Configure in BTAlgo ─────────────────────────────────────────────►   │
 │           │                                                                 │
 │           ├──► Go to Settings > Telegram                                   │
 │           ├──► Enter bot token                                             │

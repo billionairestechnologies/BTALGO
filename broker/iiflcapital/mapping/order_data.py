@@ -305,7 +305,7 @@ def transform_positions_data(positions_data):
         ltp = _to_float(_first_present(row, "ltp", "lastPrice", "previousDayClose"))
 
         # Spec exposes `realizedPnl` only. Compute MTM unrealized from netQuantity
-        # and netAveragePrice so OpenAlgo's `pnl` field reflects total P&L —
+        # and netAveragePrice so BTAlgo's `pnl` field reflects total P&L —
         # but only when LTP is genuinely populated. A missing LTP defaulting
         # to 0 would otherwise fabricate a (-average_price * quantity) loss.
         realized_pnl = _to_float(row.get("realizedPnl"))

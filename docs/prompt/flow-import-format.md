@@ -1,7 +1,7 @@
 # Flow Editor — Import JSON Reference
 
 This document is the source of truth for hand-writing or generating workflow
-JSON that can be imported into the OpenAlgo Flow Editor. It covers the
+JSON that can be imported into the BTAlgo Flow Editor. It covers the
 top-level workflow shape, every node type, every edge variant, the variable
 interpolation grammar, and the source-handle vocabulary that drives condition
 branching.
@@ -197,7 +197,7 @@ non-empty string works.
 
 Snake/camel case in `data` keys: **camelCase** (e.g. `expiryType`,
 `triggerPrice`, `outputVariable`). The one exception is the Expiry node's
-`instrumenttype` field which is lowercase to match the OpenAlgo REST API.
+`instrumenttype` field which is lowercase to match the BTAlgo REST API.
 
 ---
 
@@ -248,7 +248,7 @@ configured symbol on a 1-second tick.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| `symbol` | string | — | OpenAlgo symbol format. |
+| `symbol` | string | — | BTAlgo symbol format. |
 | `exchange` | string | `"NSE"` | See [§9 Exchange codes](#9-exchanges). |
 | `condition` | `"above"` \| `"below"` \| `"crosses_above"` \| `"crosses_below"` | `"above"` | |
 | `price` | number | — | Target price. For channel modes, see `priceLower`/`priceUpper`. |
@@ -313,7 +313,7 @@ Single-leg order on any segment.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| `symbol` | string | — | OpenAlgo symbol format. |
+| `symbol` | string | — | BTAlgo symbol format. |
 | `exchange` | string | `"NSE"` | |
 | `action` | `"BUY"` \| `"SELL"` | `"BUY"` | |
 | `quantity` | int | `1` | In shares (not lots). |
@@ -700,7 +700,7 @@ Inverts the single incoming `condition`.
 ### 7.4 Data nodes
 
 Each data node takes its inputs and stores its result under `outputVariable`
-(if set). The shape returned by each maps onto the OpenAlgo REST API's
+(if set). The shape returned by each maps onto the BTAlgo REST API's
 response — see `docs/prompt/services_documentation.md` for full response
 schemas.
 
@@ -918,12 +918,12 @@ Useful interpolations: `{{orders.data.orders[0].orderid}}`,
 
 #### telegramAlert — Telegram Alert
 
-Sends a Telegram message via the per-user Telegram bot configured in OpenAlgo
+Sends a Telegram message via the per-user Telegram bot configured in BTAlgo
 settings.
 
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| `username` | string | — | OpenAlgo login ID linked to a Telegram user. |
+| `username` | string | — | BTAlgo login ID linked to a Telegram user. |
 | `message` | string | — | Supports `{{vars}}`. |
 
 ```json
@@ -1310,7 +1310,7 @@ optionally a leg-specific `expiryDate` for diagonals.
 
 ### 8.7 Webhook → external HTTP forward
 
-Receive a webhook, then fan out: place an OpenAlgo order **and** post a
+Receive a webhook, then fan out: place an BTAlgo order **and** post a
 copy of the payload to an external system (e.g. a Discord bot or a
 spreadsheet endpoint) for audit.
 
@@ -1419,7 +1419,7 @@ positions and log the action. Useful as a tail-end of any intraday flow.
     { "id": "node_2", "type": "waitUntil",      "position": { "x": 100, "y": 180 }, "data": { "targetTime": "15:15", "label": "Square-off window" } },
     { "id": "node_3", "type": "closePositions", "position": { "x": 100, "y": 300 }, "data": {} },
     { "id": "node_4", "type": "log",            "position": { "x": 100, "y": 420 }, "data": { "message": "Daily square-off completed at {{time}} IST", "level": "info" } },
-    { "id": "node_5", "type": "telegramAlert",  "position": { "x": 100, "y": 540 }, "data": { "username": "rajandran", "message": "[OpenAlgo] Daily square-off done at {{time}} IST on {{date}}" } }
+    { "id": "node_5", "type": "telegramAlert",  "position": { "x": 100, "y": 540 }, "data": { "username": "rajandran", "message": "[BTAlgo] Daily square-off done at {{time}} IST on {{date}}" } }
   ],
   "edges": [
     { "id": "e1", "source": "node_1", "target": "node_2" },
@@ -1541,7 +1541,7 @@ Valid `exchange` values across all nodes:
 
 ## 10. Symbol format
 
-OpenAlgo standardizes broker-specific symbols to the following format. See
+BTAlgo standardizes broker-specific symbols to the following format. See
 `docs/prompt/symbol-format.md` for the complete spec; the short form:
 
 - **Equity:** `INFY`, `RELIANCE`, `TATAMOTORS`

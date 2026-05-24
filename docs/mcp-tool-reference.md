@@ -1,4 +1,4 @@
-# OpenAlgo MCP — Tool Reference & Prompt Examples
+# BTAlgo MCP — Tool Reference & Prompt Examples
 
 Companion reference to the main MCP setup guide. Once the MCP server is wired into Claude Desktop, Cursor, Windsurf, Antigravity, or any other MCP-capable client, you can ask for these operations in plain English — the client decides which tool to call.
 
@@ -10,7 +10,7 @@ All **40 tools** shipped by the server are listed below with:
 
 ## Conventions
 
-- **Default strategy tag**: `python mcp` — every MCP-triggered order is tagged so you can filter MCP activity in OpenAlgo logs and the Analyzer. Override by saying *"use strategy 'my scalper'"* in the prompt.
+- **Default strategy tag**: `python mcp` — every MCP-triggered order is tagged so you can filter MCP activity in BTAlgo logs and the Analyzer. Override by saying *"use strategy 'my scalper'"* in the prompt.
 - **Product type defaults**: `MIS` for equity. Use `NRML` for F&O carry; `CNC` for delivery.
 - **Exchange codes**: `NSE`, `BSE`, `NFO`, `BFO`, `CDS`, `BCD`, `MCX` + `NSE_INDEX` / `BSE_INDEX` for index values.
 - **Lot size**: never hardcoded. The model will call `get_option_symbol` / `get_option_chain` / `get_symbol_info` to read the live `lotsize` from the broker master contract, then compute `quantity = lots × lotsize` for you.
@@ -333,7 +333,7 @@ Bulk instrument master download for an exchange (or all exchanges when `exchange
 
 ### `get_index_symbols`
 
-Returns the full standardized OpenAlgo index symbol list (57 NSE + 40 BSE), rolled out uniformly across every supported broker.
+Returns the full standardized BTAlgo index symbol list (57 NSE + 40 BSE), rolled out uniformly across every supported broker.
 
 **Prompts:**
 - *"List all NSE index symbols I can subscribe to"*
@@ -405,9 +405,9 @@ Quick pre-trade check: is a given date a holiday on a specific exchange?
 
 ## 🛠️ Utilities
 
-### `get_openalgo_version`
+### `get_btalgo_version`
 
-**Prompt:** *"What version of the openalgo library is running?"*
+**Prompt:** *"What version of the btalgo library is running?"*
 
 ---
 
@@ -421,7 +421,7 @@ Quick cheat-sheet of valid exchanges, product types, price types, actions, and i
 
 ### `send_telegram_alert`
 
-Push a Telegram notification via the OpenAlgo Telegram bot (must be configured in OpenAlgo settings first). Supports `priority` 1–10.
+Push a Telegram notification via the BTAlgo Telegram bot (must be configured in BTAlgo settings first). Supports `priority` 1–10.
 
 **Prompts:**
 - *"Send me a Telegram alert: NIFTY crossed 26000, priority 8"*
@@ -474,15 +474,15 @@ Chains: `cancel_all_orders` → `close_all_positions` → `get_trade_book` → `
 
 ## Safety Tips
 
-- Start in **analyzer mode** (`analyzer_toggle True`) while you get comfortable — orders look real but never leave OpenAlgo.
+- Start in **analyzer mode** (`analyzer_toggle True`) while you get comfortable — orders look real but never leave BTAlgo.
 - Use phrases like *"only if margin is under X"* or *"ask me to confirm before placing"* — the assistant will pause for your OK.
 - Use a unique `strategy` name per use-case (e.g., *"use strategy 'nifty scalper'"*) so MCP-driven activity is cleanly separable from manual orders in logs.
-- For live trading, set up the OpenAlgo Telegram bot and ask the assistant to *"send a Telegram alert after every order fill"* — you get a realtime feed without staring at the screen.
+- For live trading, set up the BTAlgo Telegram bot and ask the assistant to *"send a Telegram alert after every order fill"* — you get a realtime feed without staring at the screen.
 
 ---
 
 ## Related
 
 - [MCP Server Setup Guide](../mcp/README.md) — install, configure Claude / Cursor / Windsurf, broker prerequisites
-- [OpenAlgo Symbol Format](./userguide/symbol-format/README.md) — how equity / future / option symbols are constructed
+- [BTAlgo Symbol Format](./userguide/symbol-format/README.md) — how equity / future / option symbols are constructed
 - [API Documentation](./api/README.md) — underlying REST endpoints each MCP tool wraps

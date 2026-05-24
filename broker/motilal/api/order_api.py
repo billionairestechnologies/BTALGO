@@ -44,7 +44,7 @@ def get_api_response(endpoint, auth, method="GET", payload=""):
         "osversion": "10.0.19041",
         "devicemodel": "AHV",
         "manufacturer": "DELL",
-        "productname": "OpenAlgo",
+        "productname": "BTAlgo",
         "productversion": "1.0.0",
         "browsername": "Chrome",
         "browserversion": "120.0",
@@ -166,9 +166,9 @@ def _invalidate_position_cache(auth):
 
 
 def get_open_position(tradingsymbol, exchange, producttype, auth):
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search in OpenPosition
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
-    # Map exchange from OpenAlgo format to Motilal format for comparison
+    # Map exchange from BTAlgo format to Motilal format for comparison
     motilal_exchange = map_exchange(exchange)
     positions_data = _get_cached_positions(auth)
 
@@ -246,7 +246,7 @@ def place_order_api(data, auth):
         "osversion": "10.0.19041",
         "devicemodel": "AHV",
         "manufacturer": "DELL",
-        "productname": "OpenAlgo",
+        "productname": "BTAlgo",
         "productversion": "1.0.0",
         "browsername": "Chrome",
         "browserversion": "120.0",
@@ -458,17 +458,17 @@ def close_all_positions(current_api_key, auth):
             action = "SELL" if net_qty > 0 else "BUY"
             quantity = abs(net_qty)
 
-            # Convert Motilal exchange to OpenAlgo exchange for symbol lookup
+            # Convert Motilal exchange to BTAlgo exchange for symbol lookup
             motilal_exchange = position["exchange"]
-            openalgo_exchange = reverse_map_exchange(motilal_exchange)
+            btalgo_exchange = reverse_map_exchange(motilal_exchange)
 
-            # Get openalgo symbol to send to placeorder function
-            symbol = get_symbol(position["symboltoken"], openalgo_exchange)
+            # Get btalgo symbol to send to placeorder function
+            symbol = get_symbol(position["symboltoken"], btalgo_exchange)
             logger.info(f"The Symbol is {symbol}")
 
             if not symbol:
                 logger.error(
-                    f"Symbol not found for token {position['symboltoken']} and exchange {openalgo_exchange}"
+                    f"Symbol not found for token {position['symboltoken']} and exchange {btalgo_exchange}"
                 )
                 continue
 
@@ -478,9 +478,9 @@ def close_all_positions(current_api_key, auth):
                 "strategy": "Squareoff",
                 "symbol": symbol,
                 "action": action,
-                "exchange": openalgo_exchange,  # Use OpenAlgo exchange format
+                "exchange": btalgo_exchange,  # Use BTAlgo exchange format
                 "pricetype": "MARKET",
-                "product": reverse_map_product_type(position["productname"], openalgo_exchange),
+                "product": reverse_map_product_type(position["productname"], btalgo_exchange),
                 "quantity": str(quantity),
             }
 
@@ -522,7 +522,7 @@ def cancel_order(orderid, auth):
         "osversion": "10.0.19041",
         "devicemodel": "AHV",
         "manufacturer": "DELL",
-        "productname": "OpenAlgo",
+        "productname": "BTAlgo",
         "productversion": "1.0.0",
         "browsername": "Chrome",
         "browserversion": "120.0",
@@ -656,7 +656,7 @@ def modify_order(data, auth):
         "osversion": "10.0.19041",
         "devicemodel": "AHV",
         "manufacturer": "DELL",
-        "productname": "OpenAlgo",
+        "productname": "BTAlgo",
         "productversion": "1.0.0",
         "browsername": "Chrome",
         "browserversion": "120.0",

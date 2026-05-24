@@ -1,5 +1,5 @@
 """
-OpenAlgo WebSocket 50-Level Market Depth Example
+BTAlgo WebSocket 50-Level Market Depth Example
 For brokers that support deep market depth (Fyers TBT, etc.)
 """
 

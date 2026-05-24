@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-OpenAlgo PEPPER Rotation Migration (DESTRUCTIVE)
+BTAlgo PEPPER Rotation Migration (DESTRUCTIVE)
 =================================================
 
 This script rotates API_KEY_PEPPER and re-encrypts every field that is
@@ -23,20 +23,20 @@ It must be run explicitly by the operator at a controlled moment:
     uv run rotate_pepper.py --yes      # non-interactive
 
 Pre-flight:
-  1. Stop OpenAlgo (kill the running process / systemctl stop openalgo).
-  2. Back up db/openalgo.db (the script also creates a backup, but
+  1. Stop BTAlgo (kill the running process / systemctl stop btalgo).
+  2. Back up db/btalgo.db (the script also creates a backup, but
      belt-and-braces).
   3. Make sure no other writer is touching the DB.
 
 Post-flight:
-  1. Restart OpenAlgo.
+  1. Restart BTAlgo.
   2. Visit /auth/reset-password and use your TOTP code to set a new
      password (your TOTP secret survives the rotation; only password
      hashes are invalidated).
   3. Confirm you can log in with the new password.
 
 Columns rotated:
-  auth_db Fernet (PBKDF2-SHA256, salt=b"openalgo_static_salt"):
+  auth_db Fernet (PBKDF2-SHA256, salt=b"btalgo_static_salt"):
     - auth.auth
     - auth.feed_token
     - auth.secret_api_key  (was plaintext for some installs)
@@ -92,7 +92,7 @@ def _auth_db_fernet(pepper: str) -> Fernet:
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
-        salt=b"openalgo_static_salt",
+        salt=b"btalgo_static_salt",
         iterations=100000,
     )
     key = base64.urlsafe_b64encode(kdf.derive(pepper.encode()))
@@ -101,7 +101,7 @@ def _auth_db_fernet(pepper: str) -> Fernet:
 
 def _telegram_db_fernet(pepper: str) -> Fernet:
     """Match database/telegram_db.py:get_encryption_key()."""
-    salt = os.getenv("TELEGRAM_KEY_SALT", "telegram-openalgo-salt").encode()
+    salt = os.getenv("TELEGRAM_KEY_SALT", "telegram-btalgo-salt").encode()
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -124,7 +124,7 @@ def _settings_db_fernet(pepper: str) -> Fernet:
 
 def _resolve_db_path() -> str:
     """Resolve DATABASE_URL to an absolute SQLite path."""
-    db_url = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+    db_url = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
     m = re.match(r"sqlite:///(.+)", db_url)
     if not m:
         sys.stderr.write(
@@ -445,7 +445,7 @@ def main():
 
     print()
     print("=" * 72)
-    print("  OpenAlgo PEPPER Rotation Migration")
+    print("  BTAlgo PEPPER Rotation Migration")
     print("=" * 72)
     print(f"  DB path     : {db_path}")
     print(f"  .env path   : {env_path}")
@@ -477,7 +477,7 @@ def main():
         backup_dir = os.path.join(os.path.dirname(db_path), "backups")
         os.makedirs(backup_dir, exist_ok=True)
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_path = os.path.join(backup_dir, f"openalgo.db.before-rotate-pepper-{ts}")
+        backup_path = os.path.join(backup_dir, f"btalgo.db.before-rotate-pepper-{ts}")
         shutil.copy2(db_path, backup_path)
         print(f"  DB backup   : {backup_path}")
 
@@ -533,7 +533,7 @@ def main():
             print(f"    {k:48s} {v:>5d}")
     print()
     print("  Next steps:")
-    print("    1. Restart OpenAlgo: uv run app.py  (or systemctl restart …)")
+    print("    1. Restart BTAlgo: uv run app.py  (or systemctl restart …)")
     print("    2. Open the web UI and go to /auth/reset-password")
     print("    3. Reset your password using your TOTP code")
     print("    4. Log in normally with the new password")

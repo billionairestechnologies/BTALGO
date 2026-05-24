@@ -1,8 +1,8 @@
-# OpenAlgo Services Documentation
+# BTAlgo Services Documentation
 
 ## Overview
 
-OpenAlgo Services are Python functions that provide programmatic access to trading operations. These services mirror the functionality of the OpenAlgo SDK but are designed for internal use within the OpenAlgo application. Each service function accepts the same request parameters and returns the same responses as documented in the OpenAlgo SDK.
+BTAlgo Services are Python functions that provide programmatic access to trading operations. These services mirror the functionality of the BTAlgo SDK but are designed for internal use within the BTAlgo application. Each service function accepts the same request parameters and returns the same responses as documented in the BTAlgo SDK.
 
 ## Table of Contents
 
@@ -63,14 +63,14 @@ Place a new order with the broker.
 
 **Function:** `place_order(order_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/place_order_service.py`
+**Location:** `btalgo/services/place_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | order_data | dict | Yes | Order details |
-| api_key | str | Conditional | OpenAlgo API key (for API-based calls) |
+| api_key | str | Conditional | BTAlgo API key (for API-based calls) |
 | auth_token | str | Conditional | Direct broker authentication token (for internal calls) |
 | broker | str | Conditional | Broker name (for internal calls) |
 
@@ -171,14 +171,14 @@ Place a smart order that considers current position size.
 
 **Function:** `place_smart_order(order_data, api_key=None, auth_token=None, broker=None, smart_order_delay=None)`
 
-**Location:** `openalgo/services/place_smart_order_service.py`
+**Location:** `btalgo/services/place_smart_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | order_data | dict | Yes | Smart order details |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 | smart_order_delay | str | No | Delay in seconds (default: 0.5) |
@@ -245,14 +245,14 @@ Place an options order by resolving the symbol from offset (ATM/ITM/OTM) and pla
 
 **Function:** `place_options_order(options_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/place_options_order_service.py`
+**Location:** `btalgo/services/place_options_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | options_data | dict | Yes | Options order details |
-| api_key | str | Conditional | OpenAlgo API key (for API-based calls) |
+| api_key | str | Conditional | BTAlgo API key (for API-based calls) |
 | auth_token | str | Conditional | Direct broker authentication token (for internal calls) |
 | broker | str | Conditional | Broker name (for internal calls) |
 
@@ -369,14 +369,14 @@ Place multiple option legs with common underlying. BUY legs execute first for ma
 
 **Function:** `place_options_multiorder(multiorder_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/options_multiorder_service.py`
+**Location:** `btalgo/services/options_multiorder_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | multiorder_data | dict | Yes | Multi-order details with legs |
-| api_key | str | Conditional | OpenAlgo API key (for API-based calls) |
+| api_key | str | Conditional | BTAlgo API key (for API-based calls) |
 | auth_token | str | Conditional | Direct broker authentication token (for internal calls) |
 | broker | str | Conditional | Broker name (for internal calls) |
 
@@ -549,14 +549,14 @@ Place multiple orders simultaneously.
 
 **Function:** `place_basket_order(basket_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/basket_order_service.py`
+**Location:** `btalgo/services/basket_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | basket_data | dict | Yes | Basket order details with orders array |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -656,14 +656,14 @@ Split a large order into multiple smaller orders.
 
 **Function:** `split_order(split_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/split_order_service.py`
+**Location:** `btalgo/services/split_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | split_data | dict | Yes | Split order details |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -768,14 +768,14 @@ Modify an existing order.
 
 **Function:** `modify_order(order_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/modify_order_service.py`
+**Location:** `btalgo/services/modify_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | order_data | dict | Yes | Modified order details |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -842,14 +842,14 @@ Cancel an existing order.
 
 **Function:** `cancel_order(orderid, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/cancel_order_service.py`
+**Location:** `btalgo/services/cancel_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | orderid | str | Yes | Order ID to cancel |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -890,14 +890,14 @@ Cancel all open orders and trigger pending orders.
 
 **Function:** `cancel_all_orders(order_data=None, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/cancel_all_order_service.py`
+**Location:** `btalgo/services/cancel_all_order_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | order_data | dict | No | Additional order data (optional) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -946,14 +946,14 @@ Close all open positions across various exchanges.
 
 **Function:** `close_position(position_data=None, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/close_position_service.py`
+**Location:** `btalgo/services/close_position_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | position_data | dict | No | Additional position data (optional) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -996,14 +996,14 @@ Get the current status of an order.
 
 **Function:** `get_order_status(status_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/orderstatus_service.py`
+**Location:** `btalgo/services/orderstatus_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | status_data | dict | Yes | Order status request data |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1069,14 +1069,14 @@ Get the current open position for a symbol.
 
 **Function:** `get_open_position(position_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/openposition_service.py`
+**Location:** `btalgo/services/openposition_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | position_data | dict | Yes | Position query data |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1137,7 +1137,7 @@ Get market quotes for a symbol.
 
 **Function:** `get_quotes(symbol, exchange, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/quotes_service.py`
+**Location:** `btalgo/services/quotes_service.py`
 
 **Parameters:**
 
@@ -1145,7 +1145,7 @@ Get market quotes for a symbol.
 |-----------|------|----------|-------------|
 | symbol | str | Yes | Trading symbol |
 | exchange | str | Yes | Exchange (NSE, NFO, etc.) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1196,14 +1196,14 @@ Get real-time quotes for multiple symbols in a single call.
 
 **Function:** `get_multiquotes(symbols, api_key=None, auth_token=None, feed_token=None, broker=None)`
 
-**Location:** `openalgo/services/quotes_service.py`
+**Location:** `btalgo/services/quotes_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | symbols | list | Yes | List of dicts with 'symbol' and 'exchange' keys |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | feed_token | str | Conditional | Direct broker feed token |
 | broker | str | Conditional | Broker name |
@@ -1309,7 +1309,7 @@ Get market depth for a symbol.
 
 **Function:** `get_depth(symbol, exchange, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/depth_service.py`
+**Location:** `btalgo/services/depth_service.py`
 
 **Parameters:**
 
@@ -1317,7 +1317,7 @@ Get market depth for a symbol.
 |-----------|------|----------|-------------|
 | symbol | str | Yes | Trading symbol |
 | exchange | str | Yes | Exchange (NSE, NFO, etc.) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1390,7 +1390,7 @@ Get historical data for a symbol.
 
 **Function:** `get_history(symbol, exchange, interval, start_date, end_date, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/history_service.py`
+**Location:** `btalgo/services/history_service.py`
 
 **Parameters:**
 
@@ -1401,7 +1401,7 @@ Get historical data for a symbol.
 | interval | str | Yes | Time interval (1m, 5m, 15m, 1h, D) |
 | start_date | str | Yes | Start date (YYYY-MM-DD) |
 | end_date | str | Yes | End date (YYYY-MM-DD) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1448,13 +1448,13 @@ Get available time intervals for historical data.
 
 **Function:** `get_intervals(api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/intervals_service.py`
+**Location:** `btalgo/services/intervals_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1503,7 +1503,7 @@ Get detailed information about a symbol.
 
 **Function:** `get_symbol(symbol, exchange, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/symbol_service.py`
+**Location:** `btalgo/services/symbol_service.py`
 
 **Parameters:**
 
@@ -1511,7 +1511,7 @@ Get detailed information about a symbol.
 |-----------|------|----------|-------------|
 | symbol | str | Yes | Trading symbol |
 | exchange | str | Yes | Exchange (NSE, NFO, etc.) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1566,7 +1566,7 @@ Search for symbols.
 
 **Function:** `search_symbol(query, exchange, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/search_service.py`
+**Location:** `btalgo/services/search_service.py`
 
 **Parameters:**
 
@@ -1574,7 +1574,7 @@ Search for symbols.
 |-----------|------|----------|-------------|
 | query | str | Yes | Search query |
 | exchange | str | Yes | Exchange (NSE, NFO, etc.) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1631,7 +1631,7 @@ Get expiry dates for a symbol.
 
 **Function:** `get_expiry(symbol, exchange, instrumenttype, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/expiry_service.py`
+**Location:** `btalgo/services/expiry_service.py`
 
 **Parameters:**
 
@@ -1640,7 +1640,7 @@ Get expiry dates for a symbol.
 | symbol | str | Yes | Trading symbol |
 | exchange | str | Yes | Exchange (NSE, NFO, etc.) |
 | instrumenttype | str | Yes | Instrument type (options, futures) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -1692,14 +1692,14 @@ Get all instruments/symbols from the database.
 
 **Function:** `get_instruments(exchange=None, api_key=None, format='json')`
 
-**Location:** `openalgo/services/instruments_service.py`
+**Location:** `btalgo/services/instruments_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | exchange | str | No | Exchange filter (NSE, BSE, NFO, BFO, etc.) |
-| api_key | str | Yes | OpenAlgo API key |
+| api_key | str | Yes | BTAlgo API key |
 | format | str | No | Output format ('json' or 'csv', default: 'json') |
 
 **Example:**
@@ -1773,7 +1773,7 @@ Get option symbol based on underlying, expiry, strike offset, and option type.
 
 **Function:** `get_option_symbol(underlying, exchange, expiry_date, strike_int, offset, option_type, api_key, underlying_ltp=None)`
 
-**Location:** `openalgo/services/option_symbol_service.py`
+**Location:** `btalgo/services/option_symbol_service.py`
 
 **Parameters:**
 
@@ -1785,7 +1785,7 @@ Get option symbol based on underlying, expiry, strike offset, and option type.
 | strike_int | int | No | Strike interval (optional - uses actual strikes if not provided) |
 | offset | str | Yes | Strike offset (ATM, ITM1-ITM50, OTM1-OTM50) |
 | option_type | str | Yes | CE or PE |
-| api_key | str | Yes | OpenAlgo API key |
+| api_key | str | Yes | BTAlgo API key |
 | underlying_ltp | float | No | Pre-fetched LTP to avoid redundant quote requests |
 
 **Example - ATM Option:**
@@ -1865,7 +1865,7 @@ Get option chain data for a given underlying and expiry.
 
 **Function:** `get_option_chain(underlying, exchange, expiry_date, strike_count, api_key)`
 
-**Location:** `openalgo/services/option_chain_service.py`
+**Location:** `btalgo/services/option_chain_service.py`
 
 **Parameters:**
 
@@ -1875,7 +1875,7 @@ Get option chain data for a given underlying and expiry.
 | exchange | str | Yes | Exchange (NSE_INDEX, BSE_INDEX) |
 | expiry_date | str | Yes | Expiry date in DDMMMYY format |
 | strike_count | int | Yes | Number of strikes above and below ATM |
-| api_key | str | Yes | OpenAlgo API key |
+| api_key | str | Yes | BTAlgo API key |
 
 **Example:**
 
@@ -1990,7 +1990,7 @@ Calculate synthetic futures price using ATM options.
 
 **Function:** `calculate_synthetic_future(underlying, exchange, expiry_date, api_key)`
 
-**Location:** `openalgo/services/synthetic_future_service.py`
+**Location:** `btalgo/services/synthetic_future_service.py`
 
 **Parameters:**
 
@@ -1999,7 +1999,7 @@ Calculate synthetic futures price using ATM options.
 | underlying | str | Yes | Underlying symbol (e.g., NIFTY, BANKNIFTY) |
 | exchange | str | Yes | Exchange (NSE_INDEX, BSE_INDEX) |
 | expiry_date | str | Yes | Expiry date in DDMMMYY format |
-| api_key | str | Yes | OpenAlgo API key |
+| api_key | str | Yes | BTAlgo API key |
 
 **Formula:**
 ```
@@ -2051,7 +2051,7 @@ Calculate Option Greeks (Delta, Gamma, Theta, Vega, Rho) and Implied Volatility.
 
 **Function:** `get_option_greeks(option_symbol, exchange, interest_rate=None, forward_price=None, underlying_symbol=None, underlying_exchange=None, expiry_time=None, api_key=None)`
 
-**Location:** `openalgo/services/option_greeks_service.py`
+**Location:** `btalgo/services/option_greeks_service.py`
 
 **Parameters:**
 
@@ -2064,7 +2064,7 @@ Calculate Option Greeks (Delta, Gamma, Theta, Vega, Rho) and Implied Volatility.
 | underlying_symbol | str | No | Underlying symbol for spot price |
 | underlying_exchange | str | No | Underlying exchange |
 | expiry_time | str | No | Custom expiry time in "HH:MM" format |
-| api_key | str | Yes | OpenAlgo API key |
+| api_key | str | Yes | BTAlgo API key |
 
 **Example:**
 
@@ -2128,13 +2128,13 @@ Get account funds information.
 
 **Function:** `get_funds(api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/funds_service.py`
+**Location:** `btalgo/services/funds_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -2180,14 +2180,14 @@ Calculate margin requirement for a basket of positions.
 
 **Function:** `calculate_margin(margin_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/margin_service.py`
+**Location:** `btalgo/services/margin_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | margin_data | dict | Yes | Margin calculation data with positions array |
-| api_key | str | Conditional | OpenAlgo API key (for API-based calls) |
+| api_key | str | Conditional | BTAlgo API key (for API-based calls) |
 | auth_token | str | Conditional | Direct broker authentication token (for internal calls) |
 | broker | str | Conditional | Broker name (for internal calls) |
 
@@ -2195,7 +2195,7 @@ Calculate margin requirement for a basket of positions.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| apikey | str | Yes | OpenAlgo API key |
+| apikey | str | Yes | BTAlgo API key |
 | positions | array | Yes | Array of position objects (max 50) |
 
 **Position Fields:**
@@ -2290,13 +2290,13 @@ Get the order book.
 
 **Function:** `get_orderbook(api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/orderbook_service.py`
+**Location:** `btalgo/services/orderbook_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -2359,13 +2359,13 @@ Get the trade book.
 
 **Function:** `get_tradebook(api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/tradebook_service.py`
+**Location:** `btalgo/services/tradebook_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -2417,13 +2417,13 @@ Get the position book.
 
 **Function:** `get_positionbook(api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/positionbook_service.py`
+**Location:** `btalgo/services/positionbook_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -2473,13 +2473,13 @@ Get account holdings.
 
 **Function:** `get_holdings(api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/holdings_service.py`
+**Location:** `btalgo/services/holdings_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -2538,7 +2538,7 @@ Get market holidays for a specific year or current year.
 
 **Function:** `get_holidays(year=None)`
 
-**Location:** `openalgo/services/market_calendar_service.py`
+**Location:** `btalgo/services/market_calendar_service.py`
 
 **Parameters:**
 
@@ -2615,7 +2615,7 @@ Get market timings for a specific date.
 
 **Function:** `get_timings(date_str)`
 
-**Location:** `openalgo/services/market_calendar_service.py`
+**Location:** `btalgo/services/market_calendar_service.py`
 
 **Parameters:**
 
@@ -2671,7 +2671,7 @@ Check if a specific date is a market holiday.
 
 **Function:** `check_holiday(date_str, exchange=None)`
 
-**Location:** `openalgo/services/market_calendar_service.py`
+**Location:** `btalgo/services/market_calendar_service.py`
 
 **Parameters:**
 
@@ -2723,14 +2723,14 @@ Get analyzer mode status.
 
 **Function:** `get_analyzer_status(analyzer_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/analyzer_service.py`
+**Location:** `btalgo/services/analyzer_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | analyzer_data | dict | Yes | Analyzer data (can be empty dict) |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -2775,14 +2775,14 @@ Toggle analyzer mode on/off.
 
 **Function:** `toggle_analyzer_mode(analyzer_data, api_key=None, auth_token=None, broker=None)`
 
-**Location:** `openalgo/services/analyzer_service.py`
+**Location:** `btalgo/services/analyzer_service.py`
 
 **Parameters:**
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | analyzer_data | dict | Yes | Analyzer data containing mode |
-| api_key | str | Conditional | OpenAlgo API key |
+| api_key | str | Conditional | BTAlgo API key |
 | auth_token | str | Conditional | Direct broker authentication token |
 | broker | str | Conditional | Broker name |
 
@@ -2837,9 +2837,9 @@ Tuple containing:
 
 ### TelegramAlertService
 
-The Telegram Alert Service provides automated notifications for order-related events via Telegram. This service is not part of the SDK yet but is available for internal use within OpenAlgo.
+The Telegram Alert Service provides automated notifications for order-related events via Telegram. This service is not part of the SDK yet but is available for internal use within BTAlgo.
 
-**Location:** `openalgo/services/telegram_alert_service.py`
+**Location:** `btalgo/services/telegram_alert_service.py`
 
 **Features:**
 
@@ -3270,11 +3270,11 @@ Services depend on the following modules:
 ## Support
 
 For issues or questions:
-- GitHub: https://github.com/marketcalls/openalgo
-- Documentation: https://docs.openalgo.in
+- GitHub: https://github.com/billionairestechnologies/btalgo
+- Documentation: https://docs.billionairestechnologies.com
 - Discord: Join our community
 
 ---
 
 **Last Updated:** January 2025
-**Version:** OpenAlgo Dawn
+**Version:** BTAlgo Dawn

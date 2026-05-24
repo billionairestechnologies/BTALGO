@@ -1,6 +1,6 @@
 """Persistent store for Strategy Builder portfolios.
 
-Single-user deployment, so no user_id column — one OpenAlgo instance owns one
+Single-user deployment, so no user_id column — one BTAlgo instance owns one
 portfolio per fixed watchlist. Two watchlists are supported: `mytrades` (live
 or intended-live trades) and `simulation` (paper scenarios). The legs array is
 serialised as JSON; restoring is cheap and re-validation happens in the

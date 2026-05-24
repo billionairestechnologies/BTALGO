@@ -6,9 +6,9 @@ from typing import Dict, Optional, Set
 
 
 class ZebuExchangeMapper:
-    """Maps between OpenAlgo exchange names and Zebu exchange codes"""
+    """Maps between BTAlgo exchange names and Zebu exchange codes"""
 
-    # OpenAlgo to Zebu exchange mapping (same as Flattrade/Noren)
+    # BTAlgo to Zebu exchange mapping (same as Flattrade/Noren)
     EXCHANGE_MAP = {
         "NSE": "NSE",
         "BSE": "BSE",
@@ -21,17 +21,17 @@ class ZebuExchangeMapper:
     }
 
     # Reverse mapping
-    ZEBU_TO_OPENALGO = {v: k for k, v in EXCHANGE_MAP.items()}
+    ZEBU_TO_BTALGO = {v: k for k, v in EXCHANGE_MAP.items()}
 
     @classmethod
     def to_zebu_exchange(cls, oa_exchange: str) -> str | None:
-        """Convert OpenAlgo exchange to Zebu exchange format"""
+        """Convert BTAlgo exchange to Zebu exchange format"""
         return cls.EXCHANGE_MAP.get(oa_exchange.upper())
 
     @classmethod
     def to_oa_exchange(cls, zebu_exchange: str) -> str | None:
-        """Convert Zebu exchange to OpenAlgo exchange format"""
-        return cls.ZEBU_TO_OPENALGO.get(zebu_exchange.upper())
+        """Convert Zebu exchange to BTAlgo exchange format"""
+        return cls.ZEBU_TO_BTALGO.get(zebu_exchange.upper())
 
 
 class ZebuCapabilityRegistry:

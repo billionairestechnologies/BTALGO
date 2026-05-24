@@ -5,19 +5,19 @@ This script demonstrates how to use the /api/v1/telegram/notify endpoint
 to send custom alert messages to Telegram users.
 
 Prerequisites:
-1. Telegram bot must be running (start from OpenAlgo Telegram settings)
+1. Telegram bot must be running (start from BTAlgo Telegram settings)
 2. User must be linked via /link command in Telegram
 3. Replace API_KEY and USERNAME with your actual values
 
 Usage:
-    cd D:/openalgo-sandbox-test/openalgo/test
+    cd D:/btalgo-sandbox-test/btalgo/test
     python test_telegram_alert_api.py
 """
 
 import os
 import sys
 
-# Add parent directory to path so we can import from openalgo modules if needed
+# Add parent directory to path so we can import from btalgo modules if needed
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import json
@@ -246,7 +246,7 @@ def test_invalid_user():
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("OpenAlgo Telegram Alert API Test Suite")
+    print("BTAlgo Telegram Alert API Test Suite")
     print("=" * 60)
     print(f"\nBase URL: {BASE_URL}")
     print(f"API Key: {API_KEY[:10]}..." if len(API_KEY) > 10 else f"API Key: {API_KEY}")

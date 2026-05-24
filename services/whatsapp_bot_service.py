@@ -3,7 +3,7 @@ WhatsApp Bot Service — pair, connect, send, and command dispatch.
 
 Wraps the `wars` library (PyO3 binding over whatsapp-rust). wars is a
 synchronous, single-process WhatsApp Web client: one paired session per
-process. OpenAlgo already runs `gunicorn -w 1` for SocketIO compatibility,
+process. BTAlgo already runs `gunicorn -w 1` for SocketIO compatibility,
 so the one-process-only constraint costs nothing.
 
 Lifecycle:
@@ -13,7 +13,7 @@ Lifecycle:
                               on_connected from wars
                                           |
                                           v
-                        export_session bytes -> encrypt -> openalgo.db
+                        export_session bytes -> encrypt -> btalgo.db
                                           |
                                           v
     [paired, idle]  --start_bot-->  [paired, connected]
@@ -137,7 +137,7 @@ def normalize_phone(raw) -> str:
 
 # Attachment paths are server-local file paths the caller wants to forward
 # over WhatsApp. Without bounds, a leaked API key could exfiltrate any file
-# the OpenAlgo process can read (/etc/passwd, env files, broker token DB,
+# the BTAlgo process can read (/etc/passwd, env files, broker token DB,
 # etc.) by sending it to an attacker-controlled WhatsApp number.
 #
 # Defense in depth:
@@ -341,7 +341,7 @@ class WhatsAppBotService:
             # cannot snapshot an in-memory DB (Rust + Python use different
             # SQLite library instances). 0600 perms; deleted as soon as we
             # have the bytes.
-            fd, tmp_path = tempfile.mkstemp(suffix=".db", prefix="openalgo_wa_pair_")
+            fd, tmp_path = tempfile.mkstemp(suffix=".db", prefix="btalgo_wa_pair_")
             os.close(fd)
             try:
                 os.chmod(tmp_path, 0o600)
@@ -470,7 +470,7 @@ class WhatsAppBotService:
         owner_username: str | None = None,
     ) -> None:
         """Export the wars session from the temp client, encrypt+persist the
-        blob into openalgo.db, then disconnect the temp client and auto-start
+        blob into btalgo.db, then disconnect the temp client and auto-start
         the long-lived bot from the saved bytes."""
         try:
             logger.info("WhatsApp pair: exporting session bytes from temp client")
@@ -509,7 +509,7 @@ class WhatsAppBotService:
             )
             if not ok:
                 raise RuntimeError("Persisting WhatsApp session blob failed")
-            logger.info("WhatsApp pair: session blob encrypted and saved to openalgo.db")
+            logger.info("WhatsApp pair: session blob encrypted and saved to btalgo.db")
 
             with self._lock:
                 self._pair_state["status"] = "paired"
@@ -884,7 +884,7 @@ class WhatsAppBotService:
                 text = (getattr(msg, "text", None) or "").strip()
                 if not text or not text.startswith("/"):
                     return
-                # Single-user OpenAlgo: the only identity allowed to drive
+                # Single-user BTAlgo: the only identity allowed to drive
                 # the bot is the operator's primary device. WhatsApp's
                 # multi-device protocol marks messages from the paired
                 # account itself (i.e., the operator typing on their phone
@@ -972,7 +972,7 @@ class WhatsAppBotService:
     def _cmd_help(self, wa, msg, chat, sender_jid, args) -> None:
         self.send_sync(
             chat,
-            "OpenAlgo WhatsApp Bot\n"
+            "BTAlgo WhatsApp Bot\n"
             "/status - connection + paired status\n"
             "/orderbook - today's orders\n"
             "/tradebook - today's trades\n"
@@ -997,7 +997,7 @@ class WhatsAppBotService:
             lines.append(f"Owner: {cfg['owner_username']}")
         self.send_sync(chat, "\n".join(lines))
 
-    # SDK helpers. Single-user OpenAlgo — the operator who paired the device
+    # SDK helpers. Single-user BTAlgo — the operator who paired the device
     # is the only identity that can issue commands. We look up their api_key
     # from auth_db using the owner_user_id captured at pair time, so the
     # operator never has to /link or paste credentials from the phone.
@@ -1013,14 +1013,14 @@ class WhatsAppBotService:
         if not owner_username:
             return None, (
                 "No owner recorded for this paired device. Re-pair from the "
-                "/whatsapp page while logged in to OpenAlgo."
+                "/whatsapp page while logged in to BTAlgo."
             )
         try:
             from database.auth_db import get_api_key_for_tradingview
             api_key = get_api_key_for_tradingview(owner_username)
         except Exception:
             logger.exception("Failed to load owner api_key from auth_db")
-            return None, "Could not load OpenAlgo API key for the owner."
+            return None, "Could not load BTAlgo API key for the owner."
         if not api_key:
             return None, (
                 "No API key on file for the owner. Generate one at /apikey "
@@ -1030,11 +1030,11 @@ class WhatsAppBotService:
         try:
             from openalgo import api as openalgo_api  # type: ignore
         except Exception:
-            return None, "openalgo SDK not available on this server."
+            return None, "btalgo SDK not available on this server."
         try:
-            return openalgo_api(api_key=api_key, host=host_url), None
+            return btalgo_api(api_key=api_key, host=host_url), None
         except Exception as e:
-            logger.exception("Failed to create openalgo client")
+            logger.exception("Failed to create btalgo client")
             return None, f"SDK error: {e}"
 
     def _sdk_client(self, sender_jid: str):

@@ -6,9 +6,9 @@ from typing import Dict, Optional, Set
 
 
 class FlattradeExchangeMapper:
-    """Maps between OpenAlgo exchange names and Flattrade exchange codes"""
+    """Maps between BTAlgo exchange names and Flattrade exchange codes"""
 
-    # OpenAlgo to Flattrade exchange mapping
+    # BTAlgo to Flattrade exchange mapping
     EXCHANGE_MAP = {
         "NSE": "NSE",
         "BSE": "BSE",
@@ -21,17 +21,17 @@ class FlattradeExchangeMapper:
     }
 
     # Reverse mapping
-    FLATTRADE_TO_OPENALGO = {v: k for k, v in EXCHANGE_MAP.items()}
+    FLATTRADE_TO_BTALGO = {v: k for k, v in EXCHANGE_MAP.items()}
 
     @classmethod
     def to_flattrade_exchange(cls, oa_exchange: str) -> str | None:
-        """Convert OpenAlgo exchange to Flattrade exchange format"""
+        """Convert BTAlgo exchange to Flattrade exchange format"""
         return cls.EXCHANGE_MAP.get(oa_exchange.upper())
 
     @classmethod
     def to_oa_exchange(cls, flattrade_exchange: str) -> str | None:
-        """Convert Flattrade exchange to OpenAlgo exchange format"""
-        return cls.FLATTRADE_TO_OPENALGO.get(flattrade_exchange.upper())
+        """Convert Flattrade exchange to BTAlgo exchange format"""
+        return cls.FLATTRADE_TO_BTALGO.get(flattrade_exchange.upper())
 
 
 class FlattradeCapabilityRegistry:

@@ -36,7 +36,7 @@ def migrate_master_contract_status_table():
     """Add smart download columns to master_contract_status table if they don't exist"""
 
     # Get database URL from environment
-    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+    DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
 
     # Adjust path for SQLite if relative (since we're in upgrade folder)
     if DATABASE_URL.startswith("sqlite:///") and not DATABASE_URL.startswith("sqlite:////"):
@@ -108,7 +108,7 @@ def migrate_master_contract_status_table():
 def main():
     """Main function to run the migration"""
     logger.info("=" * 60)
-    logger.info("OpenAlgo Master Contract Smart Download Migration")
+    logger.info("BTAlgo Master Contract Smart Download Migration")
     logger.info("=" * 60)
     logger.info("This script adds columns for smart master contract download tracking")
     logger.info("-" * 60)

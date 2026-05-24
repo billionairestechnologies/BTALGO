@@ -55,7 +55,7 @@ class WebSocketProxy:
                 f"WebSocket port {port} is already in use on {host}.\n"
                 f"This port is required for SDK compatibility (see strategies/ltp_example.py).\n"
                 f"Please:\n"
-                f"1. Stop any other OpenAlgo instances running on port {port}\n"
+                f"1. Stop any other BTAlgo instances running on port {port}\n"
                 f"2. Kill any processes using port {port}: lsof -ti:{port} | xargs kill -9\n"
                 f"3. Or wait for the port to be released\n"
                 f"Cannot start WebSocket server with port switching as it would break SDK clients."

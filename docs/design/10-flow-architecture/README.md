@@ -2,7 +2,7 @@
 
 ## Overview
 
-Flow is OpenAlgo's visual workflow automation system built with XYFlow (React Flow). It enables users to create trading strategies as visual node graphs without coding, supporting scheduled execution, webhook triggers, and price alerts.
+Flow is BTAlgo's visual workflow automation system built with XYFlow (React Flow). It enables users to create trading strategies as visual node graphs without coding, supporting scheduled execution, webhook triggers, and price alerts.
 
 ## Architecture Diagram
 
@@ -37,7 +37,7 @@ Flow is OpenAlgo's visual workflow automation system built with XYFlow (React Fl
 │                                                                              │
 │  WorkflowContext ─── Variables, Conditions, Interpolation                   │
 │  NodeExecutor ────── 60+ Node Type Handlers                                 │
-│  FlowOpenAlgoClient ─ OpenAlgo API Wrapper                                  │
+│  FlowBTAlgoClient ─ BTAlgo API Wrapper                                  │
 └─────────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -370,7 +370,7 @@ Polling-based monitor for price alert triggers.
 | `services/flow_executor_service.py` | Execution engine (WorkflowContext, NodeExecutor) |
 | `services/flow_scheduler_service.py` | APScheduler integration |
 | `services/flow_price_monitor_service.py` | Price alert monitoring |
-| `services/flow_openalgo_client.py` | OpenAlgo API client wrapper |
+| `services/flow_btalgo_client.py` | BTAlgo API client wrapper |
 | `frontend/src/pages/FlowIndex.tsx` | Workflow list UI |
 | `frontend/src/pages/FlowEditor.tsx` | Visual editor (XYFlow) |
 | `frontend/src/components/flow/nodes/` | Custom node components |

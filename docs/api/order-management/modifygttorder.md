@@ -122,12 +122,12 @@ curl -X POST http://127.0.0.1:5000/api/v1/modifygttorder \
 
 | Parameters | Description | Mandatory/Optional | Default Value |
 |------------|-------------|--------------------|---------------|
-| apikey | OpenAlgo API key (string) | Mandatory | - |
+| apikey | BTAlgo API key (string) | Mandatory | - |
 | strategy | Strategy identifier (string) | Mandatory | - |
 | trigger_id | The trigger ID returned by `PlaceGTTOrder` — identifies which active GTT to modify (string) | Mandatory | - |
 | trigger_type | `SINGLE` or `OCO` — must match the original trigger's type (string) | Mandatory | - |
 | exchange | NSE, BSE, NFO, BFO, CDS, BCD, MCX (string) | Mandatory | - |
-| symbol | Trading symbol in OpenAlgo format (string) | Mandatory | - |
+| symbol | Trading symbol in BTAlgo format (string) | Mandatory | - |
 | action | `BUY` or `SELL` (string). For OCO, applies to both legs. | Mandatory | - |
 | product | `CNC` (equity delivery) or `NRML` (F&O overnight). MIS is **not** supported for GTT. (string) | Mandatory | - |
 | quantity | New order quantity. Integer for equity/F&O; fractional float allowed for crypto (number). | Mandatory | - |
@@ -171,7 +171,7 @@ curl -X POST http://127.0.0.1:5000/api/v1/modifygttorder \
 - **Modify is a full replacement** — every field on the trigger is replaced. Always send all fields you want to keep, not just the diff.
 - **Only active GTTs can be modified.** Triggered, cancelled, or expired GTTs are immutable.
 - **`last_price` is fetched server-side** from the broker's quotes endpoint. You don't need to send it.
-- **OCO modify atomicity**: OpenAlgo aims to update both legs of an OCO atomically; some brokers expose a per-leg modify under the hood and may, in rare failure cases, leave the OCO in a half-modified state — re-issue the modify or cancel and re-place if the response indicates partial failure.
+- **OCO modify atomicity**: BTAlgo aims to update both legs of an OCO atomically; some brokers expose a per-leg modify under the hood and may, in rare failure cases, leave the OCO in a half-modified state — re-issue the modify or cancel and re-place if the response indicates partial failure.
 - **MARKET handling**: same auto-conversion behaviour as [PlaceGTTOrder](./placegttorder.md#notes) — broker-specific quirks are absorbed in the broker layer.
 - **Semi-auto mode** blocks GTT modify (parity with `ModifyOrder`) — switch to Auto mode if you see a 403.
 

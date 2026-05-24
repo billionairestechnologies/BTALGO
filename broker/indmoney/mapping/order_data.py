@@ -318,7 +318,7 @@ def map_trade_data(trade_data):
             txn_type = trade.get("txn_type", "").upper()
             trade["transactionType"] = txn_type
 
-            # Map product type from IndMoney format to OpenAlgo format
+            # Map product type from IndMoney format to BTAlgo format
             product = trade.get("product", "")
             if product == "INTRADAY":
                 trade["productType"] = "MIS"
@@ -346,7 +346,7 @@ def map_trade_data(trade_data):
 
 def transform_tradebook_data(tradebook_data):
     """
-    Transform trade book data to OpenAlgo standard format.
+    Transform trade book data to BTAlgo standard format.
 
     Note: IndMoney trade-book API is enriched with order book data to provide:
     - transactionType (BUY/SELL) from order book
@@ -570,10 +570,10 @@ def map_position_data(position_data):
 
 def transform_positions_data(positions_data):
     """
-    Transform positions data to OpenAlgo standard format.
+    Transform positions data to BTAlgo standard format.
     Matches the structure used by Angel broker for consistency.
 
-    OpenAlgo Standard Fields:
+    BTAlgo Standard Fields:
     - symbol: Trading symbol
     - exchange: Exchange name
     - product: Product type (MIS/CNC/NRML)
@@ -599,7 +599,7 @@ def transform_positions_data(positions_data):
                 logger.warning(f"Skipping non-dictionary position: {type(position)}")
                 continue
 
-            # OpenAlgo standard format (matching Angel broker structure)
+            # BTAlgo standard format (matching Angel broker structure)
             transformed_position = {
                 "symbol": position.get("tradingSymbol", ""),
                 "exchange": position.get("exchangeSegment", ""),
@@ -607,7 +607,7 @@ def transform_positions_data(positions_data):
                 "quantity": position.get("netQty", 0),
                 "average_price": float(
                     position.get("avgCostPrice", 0.0)
-                ),  # Float as per OpenAlgo standard
+                ),  # Float as per BTAlgo standard
                 "ltp": float(position.get("lastTradedPrice", 0.0)),  # Last traded price
                 "pnl": float(position.get("pnlAbsolute", 0.0)),  # Profit and loss
             }

@@ -274,7 +274,7 @@ class SandboxGTT(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
 
-    # Broker-neutral OpenAlgo-side ID (sandbox-minted). Format:
+    # Broker-neutral BTAlgo-side ID (sandbox-minted). Format:
     # ``GTT-YYMMDD-<8hex>`` - parallels the sandbox orderid scheme but prefixed
     # to make origin obvious in logs.
     gtt_id = Column(String(50), unique=True, nullable=False, index=True)

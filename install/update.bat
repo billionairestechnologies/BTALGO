@@ -1,12 +1,12 @@
 @echo off
 REM ============================================================================
-REM OpenAlgo Update Script for Windows
+REM BTAlgo Update Script for Windows
 REM ============================================================================
 REM
 REM Usage: update.bat
 REM
-REM This script updates OpenAlgo to the latest version using the UV method.
-REM Run from the install\ directory or the openalgo project root.
+REM This script updates BTAlgo to the latest version using the UV method.
+REM Run from the install\ directory or the btalgo project root.
 REM
 REM Prerequisites:
 REM   - Python 3.12+
@@ -21,45 +21,45 @@ setlocal enabledelayedexpansion
 REM Banner
 echo.
 echo   ========================================
-echo        OpenAlgo Update Script
+echo        BTAlgo Update Script
 echo        Windows Edition
 echo   ========================================
 echo.
 
-REM Detect OpenAlgo directory
+REM Detect BTAlgo directory
 set "SCRIPT_DIR=%~dp0"
 if "%SCRIPT_DIR:~-1%"=="\" set "SCRIPT_DIR=%SCRIPT_DIR:~0,-1%"
 
 REM Check if we're in the install\ directory or the project root
 if exist "%SCRIPT_DIR%\app.py" (
-    set "OPENALGO_DIR=%SCRIPT_DIR%"
+    set "BTALGO_DIR=%SCRIPT_DIR%"
 ) else if exist "%SCRIPT_DIR%\..\app.py" (
     pushd "%SCRIPT_DIR%\.."
-    set "OPENALGO_DIR=!CD!"
+    set "BTALGO_DIR=!CD!"
     popd
 ) else (
     REM Try current directory
     if exist "app.py" (
-        set "OPENALGO_DIR=%CD%"
+        set "BTALGO_DIR=%CD%"
     ) else (
-        echo [ERROR] Could not find OpenAlgo directory.
+        echo [ERROR] Could not find BTAlgo directory.
         echo.
         echo Please run this script from:
-        echo   - The openalgo project root directory, OR
-        echo   - The install\ directory within openalgo
+        echo   - The btalgo project root directory, OR
+        echo   - The install\ directory within btalgo
         echo.
         pause
         exit /b 1
     )
 )
 
-echo [INFO] OpenAlgo directory: %OPENALGO_DIR%
+echo [INFO] BTAlgo directory: %BTALGO_DIR%
 echo.
 
 REM Verify git repository
-if not exist "%OPENALGO_DIR%\.git" (
-    echo [ERROR] Not a git repository: %OPENALGO_DIR%
-    echo Please ensure OpenAlgo was installed via git clone.
+if not exist "%BTALGO_DIR%\.git" (
+    echo [ERROR] Not a git repository: %BTALGO_DIR%
+    echo Please ensure BTAlgo was installed via git clone.
     echo.
     pause
     exit /b 1
@@ -108,7 +108,7 @@ if not errorlevel 1 (
 echo.
 
 REM Get current version
-pushd "%OPENALGO_DIR%"
+pushd "%BTALGO_DIR%"
 
 for /f "tokens=*" %%i in ('git rev-parse --short HEAD 2^>nul') do set "CURRENT_COMMIT=%%i"
 for /f "tokens=*" %%i in ('git branch --show-current 2^>nul') do set "CURRENT_BRANCH=%%i"
@@ -126,22 +126,22 @@ REM Step 1: Backup databases
 REM ========================================
 echo [Step 1/5] Backing up databases...
 
-set "BACKUP_DIR=%OPENALGO_DIR%\db\backup_%TIMESTAMP%"
+set "BACKUP_DIR=%BTALGO_DIR%\db\backup_%TIMESTAMP%"
 set "BACKUP_COUNT=0"
 
-if exist "%OPENALGO_DIR%\db\" (
+if exist "%BTALGO_DIR%\db\" (
     md "%BACKUP_DIR%" 2>nul
 
-    for %%f in (openalgo.db logs.db latency.db sandbox.db) do (
-        if exist "%OPENALGO_DIR%\db\%%f" (
-            copy /y "%OPENALGO_DIR%\db\%%f" "%BACKUP_DIR%\%%f" >nul 2>&1
+    for %%f in (btalgo.db logs.db latency.db sandbox.db) do (
+        if exist "%BTALGO_DIR%\db\%%f" (
+            copy /y "%BTALGO_DIR%\db\%%f" "%BACKUP_DIR%\%%f" >nul 2>&1
             echo   Backed up: %%f
             set /a BACKUP_COUNT+=1
         )
     )
 
-    if exist "%OPENALGO_DIR%\db\historify.duckdb" (
-        copy /y "%OPENALGO_DIR%\db\historify.duckdb" "%BACKUP_DIR%\historify.duckdb" >nul 2>&1
+    if exist "%BTALGO_DIR%\db\historify.duckdb" (
+        copy /y "%BTALGO_DIR%\db\historify.duckdb" "%BACKUP_DIR%\historify.duckdb" >nul 2>&1
         echo   Backed up: historify.duckdb
         set /a BACKUP_COUNT+=1
     )
@@ -206,10 +206,10 @@ REM Step 3: Check environment configuration
 REM ========================================
 echo [Step 3/5] Checking environment configuration...
 
-if not exist "%OPENALGO_DIR%\.env" (
+if not exist "%BTALGO_DIR%\.env" (
     echo   [WARNING] No .env file found. Creating from .sample.env...
-    if exist "%OPENALGO_DIR%\.sample.env" (
-        copy /y "%OPENALGO_DIR%\.sample.env" "%OPENALGO_DIR%\.env" >nul
+    if exist "%BTALGO_DIR%\.sample.env" (
+        copy /y "%BTALGO_DIR%\.sample.env" "%BTALGO_DIR%\.env" >nul
 
         REM Generate fresh APP_KEY and API_KEY_PEPPER. Without this, the new .env
         REM would carry the public sample placeholders — the app's startup check
@@ -217,8 +217,8 @@ if not exist "%OPENALGO_DIR%\.env" (
         REM symmetric with the other install scripts.
         for /f %%i in ('python -c "import secrets; print(secrets.token_hex(32))"') do set NEW_APP_KEY=%%i
         for /f %%i in ('python -c "import secrets; print(secrets.token_hex(32))"') do set NEW_PEPPER=%%i
-        powershell -Command "(Get-Content '%OPENALGO_DIR%\.env') -replace 'OPENALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE', '!NEW_APP_KEY!' | Set-Content '%OPENALGO_DIR%\.env'"
-        powershell -Command "(Get-Content '%OPENALGO_DIR%\.env') -replace 'OPENALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE', '!NEW_PEPPER!' | Set-Content '%OPENALGO_DIR%\.env'"
+        powershell -Command "(Get-Content '%BTALGO_DIR%\.env') -replace 'BTALGO_PLACEHOLDER_APP_KEY_REGENERATE_BEFORE_USE', '!NEW_APP_KEY!' | Set-Content '%BTALGO_DIR%\.env'"
+        powershell -Command "(Get-Content '%BTALGO_DIR%\.env') -replace 'BTALGO_PLACEHOLDER_API_KEY_PEPPER_REGENERATE_BEFORE_USE', '!NEW_PEPPER!' | Set-Content '%BTALGO_DIR%\.env'"
         echo   [OK] Generated fresh APP_KEY and API_KEY_PEPPER in .env
 
         echo   [ACTION REQUIRED] Please edit .env with your broker credentials and settings.
@@ -254,7 +254,7 @@ REM Step 5: Run database migrations
 REM ========================================
 echo [Step 5/5] Running database migrations...
 
-if exist "%OPENALGO_DIR%\upgrade\migrate_all.py" (
+if exist "%BTALGO_DIR%\upgrade\migrate_all.py" (
     %UV_CMD% run upgrade/migrate_all.py
     if errorlevel 1 (
         echo   [WARNING] Some migrations may have had issues. Check output above.
@@ -269,11 +269,11 @@ echo.
 REM ========================================
 REM Build frontend if needed
 REM ========================================
-if not exist "%OPENALGO_DIR%\frontend\dist\" (
+if not exist "%BTALGO_DIR%\frontend\dist\" (
     where npm >nul 2>&1
     if not errorlevel 1 (
         echo [OPTIONAL] Building React frontend (dist\ not found)...
-        pushd "%OPENALGO_DIR%\frontend"
+        pushd "%BTALGO_DIR%\frontend"
         call npm install
         call npm run build
         if errorlevel 1 (
@@ -295,12 +295,12 @@ REM Summary
 REM ========================================
 echo.
 echo   ========================================
-echo   OpenAlgo Update Complete!
+echo   BTAlgo Update Complete!
 echo   ========================================
 echo.
 echo   Version:   %CURRENT_COMMIT% -^> %NEW_COMMIT%
 echo   Branch:    %CURRENT_BRANCH%
-echo   Directory: %OPENALGO_DIR%
+echo   Directory: %BTALGO_DIR%
 if exist "%BACKUP_DIR%\" (
     echo   Backup:    %BACKUP_DIR%
 )

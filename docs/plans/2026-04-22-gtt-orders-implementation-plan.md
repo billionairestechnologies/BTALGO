@@ -36,10 +36,10 @@ Phases ship independently. Each phase ends in a mergeable state; nothing half-bu
 | 0.5 | Sandbox GTT out-of-market-hours behaviour | No market-hours gate in the GTT monitor. Evaluation runs whenever the sandbox engine runs, and catch-up fires on startup regardless of session state. Rationale: `sandbox/execution_engine.py` and `sandbox/websocket_execution_engine.py` do **not** call `is_market_open()` today (only `position_manager.py:1138` does, for square-off). Adding a gate here would silently delay catch-up until the next session and diverge from regular-order semantics. Expiry clock is wall-clock, not session-based. |
 | 0.6 | Live-mode GTT cache | None. Every `gttorderbook` call hits the broker, same as live `orderbook`. |
 | 0.7 | API naming | `placegttorder`, `modifygttorder`, `cancelgttorder`, `gttorderbook` (lowercase, no separators — matches existing style). |
-| 0.8 | ID naming | OpenAlgo uses `trigger_id` in JSON (broker-neutral); sandbox table column `gtt_id` (internal). |
+| 0.8 | ID naming | BTAlgo uses `trigger_id` in JSON (broker-neutral); sandbox table column `gtt_id` (internal). |
 | 0.9 | Sandbox trigger-evaluation concurrency | **Atomic leg-level claim.** Three paths (polling engine, WebSocket engine, startup catch-up) can all observe the same crossed trigger. The existing `_process_order` duplicate guard (`execution_engine.py:217`) only dedupes after a trade row exists for a given `orderid` — it cannot catch the case where each path independently calls `order_manager.place_order()` and each generates a different `orderid`. All three paths must instead funnel through a single `gtt_manager.try_claim_trigger(leg_id)` helper that performs a **conditional UPDATE** on `sandbox_gtt_legs.leg_status` from `pending → triggering` (broker-agnostic CAS; works on SQLite + Postgres + MySQL). Only the path whose UPDATE returns `rowcount == 1` calls `place_order()`; others back off silently. |
 | 0.10 | Action Center support in **analyze mode** | **YES** — `should_route_to_pending` is mode-agnostic; analyze-mode users with `order_mode = semi_auto` get the same approval gate. On approval the queued GTT is routed to the **sandbox** GTT engine, not the broker. The dispatch helper inside `approve_pending_order` calls the same `place_gtt_order_with_auth(...)` service used by direct REST callers; the service itself reads `get_analyze_mode()` and routes to live broker vs. sandbox engine. This gives analyze-mode parity for free with no separate semi-auto-sandbox code path. |
-| 0.11 | Mode-binding for queued GTT | The queued order JSON includes a `_meta.openalgo_mode` field (`"live"` or `"analyze"`) captured at **queue time**. `approve_pending_order` re-reads the user's current mode and refuses with HTTP 409 if it has changed between queue and approve (rare but possible if the operator toggles `/auth/analyzer-toggle` mid-queue). Without this guard, a GTT queued in live mode could be approved while the user is in analyze, silently misrouting; or vice versa, exposing real funds to a sandbox-grade approval. |
+| 0.11 | Mode-binding for queued GTT | The queued order JSON includes a `_meta.btalgo_mode` field (`"live"` or `"analyze"`) captured at **queue time**. `approve_pending_order` re-reads the user's current mode and refuses with HTTP 409 if it has changed between queue and approve (rare but possible if the operator toggles `/auth/analyzer-toggle` mid-queue). Without this guard, a GTT queued in live mode could be approved while the user is in analyze, silently misrouting; or vice versa, exposing real funds to a sandbox-grade approval. |
 
 ### Exit
 
@@ -108,7 +108,7 @@ DB has GTT tables; validators + events exist as importable symbols; nothing else
 ### Tasks
 
 1. **Zerodha broker module**
-   - (N) `broker/zerodha/mapping/gtt_data.py` — `transform_place_gtt(data)` builds Kite's `{type, condition, orders}` from OpenAlgo `{trigger_type, legs, symbol, exchange, last_price}`. Analogous `transform_modify_gtt`.
+   - (N) `broker/zerodha/mapping/gtt_data.py` — `transform_place_gtt(data)` builds Kite's `{type, condition, orders}` from BTAlgo `{trigger_type, legs, symbol, exchange, last_price}`. Analogous `transform_modify_gtt`.
    - (N) `broker/zerodha/api/gtt_api.py`:
      - `place_gtt_order(data, auth)` → `POST /gtt/triggers` → `(res_obj, response_dict, trigger_id)`
      - `modify_gtt_order(data, auth)` → `PUT /gtt/triggers/{id}` → `(response_dict, status_code)`
@@ -152,13 +152,13 @@ DB has GTT tables; validators + events exist as importable symbols; nothing else
        {"action": "BUY", "quantity": "10", "trigger_price": "1240", "price": "1245", "product": "CNC"}
      ],
      "_meta": {
-       "openalgo_mode": "live",
+       "btalgo_mode": "live",
        "queued_at_ist": "...",
        "broker": "zerodha"
      }
    }
    ```
-   `_meta.openalgo_mode` is the mode-binding value re-validated at approval time (see Phase 0.11).
+   `_meta.btalgo_mode` is the mode-binding value re-validated at approval time (see Phase 0.11).
 
    **c. Pretty-print parser**
    - (E) `services/action_center_service.py:parse_pending_order` — add a new `elif api_type == "placegttorder":` branch alongside the existing `optionsorder` / `basketorder` / `smartorder` branches. Mirrors the basket-order shape: a top-level summary plus a leg list. Returns:
@@ -194,12 +194,12 @@ DB has GTT tables; validators + events exist as importable symbols; nothing else
          "placegttorder":  place_gtt_order_service.place_gtt_order_with_auth,  # NEW
      }
      ```
-   - Before dispatch: re-read the user's current mode via `database.settings_db.get_analyze_mode()`. If it differs from `order_data["_meta"]["openalgo_mode"]`, return HTTP 409 with `{"error": "mode_mismatch", "queued_in": "live", "current_mode": "analyze"}` and leave the row in `pending` (operator can cancel and re-queue). Phase 0.11 rationale.
+   - Before dispatch: re-read the user's current mode via `database.settings_db.get_analyze_mode()`. If it differs from `order_data["_meta"]["btalgo_mode"]`, return HTTP 409 with `{"error": "mode_mismatch", "queued_in": "live", "current_mode": "analyze"}` and leave the row in `pending` (operator can cancel and re-queue). Phase 0.11 rationale.
    - On dispatch: the service itself reads `get_analyze_mode()` and dispatches live → Zerodha broker, analyze → sandbox GTT engine. The Action Center wrapper does not need to know which path runs.
    - On success: existing `update_broker_status(pending_order_id, broker_order_id, broker_status)` is called with `broker_order_id = trigger_id` (live) or `sandbox_gtt_id` (analyze). The Action Center UI shows the `trigger_id` so the user can correlate it to the GTT book.
 
    **e. Audit trail**
-   - On queue: `order_logs` row with `api_type = "placegttorder"`, `status = "pending_approval"`, `result_data = {"queue_id": ..., "openalgo_mode": ...}`.
+   - On queue: `order_logs` row with `api_type = "placegttorder"`, `status = "pending_approval"`, `result_data = {"queue_id": ..., "btalgo_mode": ...}`.
    - On approve: same row pattern but `status = "approved"` and `broker_order_id` populated.
    - On reject: `status = "rejected"`, `rejected_reason` from operator.
    - Reuses existing `order_logs` schema — no new columns needed.
@@ -215,15 +215,15 @@ DB has GTT tables; validators + events exist as importable symbols; nothing else
    - `POST /api/v1/modifygttorder` and `POST /api/v1/cancelgttorder` from a semi-auto user → both bypass the queue (Phase 0.3) and dispatch directly to the broker / sandbox engine. Verified by absence of any `pending_orders` row.
 
 5. **Playground collection**
-   - (N) `collections/openalgo/IN_stock/orders/place_gtt_order.bru` — single-leg + OCO example bodies.
-   - (N) `collections/openalgo/IN_stock/orders/modify_gtt_order.bru`
-   - (N) `collections/openalgo/IN_stock/orders/cancel_gtt_order.bru`
-   - (N) `collections/openalgo/IN_stock/orders/gtt_orderbook.bru`
+   - (N) `collections/btalgo/IN_stock/orders/place_gtt_order.bru` — single-leg + OCO example bodies.
+   - (N) `collections/btalgo/IN_stock/orders/modify_gtt_order.bru`
+   - (N) `collections/btalgo/IN_stock/orders/cancel_gtt_order.bru`
+   - (N) `collections/btalgo/IN_stock/orders/gtt_orderbook.bru`
    - (E) `blueprints/playground.py` — `categorize_endpoint()` routes these to `"orders"`.
 
 ### Files touched
 
-- **New:** 2 in `broker/zerodha/`, 4 in `services/`, 4 in `restx_api/`, 4 in `collections/openalgo/IN_stock/orders/`
+- **New:** 2 in `broker/zerodha/`, 4 in `services/`, 4 in `restx_api/`, 4 in `collections/btalgo/IN_stock/orders/`
 - **Edited:** `restx_api/__init__.py`, `services/order_router_service.py`, `blueprints/playground.py`
 
 ### Acceptance
@@ -258,7 +258,7 @@ Live GTT fully usable via REST + Playground on Zerodha. Other brokers: 501 from 
      - `modify_gtt(trigger_id, gtt_data, user_id)` — under `FundManager._lock`: release old margin, revalidate, block new margin, update rows.
      - `cancel_gtt(trigger_id, user_id)` — release margin, mark `cancelled`.
      - `list_gtts(user_id, status_filter=None)` — read rows.
-     - **`try_claim_trigger(leg_id) -> bool`** — the single entry point all evaluators (polling, WebSocket, catch-up) must call before firing an order. Implementation: `UPDATE sandbox_gtt_legs SET leg_status='triggering', claimed_at=CURRENT_TIMESTAMP WHERE id=:leg_id AND leg_status='pending'`; return `session.execute(stmt).rowcount == 1` then `session.commit()`. Uses `CURRENT_TIMESTAMP` (SQL-standard, portable across SQLite / Postgres / MySQL) — `now()` is not available on SQLite which is the default sandbox DB. In Python this is expressed as `func.now()` in a SQLAlchemy `update()` construct, which compiles to `CURRENT_TIMESTAMP` on every dialect OpenAlgo supports. Winner proceeds to `_fire_leg(leg_id, execution_price)`; losers return `False` and skip silently.
+     - **`try_claim_trigger(leg_id) -> bool`** — the single entry point all evaluators (polling, WebSocket, catch-up) must call before firing an order. Implementation: `UPDATE sandbox_gtt_legs SET leg_status='triggering', claimed_at=CURRENT_TIMESTAMP WHERE id=:leg_id AND leg_status='pending'`; return `session.execute(stmt).rowcount == 1` then `session.commit()`. Uses `CURRENT_TIMESTAMP` (SQL-standard, portable across SQLite / Postgres / MySQL) — `now()` is not available on SQLite which is the default sandbox DB. In Python this is expressed as `func.now()` in a SQLAlchemy `update()` construct, which compiles to `CURRENT_TIMESTAMP` on every dialect BTAlgo supports. Winner proceeds to `_fire_leg(leg_id, execution_price)`; losers return `False` and skip silently.
      - **`_fire_leg(leg_id, execution_price)`** (internal, only called by claim winner) — wraps its work in `try/except/finally`. On the happy path: release leg's share of GTT margin, call `order_manager.place_order()` for the leg payload, persist the returned `orderid` to `leg.triggered_order_id`, flip `leg.leg_status` from `triggering → triggered`, then for `two-leg`: atomically claim-and-cancel sibling with `UPDATE … SET leg_status='cancelled' WHERE id=:sibling AND leg_status IN ('pending','triggering')` and release its margin per Phase 0.2 rule. Finally flip parent `gtt_status` from `active → triggered` (CAS) and publish `GTTTriggeredEvent`. If the sibling row returns `rowcount=0`, another path already claimed it — respect their outcome (log and continue). **On any exception from `place_order` or a non-success broker response**: revert leg with `UPDATE sandbox_gtt_legs SET leg_status='pending', claimed_at=NULL WHERE id=:leg_id AND leg_status='triggering'` (CAS back; guards against the reaper racing in), restore any margin adjustment made before the failure, and publish `GTTFailedEvent` carrying the broker error. The next evaluator tick will re-pick the leg.
      - **`reclaim_stranded_legs()`** — safety net for the crash-between-claim-and-completion case. Selects legs where `leg_status='triggering' AND claimed_at < CURRENT_TIMESTAMP - <claim_timeout>`; reverts each back to `pending` (CAS on `leg_status='triggering'` to avoid racing a live worker). The claim timeout is a new `SandboxConfig.gtt_claim_timeout_sec` entry with default **60** (≥ 2× the default 5 s polling interval; generous enough that a legitimate slow broker call completes before the reaper touches it). Called from two places: every poll tick of `execution_engine` (cheap — a single indexed query), and unconditionally at the start of `catch_up_gtts()` so a crashed process always self-heals on restart before the catch-up scan runs.
    - Trade-ID style for auto-fired orders: `ORDER-GTT-<ts>-<uuid8>` (distinguishable in `sandbox_trades`).
@@ -364,13 +364,13 @@ Analyze ↔ live functional parity for GTT. Users can test GTT strategies entire
 
 ### Task Group D — Python SDK
 
-15. (E) `src/openalgo/orders.py` (or equivalent client module) — add `placegttorder`, `modifygttorder`, `cancelgttorder`, `gttorderbook` methods with docstrings mirroring `placeorder` style.
+15. (E) `src/btalgo/orders.py` (or equivalent client module) — add `placegttorder`, `modifygttorder`, `cancelgttorder`, `gttorderbook` methods with docstrings mirroring `placeorder` style.
 16. Pre-request leg-count validation.
 17. SDK version bump (minor).
 
 ### Task Group E — Flow editor (4-place rule)
 
-18. (E) `services/flow_openalgo_client.py` — methods `place_gtt`, `modify_gtt`, `cancel_gtt`, `get_gtt_orderbook`.
+18. (E) `services/flow_btalgo_client.py` — methods `place_gtt`, `modify_gtt`, `cancel_gtt`, `get_gtt_orderbook`.
 19. (E) `services/flow_executor_service.py`:
     - `NodeExecutor.execute_place_gtt / execute_modify_gtt / execute_cancel_gtt / execute_gtt_orderbook`.
     - `execute_node_chain` — four new `elif` branches (`placeGtt`, `modifyGtt`, `cancelGtt`, `gttOrderbook`).
@@ -394,7 +394,7 @@ Analyze ↔ live functional parity for GTT. Users can test GTT strategies entire
 
 ### Exit
 
-GTT has feature parity with regular orders across every existing OpenAlgo surface.
+GTT has feature parity with regular orders across every existing BTAlgo surface.
 
 ---
 
@@ -481,9 +481,9 @@ GTT supported on all brokers that expose a GTT-equivalent API. Brokers without n
 | Portable SQL across SQLite / Postgres / MySQL | All CAS UPDATEs use `CURRENT_TIMESTAMP` (SQL-standard), not `now()`. In Python, expressed as `func.now()` in SQLAlchemy `update()` which compiles correctly on every dialect. | 0.9, 3 |
 | OCO double-margin when broker charges sum vs. our `max` default | Configurable `gtt_oco_margin_mode` in `SandboxConfig`. | 0, 3 |
 | GTT modify arrives after GTT already triggered | Service-layer pre-check: re-read status before dispatch; return `{status: error, message: "GTT already triggered"}` 409. | 2 |
-| Broker GTT expires silently; OpenAlgo shows stale `active` | Nightly reconciliation job pulls `gttorderbook` from broker in live mode, diffs against last-seen state, logs & emits events for state changes. (Optional Phase 6 enhancement.) | 6+ |
+| Broker GTT expires silently; BTAlgo shows stale `active` | Nightly reconciliation job pulls `gttorderbook` from broker in live mode, diffs against last-seen state, logs & emits events for state changes. (Optional Phase 6 enhancement.) | 6+ |
 | Semi-auto queue collides with GTT triggers | Disallow semi-auto for modify/cancel (Phase 0.3). | 2 |
-| Operator toggles mode between queue and approve in Action Center | `_meta.openalgo_mode` captured at queue time, re-validated at approval (Phase 0.11). 409 + leave row pending if changed; operator cancels and re-queues. | 0.11, 2 |
+| Operator toggles mode between queue and approve in Action Center | `_meta.btalgo_mode` captured at queue time, re-validated at approval (Phase 0.11). 409 + leave row pending if changed; operator cancels and re-queues. | 0.11, 2 |
 | Approval lag exceeds GTT expiry window | Pre-check inside `approve_pending_order` GTT branch: if `now > order_data["expires_at"]`, refuse with HTTP 410 `gtt_already_expired` and auto-cancel the row (status = `expired`). Logged as `gtt_approve_expired` event. | 2 |
 | Order-logs table bloat | No new schema; reuses `order_logs`. If volume becomes a concern, apply the same retention policy as regular orders. | — |
 
@@ -495,7 +495,7 @@ GTT supported on all brokers that expose a GTT-equivalent API. Brokers without n
 |---------|-----------|--------------|
 | DB | `database/gtt_db.py`, `upgrade/migrate_gtt.py` | `upgrade/migrate_all.py` |
 | REST | `restx_api/{place,modify,cancel}_gtt_order.py`, `restx_api/gtt_orderbook.py` | `restx_api/__init__.py`, `restx_api/schemas.py` |
-| Services | `services/{place,modify,cancel}_gtt_order_service.py`, `services/gtt_orderbook_service.py` | `services/sandbox_service.py`, `services/order_router_service.py`, `services/telegram_alert_service.py`, `services/flow_openalgo_client.py`, `services/flow_executor_service.py` |
+| Services | `services/{place,modify,cancel}_gtt_order_service.py`, `services/gtt_orderbook_service.py` | `services/sandbox_service.py`, `services/order_router_service.py`, `services/telegram_alert_service.py`, `services/flow_btalgo_client.py`, `services/flow_executor_service.py` |
 | Broker (Zerodha) | `broker/zerodha/api/gtt_api.py`, `broker/zerodha/mapping/gtt_data.py` | — |
 | Broker (Dhan) | `broker/dhan/api/gtt_api.py`, `broker/dhan/mapping/gtt_data.py` | — |
 | Events | — | `events/order_events.py`, `events/__init__.py` |
@@ -504,8 +504,8 @@ GTT supported on all brokers that expose a GTT-equivalent API. Brokers without n
 | Blueprints | — | `blueprints/orders.py`, `blueprints/playground.py` |
 | Frontend (React) | `components/orders/{GttTab,PlaceGttModal,ModifyGttModal}.tsx`, `components/flow/nodes/{PlaceGtt,ModifyGtt,CancelGtt,GttOrderbook}Node.tsx` | `pages/OrderBook.tsx`, `api/trading.ts`, `lib/flow/constants.ts`, `components/flow/nodes/index.ts`, `components/flow/panels/ConfigPanel.tsx`, `types/flow.ts` |
 | Jinja | `templates/gtt_orderbook.html` | `templates/orderbook.html` |
-| Playground | 4 `.bru` files under `collections/openalgo/IN_stock/orders/` | `blueprints/playground.py` |
-| SDK | — | `src/openalgo/orders.py` (or client module) |
+| Playground | 4 `.bru` files under `collections/btalgo/IN_stock/orders/` | `blueprints/playground.py` |
+| SDK | — | `src/btalgo/orders.py` (or client module) |
 | Docs | `docs/api/order-management/{placegttorder,modifygttorder,cancelgttorder,gttorderbook}.md` + (Phase 5 pending) `docs/userguide/gtt-orders.md`, `docs/test/gtt-test-plan.md`. (Gitbook-ready paste copies live outside the repo at `../gitbook/`.) | `docs/api/README.md`, root `README.md`, `CLAUDE.md`, `docs/CHANGELOG.md` |
 
 ---
@@ -517,7 +517,7 @@ GTT supported on all brokers that expose a GTT-equivalent API. Brokers without n
 | 2026-04-22 | Claude (Opus 4.7) | Initial draft. |
 | 2026-04-22 | Claude (Opus 4.7) | Addressed cubic-dev-ai review. **P1:** introduced leg-level atomic-claim (`try_claim_trigger`) as the single fire path for polling, WebSocket, and catch-up evaluators; added `triggering` intermediate state on `SandboxGTTLeg.leg_status` and `SandboxGTT.gtt_status`; added concurrent-path and OCO sibling-race acceptance tests; rewrote the corresponding Risk row. **P2:** removed the inaccurate "mirrors existing `execution_engine` behaviour" claim — sandbox engine does not call `is_market_open()`, so the GTT monitor explicitly does not gate on market hours (catch-up especially must not, per the original off-hours-restart recovery intent). |
 | 2026-04-22 | Claude (Opus 4.7) | Addressed second cubic-dev-ai review. **P1 (portability):** replaced `now()` in the claim UPDATE with `CURRENT_TIMESTAMP` (SQL-standard; `now()` fails on SQLite, which is the default sandbox DB). **P1 (stranded-leg reclaim):** added `_fire_leg` try/except/finally that CAS-reverts on any failure, plus a `reclaim_stranded_legs()` reaper gated on a new `SandboxConfig.gtt_claim_timeout_sec` (default 60 s) called from every polling tick and at the start of catch-up. Added `claimed_at` column to `SandboxGTTLeg`, expanded the `(leg_status, claimed_at)` index, added four acceptance tests (place-order exception revert, broker-error revert, post-crash reclaim, reclaim-does-not-race-live-worker), and two new Risk rows (stranded-triggering recovery; post-`place_order` crash corner case flagged as a post-v1 follow-up with a correlation-id mitigation sketch). |
-| 2026-04-24 | Claude (Opus 4.7) | Removed the `BROKER_GTT_SUPPORT` registry and `broker_gtt_supported()` helper. Rationale: GTT is broadly available across Indian brokers, and OpenAlgo's existing regular-order convention detects capability purely by module presence (`importlib.import_module("broker.<name>.api.order_api")`). Matching that pattern means one fewer place to touch when onboarding a new broker, and an ImportError from `import_broker_gtt_module` already yields a clean 501 with the message `GTT orders are not supported for broker '<name>' yet`. Updated Phase 1 Task 5 (capability detection), Phase 1 acceptance, Phase 2 exit, Phase 4 frontend gate, Phase 6 per-broker template, and the Cross-Phase File Index accordingly. |
+| 2026-04-24 | Claude (Opus 4.7) | Removed the `BROKER_GTT_SUPPORT` registry and `broker_gtt_supported()` helper. Rationale: GTT is broadly available across Indian brokers, and BTAlgo's existing regular-order convention detects capability purely by module presence (`importlib.import_module("broker.<name>.api.order_api")`). Matching that pattern means one fewer place to touch when onboarding a new broker, and an ImportError from `import_broker_gtt_module` already yields a clean 501 with the message `GTT orders are not supported for broker '<name>' yet`. Updated Phase 1 Task 5 (capability detection), Phase 1 acceptance, Phase 2 exit, Phase 4 frontend gate, Phase 6 per-broker template, and the Cross-Phase File Index accordingly. |
 | 2026-04-29 | Claude (Opus 4.7) | **Schema field rename — `trigger_price` → `triggerprice_sl` + `triggerprice_tg`.** The original single `trigger_price` field was ambiguous for OCO; replaced with explicit stoploss-side and target-side trigger fields. SINGLE accepts exactly one of the two as the trigger; OCO requires both alongside `stoploss` (sl-leg limit) and `target` (tg-leg limit). The schema's `_validate_gtt_place_request` populates an internal `trigger_price` alias for backward compat with broker mappers. Empty strings are coerced to `null` / `0` in `@pre_load`. Affected: `restx_api/schemas.py` (`PlaceGTTOrderSchema`, `ModifyGTTOrderSchema`), broker mappers (`broker/zerodha/mapping/gtt_data.py`, `broker/dhan/mapping/gtt_data.py`), services, blueprints (UI modify route forwards new fields), frontend `GttTab.tsx` (modify dialog inputs, `openModify` derivation, `saveModify` validation), `frontend/src/api/trading.ts` types, Bruno samples. |
 | 2026-04-29 | Claude (Opus 4.7) | **Removed `mode` from GTT success responses.** Place/modify/cancel responses no longer include `"mode": "live"`. Event payloads also dropped the field. Affected: all four GTT service files. |
 | 2026-04-29 | Claude (Opus 4.7) | **Tightened `product` validation — MIS rejected for GTT.** GTTs can sit for days/weeks, so an intraday-squared product makes no sense. `PlaceGTTOrderSchema` and `ModifyGTTOrderSchema` now constrain `product` to `["NRML", "CNC"]` with a custom error message: *"GTT supports only CNC (delivery) or NRML (overnight F&O); MIS is intraday-only."* Schema-level rejection happens before any broker call. |
@@ -525,4 +525,4 @@ GTT supported on all brokers that expose a GTT-equivalent API. Brokers without n
 | 2026-04-29 | Claude (Opus 4.7) | **Phase 2 — Zerodha MARKET → MPP-protected LIMIT auto-conversion.** Kite GTT only accepts `order_type=LIMIT`. The Zerodha GTT API layer now intercepts `pricetype=MARKET` and applies the existing `utils/mpp_slab.calculate_protected_price()` helper using LTP (for SINGLE) or each leg's trigger (for OCO), forcing `pricetype=LIMIT` before relaying to Kite. Tick-size and instrument type are pulled from `SymToken` via `get_symbol_info()`, with a fallback to symbol-suffix detection. Mirrors the flattrade/shoonya MARKET-protection pattern, scoped to GTT only — regular Zerodha orders still send native MARKET. |
 | 2026-04-29 | Claude (Opus 4.7) | **GTT orderbook now active-only at the broker mapper.** Triggered/cancelled/expired/rejected/disabled/deleted GTTs are filtered out before the response leaves the broker layer, so the orderbook (UI + API) shows only triggers that can still fire. Both `broker/zerodha/mapping/gtt_data.py` and `broker/dhan/mapping/gtt_data.py` updated. |
 | 2026-04-29 | Claude (Opus 4.7) | **Broker mappers self-sufficient for SINGLE trigger resolution.** Added `_resolve_single_trigger(data)` to both Zerodha and Dhan mappers — falls back to `triggerprice_sl` / `triggerprice_tg` when the legacy `trigger_price` alias isn't pre-populated by the schema (e.g., when the UI modify route bypasses `ModifyGTTOrderSchema`). Fixes a `KeyError: 'trigger_price'` that surfaced on UI-driven modifies. |
-| 2026-04-29 | Claude (Opus 4.7) | **API documentation — `docs/api/gtt-orders/` created.** Four new docs (placegttorder, modifygttorder, cancelgttorder, gttorderbook) added with intent-led structure: *"Use SINGLE when…"* / *"Use OCO when…"*, a directional rule for picking `triggerprice_sl` vs `triggerprice_tg` (below LTP vs above LTP), an explicit naming-semantics callout (in SINGLE the suffix is just a directional hint; in OCO it's a real role), and intent-driven sample headings (*"Buy IDEA if it dips to 9.55, place LIMIT order at 9.50"* etc.). Broker-specific callouts removed — broker quirks remain absorbed in the broker layer per OpenAlgo's broker-agnostic API contract. `docs/api/README.md` updated with a GTT section linking the four endpoints. |
+| 2026-04-29 | Claude (Opus 4.7) | **API documentation — `docs/api/gtt-orders/` created.** Four new docs (placegttorder, modifygttorder, cancelgttorder, gttorderbook) added with intent-led structure: *"Use SINGLE when…"* / *"Use OCO when…"*, a directional rule for picking `triggerprice_sl` vs `triggerprice_tg` (below LTP vs above LTP), an explicit naming-semantics callout (in SINGLE the suffix is just a directional hint; in OCO it's a real role), and intent-driven sample headings (*"Buy IDEA if it dips to 9.55, place LIMIT order at 9.50"* etc.). Broker-specific callouts removed — broker quirks remain absorbed in the broker layer per BTAlgo's broker-agnostic API contract. `docs/api/README.md` updated with a GTT section linking the four endpoints. |

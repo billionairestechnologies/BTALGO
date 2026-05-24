@@ -241,7 +241,7 @@ def ensure_directories():
             # Try alternative paths in /tmp if main paths fail
             import tempfile
 
-            temp_base = Path(tempfile.gettempdir()) / "openalgo"
+            temp_base = Path(tempfile.gettempdir()) / "btalgo"
             STRATEGIES_DIR = temp_base / "strategies" / "scripts"
             LOGS_DIR = temp_base / "log" / "strategies"
             STRATEGIES_DIR.mkdir(parents=True, exist_ok=True)
@@ -502,21 +502,21 @@ def start_strategy_process(strategy_id):
             subprocess_args["cwd"] = str(Path.cwd())
 
             # Inject documented strategy environment variables
-            # (per strategies/README.md: STRATEGY_ID, STRATEGY_NAME, OPENALGO_API_KEY, OPENALGO_HOST)
+            # (per strategies/README.md: STRATEGY_ID, STRATEGY_NAME, BTALGO_API_KEY, BTALGO_HOST)
             strategy_env = os.environ.copy()
             strategy_env["STRATEGY_ID"] = strategy_id
             strategy_env["STRATEGY_NAME"] = config.get("name", strategy_id)
-            strategy_env["OPENALGO_STRATEGY_EXCHANGE"] = normalize_exchange(
+            strategy_env["BTALGO_STRATEGY_EXCHANGE"] = normalize_exchange(
                 config.get("exchange")
             )
-            strategy_env.setdefault("OPENALGO_HOST", "http://127.0.0.1:5000")
+            strategy_env.setdefault("BTALGO_HOST", "http://127.0.0.1:5000")
             try:
                 from database.auth_db import get_api_key_for_tradingview
                 user_id = config.get("user_id")
                 if user_id:
                     _api_key = get_api_key_for_tradingview(user_id)
                     if _api_key:
-                        strategy_env["OPENALGO_API_KEY"] = _api_key
+                        strategy_env["BTALGO_API_KEY"] = _api_key
             except Exception as e:
                 logger.warning(f"Could not inject API key for strategy {strategy_id}: {e}")
             subprocess_args["env"] = strategy_env

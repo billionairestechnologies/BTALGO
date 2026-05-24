@@ -225,7 +225,7 @@ def _invalidate_position_cache(auth):
 
 def get_open_position(tradingsymbol, exchange, product, auth):
     """Get net quantity for a specific symbol/exchange/product."""
-    # Convert Trading Symbol from OpenAlgo Format to Broker Format Before Search
+    # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
 
     position_data = _get_cached_positions(auth)

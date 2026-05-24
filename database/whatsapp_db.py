@@ -18,7 +18,7 @@ auth-token key (which uses bare FERNET_SALT in database/auth_db.py) or any
 other future Fernet domain on the same install. Same approach Signal's own
 KDFs use to keep keys derived from one root distinct per purpose.
 
-Anyone with the openalgo.db file AND the API_KEY_PEPPER + FERNET_SALT (i.e.
+Anyone with the btalgo.db file AND the API_KEY_PEPPER + FERNET_SALT (i.e.
 the .env) can impersonate the linked WhatsApp device. Both must be kept
 secret. Losing one without the other leaves the blob unrecoverable.
 """
@@ -59,9 +59,9 @@ _wa_username_cache: TTLCache = TTLCache(maxsize=10000, ttl=1800)
 _wa_preferences_cache: TTLCache = TTLCache(maxsize=10000, ttl=1800)
 _wa_credentials_cache: TTLCache = TTLCache(maxsize=10000, ttl=1800)
 
-# Tables live in the main openalgo.db by default. DATABASE_URL is whatever
+# Tables live in the main btalgo.db by default. DATABASE_URL is whatever
 # the operator configured in .env — we never carve out a separate sqlite file.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/openalgo.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///db/btalgo.db")
 if DATABASE_URL.startswith("sqlite:///") and ":memory:" not in DATABASE_URL:
     db_path = DATABASE_URL.replace("sqlite:///", "")
     if os.path.dirname(db_path):
@@ -78,7 +78,7 @@ def _resolve_whatsapp_salt() -> bytes:
             return bytes.fromhex(raw) + b":whatsapp-session"
         except ValueError:
             pass
-    return b"openalgo_static_salt:whatsapp-session"
+    return b"btalgo_static_salt:whatsapp-session"
 
 
 def _build_fernet() -> Fernet:
@@ -95,7 +95,7 @@ def _build_fernet() -> Fernet:
 fernet = _build_fernet()
 
 
-# SQLAlchemy engine — same NullPool pattern as the rest of OpenAlgo SQLite usage.
+# SQLAlchemy engine — same NullPool pattern as the rest of BTAlgo SQLite usage.
 if DATABASE_URL and "sqlite" in DATABASE_URL:
     engine = create_engine(
         DATABASE_URL, poolclass=NullPool, connect_args={"check_same_thread": False}
@@ -124,7 +124,7 @@ class WhatsAppConfig(Base):
     own_jid = Column(String(120))  # Device's own WhatsApp JID after pair
     own_phone = Column(String(32))  # Device's own phone number (E.164 digits)
     bot_username = Column(String(255))  # Display name of paired device
-    # Single-user OpenAlgo: the operator who paired the device is the bot's
+    # Single-user BTAlgo: the operator who paired the device is the bot's
     # implicit "owner". We capture their internal user_id at pair time so the
     # bot's command handlers can look up the right api_key without depending
     # on any per-WhatsApp-user linking step.
@@ -141,7 +141,7 @@ class WhatsAppConfig(Base):
 
 
 class WhatsAppUser(Base):
-    """Linked recipient — a WhatsApp number associated with an OpenAlgo user.
+    """Linked recipient — a WhatsApp number associated with an BTAlgo user.
     The same physical phone may be both the device owner (own_jid in config)
     and a linked user (one row here) so it can run command-mode queries."""
 
@@ -150,7 +150,7 @@ class WhatsAppUser(Base):
     id = Column(Integer, primary_key=True)
     whatsapp_jid = Column(String(120), unique=True, nullable=False, index=True)
     phone_number = Column(String(32), nullable=False, index=True)  # E.164 digits
-    openalgo_username = Column(String(255), nullable=False, index=True)
+    btalgo_username = Column(String(255), nullable=False, index=True)
     encrypted_api_key = Column(Text)  # Fernet ciphertext, only set if user wants command mode
     host_url = Column(String(500))
     display_name = Column(String(255))
@@ -488,7 +488,7 @@ def create_or_update_whatsapp_user(
         encrypted_key = fernet.encrypt(api_key.encode()).decode() if api_key else None
 
         if user:
-            user.openalgo_username = username
+            user.btalgo_username = username
             user.phone_number = phone_number
             if encrypted_key is not None:
                 user.encrypted_api_key = encrypted_key
@@ -501,7 +501,7 @@ def create_or_update_whatsapp_user(
             user = WhatsAppUser(
                 whatsapp_jid=whatsapp_jid,
                 phone_number=phone_number,
-                openalgo_username=username,
+                btalgo_username=username,
                 encrypted_api_key=encrypted_key,
                 host_url=host_url,
                 display_name=display_name,
@@ -537,7 +537,7 @@ def get_whatsapp_user(whatsapp_jid: str) -> dict[str, Any] | None:
             "id": user.id,
             "whatsapp_jid": user.whatsapp_jid,
             "phone_number": user.phone_number,
-            "openalgo_username": user.openalgo_username,
+            "btalgo_username": user.btalgo_username,
             "host_url": user.host_url,
             "display_name": user.display_name,
             "broker": user.broker,
@@ -563,7 +563,7 @@ def get_whatsapp_user_by_username(username: str) -> dict[str, Any] | None:
     try:
         user = (
             db_session.query(WhatsAppUser)
-            .filter_by(openalgo_username=username, is_active=True)
+            .filter_by(btalgo_username=username, is_active=True)
             .first()
         )
         if not user:
@@ -572,7 +572,7 @@ def get_whatsapp_user_by_username(username: str) -> dict[str, Any] | None:
             "id": user.id,
             "whatsapp_jid": user.whatsapp_jid,
             "phone_number": user.phone_number,
-            "openalgo_username": user.openalgo_username,
+            "btalgo_username": user.btalgo_username,
             "display_name": user.display_name,
             "broker": user.broker,
             "is_active": user.is_active,
@@ -611,7 +611,7 @@ def get_user_credentials(whatsapp_jid: str) -> dict[str, Any] | None:
         result = {
             "api_key": api_key,
             "host_url": user.host_url or os.getenv("HOST_SERVER", "http://127.0.0.1:5000"),
-            "username": user.openalgo_username,
+            "username": user.btalgo_username,
             "broker": user.broker,
         }
         _wa_credentials_cache[cache_key] = result
@@ -629,7 +629,7 @@ def delete_whatsapp_user(whatsapp_jid: str) -> bool:
         user = db_session.query(WhatsAppUser).filter_by(whatsapp_jid=whatsapp_jid).first()
         if not user:
             return False
-        username = user.openalgo_username
+        username = user.btalgo_username
         user.is_active = False
         db_session.commit()
         _invalidate_user_caches(whatsapp_jid, username)
@@ -656,7 +656,7 @@ def get_all_whatsapp_users(filters: dict | None = None) -> list[dict[str, Any]]:
                 "id": u.id,
                 "whatsapp_jid": u.whatsapp_jid,
                 "phone_number": u.phone_number,
-                "openalgo_username": u.openalgo_username,
+                "btalgo_username": u.btalgo_username,
                 "display_name": u.display_name,
                 "broker": u.broker,
                 "notifications_enabled": u.notifications_enabled,

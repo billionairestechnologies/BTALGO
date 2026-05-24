@@ -34,7 +34,7 @@ This is a stability and performance update covering **26 commits** since v2.0.0.
 **Fyers**
 
 * `671b8548` — `fix(fyers/ws): batch HSM subscribes to collapse N symbol-token POSTs into one`
-* `5eb7baaa` — `fix(fyers/ws): join HSM<->OpenAlgo mapping through brsymbol, not positional index`
+* `5eb7baaa` — `fix(fyers/ws): join HSM<->BTAlgo mapping through brsymbol, not positional index`
 * `55129e6c` — `fix(fyers/ws): use shared dispatcher registry so multi-flush reconnects don't drop ticks`
 * `15c2c63b` — `fix(fyers/multiquotes): per-symbol OI for FNO only, skip when >50 symbols`
 * `81cecdbd` — `fix(fyers/oi-tracker): raise multiquote OI ceiling to 100, narrow OI tracker to 47 strikes`
@@ -103,7 +103,7 @@ The "price crosses trigger but pending sandbox order never fires" pattern report
 * `d2baab90` — `docs(audit): add per-broker WebSocket keepalive/reconnect audit`
 * `eb46e99c` — `docs(plans): expand GTT plan's Action Center coverage`
 * `6f06329e` — `docs(claude): bump broker count from 24+ to 30+`
-* `4a3b7861` — `chore(release): bump platform version to 2.0.0.7 and document bump procedure` — adds a Version Bumping section to `CLAUDE.md` clarifying the platform version (`utils/version.py` + `pyproject.toml`) is independent of the OpenAlgo Python SDK pin (`openalgo==1.0.49` in `requirements*.txt` and `pyproject.toml` dependencies).
+* `4a3b7861` — `chore(release): bump platform version to 2.0.0.7 and document bump procedure` — adds a Version Bumping section to `CLAUDE.md` clarifying the platform version (`utils/version.py` + `pyproject.toml`) is independent of the BTAlgo Python SDK pin (`btalgo==1.0.49` in `requirements*.txt` and `pyproject.toml` dependencies).
 
 ***
 
@@ -115,11 +115,11 @@ The "price crosses trigger but pending sandbox order never fires" pattern report
 
 **Links**
 
-* **Repository**: <https://github.com/marketcalls/openalgo>
-* **Documentation**: <https://docs.openalgo.in>
-* **Discord**: <https://www.openalgo.in/discord>
-* **YouTube**: <https://www.youtube.com/@openalgo>
-* **Issue tracker**: <https://github.com/marketcalls/openalgo/issues>
+* **Repository**: <https://github.com/billionairestechnologies/btalgo>
+* **Documentation**: <https://docs.billionairestechnologies.com>
+* **Discord**: <https://www.billionairestechnologies.com/discord>
+* **YouTube**: <https://www.youtube.com/@BTAlgo>
+* **Issue tracker**: <https://github.com/billionairestechnologies/btalgo/issues>
 
 ***
 
@@ -133,7 +133,7 @@ If you need additional information that is not directly available in this page, 
 Perform an HTTP GET request on the current page URL with the `ask` query parameter:
 
 ```
-GET https://docs.openalgo.in/change-log/release/version-2.0.0.7-released.md?ask=<question>
+GET https://docs.billionairestechnologies.com/change-log/release/version-2.0.0.7-released.md?ask=<question>
 ```
 
 The question should be specific, self-contained, and written in natural language.

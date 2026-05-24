@@ -2,16 +2,16 @@
 
 ## Introduction
 
-ChartInk is a powerful stock screening platform popular among Indian traders. It can scan thousands of stocks in real-time and send webhook alerts when conditions are met. OpenAlgo integrates with ChartInk to execute trades automatically based on your screener alerts.
+ChartInk is a powerful stock screening platform popular among Indian traders. It can scan thousands of stocks in real-time and send webhook alerts when conditions are met. BTAlgo integrates with ChartInk to execute trades automatically based on your screener alerts.
 
 ## How It Works
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    ChartInk → OpenAlgo Flow                                 │
+│                    ChartInk → BTAlgo Flow                                 │
 │                                                                              │
 │  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌──────────┐  │
-│  │  ChartInk   │     │   Webhook   │     │  OpenAlgo   │     │  Broker  │  │
+│  │  ChartInk   │     │   Webhook   │     │  BTAlgo   │     │  Broker  │  │
 │  │  Screener   │────▶│   Alert     │────▶│   Server    │────▶│   API    │  │
 │  │             │     │             │     │             │     │          │  │
 │  └─────────────┘     └─────────────┘     └─────────────┘     └──────────┘  │
@@ -25,17 +25,17 @@ ChartInk is a powerful stock screening platform popular among Indian traders. It
 ## Prerequisites
 
 1. ChartInk account (premium for webhooks)
-2. OpenAlgo running and accessible via internet
-3. API key generated in OpenAlgo
+2. BTAlgo running and accessible via internet
+3. API key generated in BTAlgo
 4. Broker connected and logged in
 
-## Making OpenAlgo Accessible for Webhooks
+## Making BTAlgo Accessible for Webhooks
 
-ChartInk webhooks need to reach your OpenAlgo server from the internet.
+ChartInk webhooks need to reach your BTAlgo server from the internet.
 
 ### Recommended: Production Server with Domain
 
-Deploy OpenAlgo on an Ubuntu server using `install.sh` (see [Installation Guide](../04-installation/README.md)):
+Deploy BTAlgo on an Ubuntu server using `install.sh` (see [Installation Guide](../04-installation/README.md)):
 
 ```
 Webhook URL: https://yourdomain.com/api/v1/placeorder
@@ -72,7 +72,7 @@ cloudflared tunnel --url http://localhost:5000
 # Copy the https URL provided
 ```
 
-**Important**: Tunnel services are **only for webhooks**, not for running the full application. Always run OpenAlgo on your own server for production use
+**Important**: Tunnel services are **only for webhooks**, not for running the full application. Always run BTAlgo on your own server for production use
 
 ## Creating a ChartInk Screener
 
@@ -101,7 +101,7 @@ For Bullish Crossover:
 
 1. Click **Alert** button on your screener
 2. Enable **Webhook**
-3. Enter your OpenAlgo webhook URL
+3. Enter your BTAlgo webhook URL
 
 ## Webhook Configuration
 
@@ -110,12 +110,12 @@ For Bullish Crossover:
 Enter this URL in ChartInk:
 
 ```
-https://your-openalgo-url/api/v1/placeorder
+https://your-btalgo-url/api/v1/placeorder
 ```
 
 ### ChartInk Webhook Payload
 
-ChartInk sends data in a specific format. You need to configure the payload to match OpenAlgo's API:
+ChartInk sends data in a specific format. You need to configure the payload to match BTAlgo's API:
 
 ```json
 {
@@ -259,7 +259,7 @@ ChartInk can trigger alerts for multiple stocks simultaneously. Consider:
 
 ### Step 1: Enable Analyzer Mode
 
-1. Enable Analyzer Mode in OpenAlgo
+1. Enable Analyzer Mode in BTAlgo
 2. All orders go to sandbox
 
 ### Step 2: Run Screener Manually
@@ -274,7 +274,7 @@ ChartInk can trigger alerts for multiple stocks simultaneously. Consider:
 2. Let screener trigger naturally
 3. Or manually trigger for testing
 
-### Step 4: Verify in OpenAlgo
+### Step 4: Verify in BTAlgo
 
 Check:
 - Order Book for new orders
@@ -297,7 +297,7 @@ Check:
 ChartInk scans      → 10:30:00
 Alert triggered     → 10:30:01
 Webhook sent        → 10:30:02
-OpenAlgo receives   → 10:30:02
+BTAlgo receives   → 10:30:02
 Order placed        → 10:30:03
 Order executed      → 10:30:04
 
@@ -324,7 +324,7 @@ All orders are processed independently.
 
 Be aware of:
 - Broker API rate limits
-- OpenAlgo processing capacity
+- BTAlgo processing capacity
 - ChartInk webhook frequency
 
 ## Filtering Stocks
@@ -340,7 +340,7 @@ Close > 100
 Sector = Banking
 ```
 
-### Post-Filter in OpenAlgo
+### Post-Filter in BTAlgo
 
 Use strategy-specific logic or manual review with Action Center.
 
@@ -374,13 +374,13 @@ Stop-Loss: 2%
 
 ### 5. Monitor Execution
 
-- Check OpenAlgo dashboard regularly
+- Check BTAlgo dashboard regularly
 - Set up Telegram notifications
 - Review trades daily
 
 ## Troubleshooting
 
-### Alert Not Reaching OpenAlgo
+### Alert Not Reaching BTAlgo
 
 | Issue | Solution |
 |-------|----------|
@@ -399,7 +399,7 @@ Stop-Loss: 2%
 
 ### Checking Logs
 
-1. Go to **Traffic Logs** in OpenAlgo
+1. Go to **Traffic Logs** in BTAlgo
 2. Filter by source or time
 3. Check request payload and response
 
@@ -434,8 +434,8 @@ def handle_chartink():
 
     # Apply custom logic
     if should_trade(stock):
-        # Forward to OpenAlgo
-        openalgo_payload = {
+        # Forward to BTAlgo
+        btalgo_payload = {
             "apikey": "YOUR_KEY",
             "strategy": "ChartInk",
             "symbol": stock,
@@ -448,7 +448,7 @@ def handle_chartink():
 
         response = requests.post(
             "http://127.0.0.1:5000/api/v1/placeorder",
-            json=openalgo_payload
+            json=btalgo_payload
         )
 
         return response.json()
