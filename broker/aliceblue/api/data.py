@@ -29,6 +29,11 @@ class BrokerData:
     Handles market data operations including quotes, market depth, and historical data.
     """
 
+    # Shared WebSocket singleton — persists across BrokerData instances so the
+    # expensive connect/authenticate cycle is paid only once per app lifetime.
+    _shared_ws: "AliceBlueWebSocket | None" = None
+    _shared_ws_lock = threading.Lock()
+
     # Timeframes that require resampling from 1-minute data
     _RESAMPLE_TIMEFRAMES = {
         "3m": 3,
@@ -57,73 +62,85 @@ class BrokerData:
 
     def get_websocket(self, force_new=False):
         """
-        Get or create the global WebSocket instance.
+        Get or create the shared quotes WebSocket singleton.
+
+        Uses a class-level singleton so the connect/authenticate round-trip is
+        paid only ONCE per app lifetime, not on every get_quotes / get_multiquotes
+        call.  Connects with manage_session=False so it does NOT call
+        invalidateWsSess / createWsSess and therefore does NOT kill the streaming
+        adapter's active AliceBlue session.
 
         Args:
-            force_new (bool): Force creation of a new WebSocket connection even if one exists
+            force_new: Force recreation of the WebSocket connection.
 
         Returns:
-            AliceBlueWebSocket: WebSocket client instance or None if creation fails
+            AliceBlueWebSocket or None if the connection cannot be established.
         """
-        # Return existing connection if it's valid and not forced to create a new one
-        if not force_new and hasattr(self, "_websocket") and self._websocket:
-            if hasattr(self._websocket, "is_websocket_connected") and self._websocket.is_websocket_connected():
-                return self._websocket
+        with BrokerData._shared_ws_lock:
+            ws = BrokerData._shared_ws
 
-        try:
-            if not self.session_id:
-                logger.error("Session ID not available. Please login first.")
+            # Return the existing connection if it is healthy and we're not forced
+            # to create a new one.
+            if not force_new and ws is not None and ws.is_websocket_connected():
+                return ws
+
+            try:
+                if not self.session_id:
+                    logger.error("Session ID not available. Please login first.")
+                    return None
+
+                # Clean up an unhealthy existing connection
+                if ws is not None:
+                    try:
+                        ws.disconnect()
+                    except Exception as e:
+                        logger.warning(f"Error closing existing quotes WebSocket: {e}")
+
+                # Resolve user ID from DB or JWT
+                auth_obj = Auth.query.filter_by(broker="aliceblue", is_revoked=False).first()
+                user_id = auth_obj.user_id if auth_obj else None
+
+                if not user_id and self.session_id:
+                    try:
+                        payload_b64 = self.session_id.split(".")[1]
+                        payload_b64 += "=" * (-len(payload_b64) % 4)
+                        payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+                        user_id = payload.get("ucc")
+                        if user_id:
+                            logger.info(f"Extracted UCC from JWT: {user_id}")
+                    except Exception as e:
+                        logger.warning(f"Failed to extract UCC from JWT: {e}")
+
+                if not user_id:
+                    logger.error("Missing user_id for AliceBlue quotes WebSocket. Please re-login.")
+                    return None
+
+                logger.info("Creating shared quotes WebSocket for AliceBlue (manage_session=False)")
+                new_ws = AliceBlueWebSocket(user_id, self.session_id)
+                # manage_session=False: skip invalidateWsSess / createWsSess so we
+                # don't kill the streaming adapter's active session.
+                new_ws.connect(manage_session=False)
+
+                # Wait up to 8 seconds for authentication to complete
+                wait_time = 0
+                max_wait = 8
+                while wait_time < max_wait and not new_ws.is_connected:
+                    time.sleep(0.5)
+                    wait_time += 0.5
+
+                if not new_ws.is_connected:
+                    logger.error("Quotes WebSocket failed to connect within timeout")
+                    BrokerData._shared_ws = None
+                    return None
+
+                BrokerData._shared_ws = new_ws
+                logger.info("Shared quotes WebSocket connected successfully")
+                return new_ws
+
+            except Exception as e:
+                logger.error(f"Error creating quotes WebSocket: {e}")
+                BrokerData._shared_ws = None
                 return None
-
-            # Clean up any existing connection
-            if hasattr(self, "_websocket") and self._websocket:
-                try:
-                    self._websocket.disconnect()
-                except Exception as e:
-                    logger.warning(f"Error closing existing WebSocket: {str(e)}")
-
-            # Get user ID (clientId/UCC) for WebSocket authentication
-            auth_obj = Auth.query.filter_by(broker='aliceblue', is_revoked=False).first()
-            user_id = auth_obj.user_id if auth_obj else None
-
-            # Fallback: extract UCC from JWT token
-            if not user_id and self.session_id:
-                try:
-                    payload_b64 = self.session_id.split(".")[1]
-                    payload_b64 += "=" * (-len(payload_b64) % 4)
-                    payload = json.loads(base64.urlsafe_b64decode(payload_b64))
-                    user_id = payload.get("ucc")
-                    if user_id:
-                        logger.info(f"Extracted UCC from JWT: {user_id}")
-                except Exception as e:
-                    logger.warning(f"Failed to extract UCC from JWT: {e}")
-
-            if not user_id:
-                logger.error("Missing user_id (clientId) for AliceBlue WebSocket. Please re-login.")
-                return None
-
-            # Create new websocket connection
-            logger.info("Creating new WebSocket connection for AliceBlue")
-            self._websocket = AliceBlueWebSocket(user_id, self.session_id)
-            self._websocket.connect()
-
-            # Wait for connection to establish
-            wait_time = 0
-            max_wait = 10  # Maximum 10 seconds to wait
-            while wait_time < max_wait and not self._websocket.is_connected:
-                time.sleep(0.5)
-                wait_time += 0.5
-
-            if not self._websocket.is_connected:
-                logger.error("Failed to connect WebSocket within timeout")
-                return None
-
-            logger.info("WebSocket connection established successfully")
-            return self._websocket
-
-        except Exception as e:
-            logger.error(f"Error creating WebSocket: {str(e)}")
-            return None
 
     @staticmethod
     def _normalize_token(token) -> str:
