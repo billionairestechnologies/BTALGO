@@ -250,15 +250,87 @@ def get_open_position(tradingsymbol, exchange, product, auth):
     return net_qty
 
 
+# ─── Live price helper ────────────────────────────────────────────────────────
+
+def _get_live_price(symbol: str, exchange: str, auth: str) -> dict | None:
+    """
+    Fetch current bid/ask/ltp for a symbol using the shared quotes WebSocket.
+    Returns a dict with 'ltp', 'bid', 'ask' or None on failure.
+    """
+    try:
+        from broker.aliceblue.api.data import BrokerData
+
+        bd = BrokerData(auth)
+        quote = bd.get_quotes(symbol, exchange)
+        if quote:
+            return {
+                "ltp": float(quote.get("ltp", 0)),
+                "bid": float(quote.get("bid", 0)),
+                "ask": float(quote.get("ask", 0)),
+            }
+    except Exception as e:
+        logger.warning(f"Could not fetch live price for {symbol}/{exchange}: {e}")
+    return None
+
+
+def _best_limit_price(action: str, prices: dict, tick_size: float = 0.05) -> float:
+    """
+    Return the most aggressive LIMIT price that should fill immediately.
+    BUY  → ask (what sellers want); if ask==0, use ltp + 1 tick
+    SELL → bid (what buyers want); if bid==0, use ltp - 1 tick
+    """
+    if action.upper() == "BUY":
+        price = prices.get("ask") or (prices.get("ltp", 0) + tick_size)
+    else:
+        price = prices.get("bid") or (prices.get("ltp", 0) - tick_size)
+    # Round to nearest tick
+    if tick_size > 0:
+        price = round(round(price / tick_size) * tick_size, 2)
+    return max(price, 0.05)
+
+
 # ─── Place order ──────────────────────────────────────────────────────────────
 
 def place_order_api(data, auth):
-    """Place an order using the AliceBlue V2 API."""
+    """
+    Place an order using the AliceBlue V3 API with smart MARKET→LIMIT conversion.
+
+    AliceBlue rejects MARKET orders (EC965) so all MARKET orders are converted
+    to LIMIT at the current best price (ask for BUY, bid for SELL).
+
+    If a LIMIT order fails because the price is stale (EC096 / EC108 / similar
+    price-out-of-range errors), the order is retried once at the fresh LTP.
+    """
     try:
         client = get_httpx_client()
 
+        # ── Smart MARKET→LIMIT conversion ──────────────────────────────────
+        order_data = dict(data)  # work on a copy so caller's dict is unchanged
+        pricetype = str(order_data.get("pricetype", "MARKET")).upper()
+        symbol = order_data.get("symbol", "")
+        exchange = order_data.get("exchange", "")
+        action = order_data.get("action", "BUY")
+
+        if pricetype == "MARKET":
+            prices = _get_live_price(symbol, exchange, auth)
+            if prices and prices.get("ltp", 0) > 0:
+                limit_price = _best_limit_price(action, prices)
+                order_data["pricetype"] = "LIMIT"
+                order_data["price"] = str(limit_price)
+                logger.info(
+                    f"MARKET→LIMIT conversion: {action} {symbol} @ {limit_price} "
+                    f"(ltp={prices['ltp']}, ask={prices['ask']}, bid={prices['bid']})"
+                )
+            else:
+                logger.warning(
+                    f"Could not fetch live price for MARKET→LIMIT conversion on {symbol}, "
+                    "sending LIMIT with price 0 (broker may reject)"
+                )
+                order_data["pricetype"] = "LIMIT"
+        # ───────────────────────────────────────────────────────────────────
+
         # Build V2 API payload via transform_data
-        payload_item = transform_data(data)
+        payload_item = transform_data(order_data)
         payload = [payload_item]
 
         headers = {
@@ -307,9 +379,53 @@ def place_order_api(data, auth):
                 is_ec_error = str(raw_status).upper().startswith("EC")
                 is_named_error = result_status in ("error", "failed", "not_ok")
 
+                # Price-stale error codes that should trigger a retry at fresh LTP
+                # EC096 = order price out of range / not within circuit limits
+                # EC108 = price/quantity mismatch (stale limit price)
+                PRICE_STALE_CODES = {"EC096", "EC108"}
+
                 if broker_oid and str(broker_oid).strip() not in ("", "None", "null"):
                     orderid = str(broker_oid)
                     logger.info(f"Order placed successfully: {orderid}")
+                elif is_ec_error and str(raw_status).upper() in PRICE_STALE_CODES:
+                    # Price is stale — retry once at fresh market price
+                    logger.warning(
+                        f"Stale price ({raw_status}): {result_msg}. "
+                        f"Retrying at fresh LTP for {symbol}…"
+                    )
+                    prices = _get_live_price(symbol, exchange, auth)
+                    if prices and prices.get("ltp", 0) > 0:
+                        new_price = _best_limit_price(action, prices)
+                        order_data["pricetype"] = "LIMIT"
+                        order_data["price"] = str(new_price)
+                        logger.info(f"Retry at new price {new_price} (ltp={prices['ltp']})")
+                        retry_payload = [transform_data(order_data)]
+                        retry_response = client.post(url, json=retry_payload, headers=headers)
+                        retry_response.raise_for_status()
+                        retry_data = retry_response.json()
+                        logger.info(f"Retry response: {json.dumps(retry_data, indent=2)}")
+                        retry_results = retry_data.get("result", [])
+                        if retry_results:
+                            retry_item = retry_results[0]
+                            retry_oid = (
+                                retry_item.get("nOrdNo")
+                                or retry_item.get("brokerOrderId")
+                                or retry_item.get("orderId")
+                            )
+                            if retry_oid and str(retry_oid).strip() not in ("", "None", "null"):
+                                orderid = str(retry_oid)
+                                response_data = retry_data
+                                response.status = retry_response.status_code
+                                logger.info(f"Retry order placed: {orderid}")
+                                return response, response_data, orderid
+                        # Retry also failed — return original error
+                        response_data = {"status": "error", "message": result_msg}
+                        response.status = 400
+                        return response, response_data, None
+                    else:
+                        response_data = {"status": "error", "message": result_msg}
+                        response.status = 400
+                        return response, response_data, None
                 elif is_ec_error or is_named_error:
                     logger.error(f"Order placement failed ({raw_status}): {result_msg}")
                     response_data = {"status": "error", "message": result_msg}
