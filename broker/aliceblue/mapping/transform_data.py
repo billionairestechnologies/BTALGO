@@ -8,10 +8,10 @@ from database.token_db import get_br_symbol, get_token
 
 
 def map_product_type(product):
-    """Map BTAlgo product type to AliceBlue V2 product type."""
+    """Map BTAlgo product type to AliceBlue V3 product type."""
     mapping = {
         "CNC": "LONGTERM",
-        "NRML": "NRML",
+        "NRML": "LONGTERM",
         "MIS": "INTRADAY",
     }
     return mapping.get(product, "INTRADAY")
