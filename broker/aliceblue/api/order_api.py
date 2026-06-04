@@ -301,11 +301,17 @@ def place_order_api(data, auth):
                 result_status = str(result_item.get("status", "")).lower()
                 result_msg = result_item.get("message", "")
 
+                # AliceBlue error codes start with "EC" (e.g. EC092, EC965).
+                # Also treat empty brokerOrderId with an error message as failure.
+                raw_status = result_item.get("status", "")
+                is_ec_error = str(raw_status).upper().startswith("EC")
+                is_named_error = result_status in ("error", "failed", "not_ok")
+
                 if broker_oid and str(broker_oid).strip() not in ("", "None", "null"):
                     orderid = str(broker_oid)
                     logger.info(f"Order placed successfully: {orderid}")
-                elif result_status in ("error", "failed", "not_ok"):
-                    logger.error(f"Order placement failed at result level ({result_status}): {result_msg}")
+                elif is_ec_error or is_named_error:
+                    logger.error(f"Order placement failed ({raw_status}): {result_msg}")
                     response_data = {"status": "error", "message": result_msg}
                     response.status = 400
                     return response, response_data, None

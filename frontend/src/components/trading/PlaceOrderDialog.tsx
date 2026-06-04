@@ -135,9 +135,10 @@ export function PlaceOrderDialog({
     if (open) {
       setFormAction(initialAction)
       setFormQuantity(initialQuantity ?? lotSize)
-      setFormPriceType(initialPriceType)
-      // Set default product based on exchange, validate initialProduct is valid for exchange
+      // F&O exchanges: default to LIMIT (many brokers incl. AliceBlue disallow MARKET for options)
       const isFnO = isFnOExchange(exchange)
+      setFormPriceType(isFnO && initialPriceType === 'MARKET' ? 'LIMIT' : initialPriceType)
+      // Set default product based on exchange, validate initialProduct is valid for exchange
       const defaultProduct = isFnO ? 'NRML' : 'CNC'
       // Validate product: CNC not valid for F&O, NRML not valid for equity
       const validProducts = isFnO ? ['NRML', 'MIS'] : ['CNC', 'MIS']
