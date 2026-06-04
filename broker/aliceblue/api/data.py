@@ -66,9 +66,7 @@ class BrokerData:
 
         Uses a class-level singleton so the connect/authenticate round-trip is
         paid only ONCE per app lifetime, not on every get_quotes / get_multiquotes
-        call.  Connects with manage_session=False so it does NOT call
-        invalidateWsSess / createWsSess and therefore does NOT kill the streaming
-        adapter's active AliceBlue session.
+        call.
 
         Args:
             force_new: Force recreation of the WebSocket connection.
@@ -115,11 +113,9 @@ class BrokerData:
                     logger.error("Missing user_id for AliceBlue quotes WebSocket. Please re-login.")
                     return None
 
-                logger.info("Creating shared quotes WebSocket for AliceBlue (manage_session=False)")
+                logger.info("Creating shared quotes WebSocket for AliceBlue")
                 new_ws = AliceBlueWebSocket(user_id, self.session_id)
-                # manage_session=False: skip invalidateWsSess / createWsSess so we
-                # don't kill the streaming adapter's active session.
-                new_ws.connect(manage_session=False)
+                new_ws.connect()
 
                 # Wait up to 8 seconds for authentication to complete
                 wait_time = 0
@@ -141,6 +137,18 @@ class BrokerData:
                 logger.error(f"Error creating quotes WebSocket: {e}")
                 BrokerData._shared_ws = None
                 return None
+
+    @classmethod
+    def clear_shared_websocket(cls):
+        """Disconnect and clear the shared quotes WebSocket (call on logout)."""
+        with cls._shared_ws_lock:
+            if cls._shared_ws is not None:
+                try:
+                    cls._shared_ws.disconnect()
+                except Exception:
+                    pass
+                cls._shared_ws = None
+                logger.info("Cleared shared quotes WebSocket on logout")
 
     @staticmethod
     def _normalize_token(token) -> str:

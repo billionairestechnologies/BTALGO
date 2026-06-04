@@ -1116,6 +1116,14 @@ def logout():
         except Exception as cache_error:
             logger.exception(f"Error clearing symbol cache on logout: {cache_error}")
 
+        # Clear AliceBlue shared quotes WebSocket so it isn't reused with a stale session
+        try:
+            from broker.aliceblue.api.data import BrokerData as AliceBlueBrokerData
+
+            AliceBlueBrokerData.clear_shared_websocket()
+        except Exception:
+            pass
+
         # writing to database
         inserted_id = upsert_auth(username, "", "", revoke=True)
         if inserted_id is not None:

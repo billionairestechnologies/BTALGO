@@ -54,9 +54,6 @@ class AliceBlueWebSocket:
         self._connect_thread = None
         self._reconnect_thread = None
         self._stop_event = threading.Event()
-        # Set by BrokerData when creating a quotes-only WS so reconnects also skip
-        # session management and don't kill the streaming adapter's session.
-        self._manage_session = True
 
         # Generate the encrypted token as required by AliceBlue
         sha256_encryption1 = hashlib.sha256(session_id.encode("utf-8")).hexdigest()
@@ -136,19 +133,10 @@ class AliceBlueWebSocket:
             logger.error(f"Error creating socket session: {str(e)}")
             return False
 
-    def connect(self, manage_session: bool = True):
+    def connect(self):
         """
         Establishes the WebSocket connection and starts the connection thread.
-
-        Args:
-            manage_session: When True (default, used by the streaming adapter), calls
-                invalidateWsSess + createWsSess before connecting so that a fresh
-                AliceBlue session is established.  When False (used by BrokerData for
-                on-demand quotes), skips session management entirely so as NOT to
-                invalidate the streaming adapter's already-active session.  AliceBlue
-                authenticates the raw WebSocket connection via the double-SHA256
-                susertoken derived from the JWT, so a prior createWsSess call is not
-                strictly required for the auth handshake.
+        Must first create a WebSocket session via REST API before connecting.
         """
         with self.lock:
             if self._connect_thread and self._connect_thread.is_alive():
@@ -157,22 +145,18 @@ class AliceBlueWebSocket:
 
             # Reset the stop event
             self._stop_event.clear()
-            self._manage_session = manage_session
 
         try:
-            if manage_session:
-                # Step 1: Invalidate any existing WebSocket session
-                logger.info("Invalidating existing WebSocket session...")
-                self._invalidate_socket_session()
+            # Step 1: Invalidate any existing WebSocket session
+            logger.info("Invalidating existing WebSocket session...")
+            self._invalidate_socket_session()
 
-                # Step 2: Create a new WebSocket session
-                logger.info("Creating new WebSocket session...")
-                if not self._create_socket_session():
-                    logger.error("Failed to create WebSocket session. Cannot connect.")
-                    self._stop_event.set()
-                    return
-            else:
-                logger.info("Skipping session management — reusing existing AliceBlue session")
+            # Step 2: Create a new WebSocket session
+            logger.info("Creating new WebSocket session...")
+            if not self._create_socket_session():
+                logger.error("Failed to create WebSocket session. Cannot connect.")
+                self._stop_event.set()
+                return
 
             # Step 3: Start the connection in a separate thread
             self._connect_thread = threading.Thread(target=self._connect_with_retry)
@@ -748,7 +732,7 @@ class AliceBlueWebSocket:
         def delayed_reconnect():
             time.sleep(sleep_time)
             if not self._stop_event.is_set():
-                self.connect(manage_session=self._manage_session)
+                self.connect()
 
         t = threading.Thread(target=delayed_reconnect, daemon=True)
         with self.lock:
