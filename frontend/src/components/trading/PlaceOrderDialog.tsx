@@ -237,9 +237,9 @@ export function PlaceOrderDialog({
       // Response structure: { status: "success", orderid: "..." } or { status: "error", message: "..." }
       // Note: orderid is at root level, not in data field
       const orderid = (response as unknown as { orderid?: string }).orderid
-      if (response.status === 'success' && orderid) {
+      if (response.status === 'success') {
         // Toast is shown by useSocket when WebSocket receives order update
-        onSuccess?.(orderid)
+        onSuccess?.(orderid ?? '')
         onOpenChange(false)
       } else {
         const errorMsg = response.message || 'Order placement failed'

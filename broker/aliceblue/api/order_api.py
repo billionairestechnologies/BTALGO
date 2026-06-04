@@ -288,9 +288,11 @@ def place_order_api(data, auth):
                 result_item = results[0]
                 logger.info(f"AliceBlue result item: {result_item}")
 
-                # Extract brokerOrderId — may be in brokerOrderId or orderId
+                # Extract broker order ID — AliceBlue V3 uses nOrdNo in place-order
+                # responses; the order-book normaliser maps it to brokerOrderId.
                 broker_oid = (
-                    result_item.get("brokerOrderId")
+                    result_item.get("nOrdNo")
+                    or result_item.get("brokerOrderId")
                     or result_item.get("orderId")
                     or result_item.get("order_id")
                     or result_item.get("NOrdNo")
