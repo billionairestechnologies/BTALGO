@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from database.auth_db import get_auth_token_broker
 from database.settings_db import get_analyze_mode
+from utils.access_control import require_live_trading
 from events import AnalyzerErrorEvent, MultiOrderCompletedEvent
 from services.option_symbol_service import get_option_symbol, parse_underlying_symbol
 from services.place_order_service import place_order
@@ -606,6 +607,17 @@ def place_options_multiorder(
 
     # Case 1: API-based authentication
     if api_key and not (auth_token and broker):
+        from database.auth_db import verify_api_key
+
+        user_id = verify_api_key(api_key)
+        if user_id is None:
+            error_response = {"status": "error", "message": "Invalid btalgo apikey"}
+            return False, error_response, 403
+
+        allowed, blocked_response, blocked_status = require_live_trading(username=str(user_id))
+        if not allowed:
+            return False, blocked_response, blocked_status
+
         # Check if order should be routed to Action Center
         from services.order_router_service import queue_order, should_route_to_pending
 
@@ -623,6 +635,9 @@ def place_options_multiorder(
 
     # Case 2: Direct internal call
     elif auth_token and broker:
+        allowed, blocked_response, blocked_status = require_live_trading()
+        if not allowed:
+            return False, blocked_response, blocked_status
         return process_multiorder_with_auth(
             multiorder_data, auth_token, broker, api_key or "", original_data
         )

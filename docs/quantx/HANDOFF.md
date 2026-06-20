@@ -25,6 +25,7 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 - SaaS signup with email OTP exists.
 - Some broker auth flows are SaaS-aware.
 - Billing foundation exists: plans, customer creation, subscription create/refresh, webhook validation, and payment-event persistence.
+- Billing enforcement has started: live order-entry flows and MCP write-scope approval now read tenant entitlements.
 - MPIN setup/verify/disable flow exists in backend and Profile UI.
 - Static-IP routing is not live.
 - Copy trading is not unified into BillionairsHQ yet.
@@ -57,3 +58,4 @@ The next broker-migration and billing-enforcement slice should be considered don
 - at least one regression test covers tenant isolation for broker credentials
 - UI behavior still works with legacy fallback for installs not yet migrated
 - live trading and MCP write decisions read the tenant subscription entitlements instead of assuming access
+- remaining order mutation paths and routing decisions follow the same entitlement model

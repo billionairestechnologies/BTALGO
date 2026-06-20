@@ -103,9 +103,11 @@ def is_subscription_active(status: str | None) -> bool:
 
 
 def resolve_entitlements(subscription) -> dict:
+    status = getattr(subscription, "status", None)
+    billing_active = is_subscription_active(status)
     plan = get_plan_definition(getattr(subscription, "plan_code", "free") or "free")
     entitlements = dict(plan["entitlements"]) if plan else {
-        "live_trading": False,
+        "live_trading": billing_active,
         "mcp_write": False,
         "static_ip": False,
         "copy_trading": False,
@@ -115,7 +117,7 @@ def resolve_entitlements(subscription) -> dict:
         "whatsapp": True,
         "broker_accounts_limit": 1,
     }
-    entitlements["billing_active"] = is_subscription_active(getattr(subscription, "status", None))
+    entitlements["billing_active"] = billing_active
     entitlements["plan_code"] = getattr(subscription, "plan_code", "free") or "free"
-    entitlements["status"] = getattr(subscription, "status", "trialing") or "trialing"
+    entitlements["status"] = status or "trialing"
     return entitlements

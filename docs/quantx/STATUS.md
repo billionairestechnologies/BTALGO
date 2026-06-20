@@ -87,6 +87,10 @@ Relevant commits:
 - Added tenant billing event persistence.
 - Added plan definitions and entitlement mapping helpers.
 - Added billing visibility to the Profile UI so a signed-in user can see plan state and trigger the subscription flow.
+- Added first-round enforcement:
+  - live order-entry flows now check subscription entitlements
+  - MCP `write:orders` approval now checks subscription entitlements
+  - risk-reduction paths still remain available
 
 ### MPIN product flow now exists
 
@@ -114,10 +118,10 @@ Still needed:
 
 Still needed:
 
-- enforcement in trading/MCP/routing flows
+- static-IP entitlement enforcement
 - final checkout/hosted payment UX polish
 - subscription state machine hardening
-- entitlement enforcement
+- broader entitlement enforcement across every remaining broker/mutation path
 
 ### Auth product flow is incomplete
 

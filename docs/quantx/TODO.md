@@ -31,8 +31,8 @@ This is the execution queue, ordered by what should happen next.
 - [x] Add webhook signature verification
 - [x] Persist billing events and payment history
 - [x] Add plan definitions and entitlement mapping
-- [ ] Gate live trading by subscription
-- [ ] Gate MCP write scope by subscription
+- [x] Gate live trading by subscription
+- [x] Gate MCP write scope by subscription
 - [ ] Gate static-IP routing by subscription
 - [ ] Keep risk-reduction actions allowed even when billing is inactive
 

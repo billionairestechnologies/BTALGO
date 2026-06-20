@@ -17,6 +17,7 @@ from utils.constants import (
     VALID_PRICE_TYPES,
     VALID_PRODUCT_TYPES,
 )
+from utils.access_control import require_live_trading
 from utils.event_bus import bus
 from utils.logging import get_logger
 
@@ -310,6 +311,17 @@ def place_smart_order(
 
     # Case 1: API-based authentication
     if api_key and not (auth_token and broker):
+        from database.auth_db import verify_api_key
+
+        user_id = verify_api_key(api_key)
+        if user_id is None:
+            error_response = {"status": "error", "message": "Invalid btalgo apikey"}
+            return False, error_response, 403
+
+        allowed, blocked_response, blocked_status = require_live_trading(username=str(user_id))
+        if not allowed:
+            return False, blocked_response, blocked_status
+
         # Check if order should be routed to Action Center (semi-auto mode)
         from services.order_router_service import queue_order, should_route_to_pending
 
@@ -328,6 +340,9 @@ def place_smart_order(
 
     # Case 2: Direct internal call with auth_token and broker
     elif auth_token and broker:
+        allowed, blocked_response, blocked_status = require_live_trading()
+        if not allowed:
+            return False, blocked_response, blocked_status
         return place_smart_order_with_auth(
             order_data, auth_token, broker, original_data
         )

@@ -33,6 +33,7 @@ from database.oauth_db import (
 from database.user_db import User, find_user_by_exact_username
 from limiter import limiter
 from utils.logging import get_logger
+from utils.access_control import require_mcp_write
 from utils.oauth_codes import consume as consume_code
 from utils.oauth_codes import discard as discard_code
 from utils.oauth_codes import issue as issue_code
@@ -742,6 +743,15 @@ def authorize_endpoint():
         return _oauth_error("server_error", "Authenticated user not found.", 500)
 
     write_requested = SCOPE_WRITE_ORDERS in requested_scopes
+    if write_requested:
+        allowed, blocked_response, _blocked_status = require_mcp_write(username=user.username)
+        if not allowed:
+            return _redirect_with_error(
+                redirect_uri,
+                "access_denied",
+                blocked_response["message"],
+                state,
+            )
     requires_fresh_totp = (
         write_requested and user.is_totp_required_for("mcp")
     )

@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional, Tuple
 from database.auth_db import get_auth_token_broker
 from database.settings_db import get_analyze_mode
 from events import AnalyzerErrorEvent, GTTFailedEvent, GTTPlacedEvent
+from utils.access_control import require_live_trading
 from utils.event_bus import bus
 from utils.logging import get_logger
 
@@ -150,6 +151,16 @@ def place_gtt_order(
 
     # API-based auth
     if api_key and not (auth_token and broker):
+        from database.auth_db import verify_api_key
+
+        user_id = verify_api_key(api_key)
+        if user_id is None:
+            return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
+
+        allowed, blocked_response, blocked_status = require_live_trading(username=str(user_id))
+        if not allowed:
+            return False, blocked_response, blocked_status
+
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
             return False, {"status": "error", "message": "Invalid btalgo apikey"}, 403
@@ -157,6 +168,9 @@ def place_gtt_order(
 
     # Direct internal call
     if auth_token and broker:
+        allowed, blocked_response, blocked_status = require_live_trading()
+        if not allowed:
+            return False, blocked_response, blocked_status
         return place_gtt_order_with_auth(order_data, auth_token, broker, original_data)
 
     return (

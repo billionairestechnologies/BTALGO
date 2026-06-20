@@ -6,6 +6,7 @@ from database.auth_db import get_auth_token_broker
 from database.settings_db import get_analyze_mode
 from events import AnalyzerErrorEvent, OrderFailedEvent, OrderPlacedEvent
 from restx_api.schemas import OrderSchema
+from utils.access_control import require_live_trading
 from utils.constants import (
     REQUIRED_ORDER_FIELDS,
     VALID_ACTIONS,
@@ -317,6 +318,17 @@ def place_order(
 
     # Case 1: API-based authentication
     if api_key and not (auth_token and broker):
+        from database.auth_db import verify_api_key
+
+        user_id = verify_api_key(api_key)
+        if user_id is None:
+            error_response = {"status": "error", "message": "Invalid btalgo apikey"}
+            return False, error_response, 403
+
+        allowed, blocked_response, blocked_status = require_live_trading(username=str(user_id))
+        if not allowed:
+            return False, blocked_response, blocked_status
+
         AUTH_TOKEN, broker_name = get_auth_token_broker(api_key)
         if AUTH_TOKEN is None:
             error_response = {"status": "error", "message": "Invalid btalgo apikey"}
@@ -327,6 +339,9 @@ def place_order(
 
     # Case 2: Direct internal call with auth_token and broker
     elif auth_token and broker:
+        allowed, blocked_response, blocked_status = require_live_trading()
+        if not allowed:
+            return False, blocked_response, blocked_status
         return place_order_with_auth(order_data, auth_token, broker, original_data, emit_event, prefetched_quote)
 
     # Case 3: Invalid parameters

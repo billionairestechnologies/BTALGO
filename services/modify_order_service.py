@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional, Tuple
 from database.auth_db import get_auth_token_broker
 from database.settings_db import get_analyze_mode
 from events import AnalyzerErrorEvent, OrderModifiedEvent, OrderModifyFailedEvent
+from utils.access_control import require_live_trading
 from utils.event_bus import bus
 from utils.logging import get_logger
 
@@ -216,6 +217,9 @@ def modify_order(
         if not get_analyze_mode():
             user_id = verify_api_key(api_key)
             if user_id:
+                allowed, blocked_response, blocked_status = require_live_trading(username=str(user_id))
+                if not allowed:
+                    return False, blocked_response, blocked_status
                 order_mode = get_order_mode(user_id)
                 if order_mode == "semi_auto":
                     error_response = {
@@ -248,6 +252,9 @@ def modify_order(
 
     # Case 2: Direct internal call with auth_token and broker
     elif auth_token and broker:
+        allowed, blocked_response, blocked_status = require_live_trading()
+        if not allowed:
+            return False, blocked_response, blocked_status
         return modify_order_with_auth(order_data, auth_token, broker, original_data)
 
     # Case 3: Invalid parameters
