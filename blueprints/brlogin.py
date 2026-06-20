@@ -540,7 +540,12 @@ def broker_callback(broker, para=None):
         code = request.args.get("code")
         if code:
             logger.debug(f"Zebu broker - OAuth callback with code: {code}")
-            auth_token, error_message = auth_function(code)
+            broker_ctx = _resolve_session_broker_context("zebu")
+            auth_token, error_message = auth_function(
+                code,
+                broker_api_key=broker_ctx.api_key,
+                broker_api_secret=broker_ctx.api_secret,
+            )
             forward_url = "broker.html"
         else:
             # Initial visit — redirect to Zebu OAuth login page
@@ -566,7 +571,12 @@ def broker_callback(broker, para=None):
         code = request.args.get("code")
         if code:
             logger.debug("Shoonya broker - OAuth callback received")
-            auth_token, error_message = auth_function(code)
+            broker_ctx = _resolve_session_broker_context("shoonya")
+            auth_token, error_message = auth_function(
+                code,
+                broker_api_key=broker_ctx.api_key,
+                broker_api_secret=broker_ctx.api_secret,
+            )
             forward_url = "broker.html"
         else:
             # Initial visit — redirect to Shoonya OAuth login page
@@ -645,7 +655,12 @@ def broker_callback(broker, para=None):
         code = request.args.get("code")
         client = request.args.get("client")  # Flattrade returns client ID as well
         logger.debug(f"Flattrade broker - The code is {code} for client {client}")
-        auth_token, error_message = auth_function(code)  # Only pass the code parameter
+        broker_ctx = _resolve_session_broker_context("flattrade")
+        auth_token, error_message = auth_function(
+            code,
+            broker_api_key=broker_ctx.api_key,
+            broker_api_secret=broker_ctx.api_secret,
+        )
         forward_url = "broker.html"
 
     elif broker == "tradesmart":
@@ -671,7 +686,12 @@ def broker_callback(broker, para=None):
         elif code:
             # OAuth callback: exchange code (+checksum) for an access token.
             logger.debug("TradeSmart broker - OAuth callback received")
-            auth_token, error_message = auth_function(code)
+            broker_ctx = _resolve_session_broker_context("tradesmart")
+            auth_token, error_message = auth_function(
+                code,
+                broker_api_key=broker_ctx.api_key,
+                broker_api_secret=broker_ctx.api_secret,
+            )
             forward_url = "broker.html"
         else:
             # Initial visit — redirect to the TradeSmart OAuth login page.

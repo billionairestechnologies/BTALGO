@@ -27,7 +27,13 @@ def sha256_hash(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def authenticate_broker(code, password=None, totp_code=None):
+def authenticate_broker(
+    code,
+    password=None,
+    totp_code=None,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+):
     """Exchange the login ``code`` for a TradeSmart access token.
 
     Args:
@@ -38,8 +44,8 @@ def authenticate_broker(code, password=None, totp_code=None):
         failure is ``(None, "message")``.
     """
     try:
-        api_key = get_api_key()
-        secret_key = os.getenv("BROKER_API_SECRET")
+        api_key = get_api_key(broker_api_key)
+        secret_key = broker_api_secret or os.getenv("BROKER_API_SECRET")
 
         if not api_key or not secret_key:
             return None, "BROKER_API_KEY / BROKER_API_SECRET not configured"

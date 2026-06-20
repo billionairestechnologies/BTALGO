@@ -49,12 +49,12 @@ def parse_auth(auth_token):
     return None, auth_token
 
 
-def get_api_key():
+def get_api_key(full_api_key: str | None = None):
     """Resolve the raw API key used for the auth checksum.
 
     Supports both ``<CLIENT_ID>:::<API_KEY>`` and a bare ``<API_KEY>`` env value.
     """
-    full_api_key = os.getenv("BROKER_API_KEY", "")
+    full_api_key = full_api_key or os.getenv("BROKER_API_KEY", "")
     return full_api_key.split(":::")[1] if ":::" in full_api_key else full_api_key
 
 

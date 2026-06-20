@@ -15,17 +15,25 @@ def sha256_hash(text):
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def authenticate_broker(code, password=None, totp_code=None):
+def authenticate_broker(
+    code,
+    password=None,
+    totp_code=None,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+):
     """
     Authenticate with Flattrade using OAuth flow
     """
     try:
-        full_api_key = os.getenv("BROKER_API_KEY")
+        full_api_key = broker_api_key or os.getenv("BROKER_API_KEY")
         logger.debug(f"Full API Key: {full_api_key}")  # Debug print
 
         # Split the API key to get the actual key part
+        if not full_api_key or ":::" not in full_api_key:
+            return None, "BROKER_API_KEY must be in format userid:::api_key"
         BROKER_API_KEY = full_api_key.split(":::")[1]
-        BROKER_API_SECRET = os.getenv("BROKER_API_SECRET")
+        BROKER_API_SECRET = broker_api_secret or os.getenv("BROKER_API_SECRET")
 
         logger.debug(f"Using API Key: {BROKER_API_KEY}")  # Debug print
         logger.debug(f"Request Code: {code}")  # Debug print
@@ -74,10 +82,17 @@ def authenticate_broker(code, password=None, totp_code=None):
         return None, f"An exception occurred: {str(e)}"
 
 
-def authenticate_broker_oauth(code):
+def authenticate_broker_oauth(
+    code,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+):
     try:
-        BROKER_API_KEY = os.getenv("BROKER_API_KEY").split(":::")[1]  # Get only the API key part
-        BROKER_API_SECRET = os.getenv("BROKER_API_SECRET")
+        full_api_key = broker_api_key or os.getenv("BROKER_API_KEY")
+        if not full_api_key or ":::" not in full_api_key:
+            return None, "BROKER_API_KEY must be in format userid:::api_key"
+        BROKER_API_KEY = full_api_key.split(":::")[1]  # Get only the API key part
+        BROKER_API_SECRET = broker_api_secret or os.getenv("BROKER_API_SECRET")
 
         # Create the security hash as per Flattrade docs
         # api_secret:SHA-256 hash of (api_key + request_token + api_secret)
