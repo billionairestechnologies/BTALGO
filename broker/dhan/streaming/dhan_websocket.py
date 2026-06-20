@@ -15,6 +15,7 @@ from urllib.parse import urlencode
 import websocket
 
 from database.auth_db import get_auth_token
+from utils.ws_proxy_config import build_websocket_proxy_kwargs
 
 
 class DhanWebSocket:
@@ -57,6 +58,7 @@ class DhanWebSocket:
         access_token: str,
         is_20_depth: bool = False,
         user_id: str | None = None,
+        route_context: dict[str, Any] | None = None,
     ):
         """
         Initialize Dhan WebSocket client
@@ -72,6 +74,7 @@ class DhanWebSocket:
         self.access_token = access_token
         self.is_20_depth = is_20_depth
         self.user_id = user_id
+        self.route_context = route_context
 
         # WebSocket connection
         self.ws = None
@@ -104,6 +107,7 @@ class DhanWebSocket:
 
         # Logging
         self.logger = logging.getLogger(f"dhan_websocket_{'20depth' if is_20_depth else '5depth'}")
+        self._websocket_proxy_kwargs = build_websocket_proxy_kwargs(route_context=route_context)
 
         # Build WebSocket URL
         self._build_url()
@@ -185,7 +189,11 @@ class DhanWebSocket:
                 )
 
                 # Run the WebSocket with ping interval
-                self.ws.run_forever(ping_interval=30, ping_timeout=10)
+                self.ws.run_forever(
+                    ping_interval=30,
+                    ping_timeout=10,
+                    **self._websocket_proxy_kwargs,
+                )
 
             except Exception as e:
                 self.logger.error(f"WebSocket connection error: {e}", exc_info=True)

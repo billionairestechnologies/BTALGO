@@ -124,6 +124,9 @@ Relevant commits:
   - Dhan order HTTP requests now resolve tenant route context
   - WebSocket proxy initialization now passes tenant broker/auth context into pooled adapters
   - pooled reconnect/new-connection flows now retain the same tenant auth context
+  - Upstox websocket client can now dial through tenant-selected proxy routes
+  - Dhan websocket client can now dial through tenant-selected proxy routes
+  - Zerodha websocket client can now dial through tenant-selected proxy routes
 
 ## What Is Not Done Yet
 
@@ -164,7 +167,7 @@ Still needed:
 Still needed:
 
 - move more broker HTTP helpers onto route-aware request paths
-- add WebSocket route selection
+- extend WebSocket route selection to the rest of the broker adapters
 - add admin/operator UI for route balancing and health controls
 
 ### Copy trading is not unified yet

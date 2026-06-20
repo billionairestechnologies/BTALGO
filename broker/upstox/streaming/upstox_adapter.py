@@ -72,10 +72,15 @@ class UpstoxWebSocketAdapter(BaseBrokerWebSocketAdapter):
             auth_token = self._get_auth_token(auth_data, user_id)
             if not auth_token:
                 return self._create_error_response("AUTH_ERROR", "No authentication token found")
+            route_context = auth_data.get("route_context") if auth_data else None
 
             # Pass user_id so the client can re-read a fresh bearer token from
             # the database on reconnect (tokens roll over daily at ~3 AM IST).
-            self.ws_client = UpstoxWebSocketClient(auth_token, user_id=user_id)
+            self.ws_client = UpstoxWebSocketClient(
+                auth_token,
+                user_id=user_id,
+                route_context=route_context,
+            )
             self.ws_client.callbacks = {
                 "on_connect": self._on_connect,
                 "on_message": self._on_market_data,

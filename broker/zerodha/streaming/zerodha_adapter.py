@@ -78,9 +78,12 @@ class ZerodhaWebSocketAdapter(BaseBrokerWebSocketAdapter):
                 return {"status": "error", "message": f"Invalid broker name: {broker_name}"}
 
             self.user_id = user_id
+            route_context = auth_data.get("route_context") if auth_data else None
 
             # Get API key from environment
-            self.api_key = os.getenv("BROKER_API_KEY")
+            self.api_key = auth_data.get("api_key") if auth_data else None
+            if not self.api_key:
+                self.api_key = os.getenv("BROKER_API_KEY")
             if not self.api_key:
                 return {"status": "error", "message": "API key not found in environment variables"}
 
@@ -115,6 +118,7 @@ class ZerodhaWebSocketAdapter(BaseBrokerWebSocketAdapter):
                 access_token=self.access_token,
                 on_ticks=self._handle_ticks,
                 user_id=user_id,
+                route_context=route_context,
             )
 
             # Set up WebSocket callbacks

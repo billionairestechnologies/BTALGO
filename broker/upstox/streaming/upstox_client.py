@@ -19,6 +19,7 @@ import websocket
 from google.protobuf.json_format import MessageToDict
 
 from database.auth_db import get_auth_token
+from utils.ws_proxy_config import build_requests_proxy_kwargs, build_websocket_proxy_kwargs
 
 from . import MarketDataFeedV3_pb2
 
@@ -42,13 +43,19 @@ class UpstoxWebSocketClient:
     HEALTH_CHECK_INTERVAL = 30
     DATA_TIMEOUT = 90
 
-    def __init__(self, auth_token: str, user_id: str | None = None):
+    def __init__(
+        self,
+        auth_token: str,
+        user_id: str | None = None,
+        route_context: dict[str, Any] | None = None,
+    ):
         self.auth_token = auth_token
         # user_id is used on reconnect to re-read a fresh bearer token from the
         # database. Indian broker tokens roll over daily at ~3 AM IST, so the
         # reconnect must NOT sign the new authorize request with the dead
         # construction-time token.
         self.user_id = user_id
+        self.route_context = route_context
         self.ws: websocket.WebSocketApp | None = None
         self.logger = logging.getLogger("upstox_websocket")
         self._subscriptions: set = set()
@@ -80,6 +87,8 @@ class UpstoxWebSocketClient:
         self._ssl_context = ssl.create_default_context()
         self._ssl_context.check_hostname = False
         self._ssl_context.verify_mode = ssl.CERT_NONE
+        self._requests_proxy_kwargs = build_requests_proxy_kwargs(route_context=route_context)
+        self._websocket_proxy_kwargs = build_websocket_proxy_kwargs(route_context=route_context)
 
     def connect(self) -> bool:
         """Establish WebSocket connection in a background thread.
@@ -132,6 +141,7 @@ class UpstoxWebSocketClient:
                     sslopt={"cert_reqs": ssl.CERT_NONE},
                     ping_interval=30,
                     ping_timeout=10,
+                    **self._websocket_proxy_kwargs,
                 )
             except Exception as e:
                 self.logger.error(f"WebSocket run_forever error: {e}")
@@ -416,7 +426,10 @@ class UpstoxWebSocketClient:
         try:
             headers = {"Accept": "application/json", "Authorization": f"Bearer {self.auth_token}"}
             response = requests.get(
-                self.AUTH_ENDPOINT, headers=headers, timeout=self.HTTP_TIMEOUT
+                self.AUTH_ENDPOINT,
+                headers=headers,
+                timeout=self.HTTP_TIMEOUT,
+                **self._requests_proxy_kwargs,
             )
             response.raise_for_status()
             auth_data = response.json()

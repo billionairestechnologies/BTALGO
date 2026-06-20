@@ -56,6 +56,10 @@ This is the execution queue, ordered by what should happen next.
 - [x] Add health status for route nodes
 - [x] Add outbound broker HTTP routing foundation
 - [ ] Add outbound broker WebSocket routing
+  - [x] Proxy-aware websocket client foundation for Upstox
+  - [x] Proxy-aware websocket client foundation for Dhan
+  - [x] Proxy-aware websocket client foundation for Zerodha
+  - [ ] Extend the same routing to remaining broker websocket clients
 - [x] Add admin API to manage route inventory
 - [ ] Add admin UI to assign or rebalance routes
 - [ ] Start using route context in broker API/helper modules that still call shared env-based clients

@@ -34,6 +34,7 @@ This file is for the next agent or developer who needs to continue the SaaS tran
   - Upstox order HTTP path is route-aware
   - Dhan order HTTP path is route-aware
   - WebSocket pooled adapters keep tenant auth context during new pooled connections and auth-refresh rebuilds
+  - Upstox, Dhan, and Zerodha websocket clients now accept proxy-derived route config
 - MPIN setup/verify/disable flow exists in backend and Profile UI.
 - Copy trading is not unified into BillionairsHQ yet.
 
@@ -41,7 +42,7 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 
 Best next engineering task:
 
-`Move the remaining broker API/helper modules onto resolver-based credentials plus route-aware HTTP/WebSocket execution.`
+`Move the remaining broker API/helper modules and broker websocket clients onto resolver-based credentials plus route-aware HTTP/WebSocket execution.`
 
 Reason:
 

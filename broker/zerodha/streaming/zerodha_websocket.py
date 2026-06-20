@@ -29,6 +29,7 @@ from typing import Any
 import websocket
 
 from database.auth_db import get_auth_token
+from utils.ws_proxy_config import build_websocket_proxy_kwargs
 
 if "eventlet" in sys.modules:
     import eventlet
@@ -81,6 +82,7 @@ class ZerodhaWebSocket:
         access_token: str,
         on_ticks: Callable[[list[dict]], None] = None,
         user_id: str | None = None,
+        route_context: dict[str, Any] | None = None,
     ):
         """Initialize the Zerodha WebSocket client"""
         self.api_key = api_key
@@ -90,6 +92,7 @@ class ZerodhaWebSocket:
         # database. Indian broker tokens roll over daily at ~3 AM IST, so a
         # reconnect after rollover must NOT reuse the construction-time token.
         self.user_id = user_id
+        self.route_context = route_context
         self.ws: websocket.WebSocketApp | None = None
         self.connected = False
         self.running = False
@@ -136,6 +139,7 @@ class ZerodhaWebSocket:
         # Connection state
         self._connection_ready = _real_threading.Event()
         self._stop_event = _real_threading.Event()
+        self._websocket_proxy_kwargs = build_websocket_proxy_kwargs(route_context=route_context)
 
         # Auth/token failure handling. When a 403 is detected (expired token,
         # invalid api_key, 3am IST roll-over, etc.) we do NOT die on the first
@@ -252,6 +256,7 @@ class ZerodhaWebSocket:
                     sslopt={"cert_reqs": ssl.CERT_NONE},
                     ping_interval=self.PING_INTERVAL,
                     ping_timeout=self.PING_TIMEOUT,
+                    **self._websocket_proxy_kwargs,
                 )
 
             except Exception as e:

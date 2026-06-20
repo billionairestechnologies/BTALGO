@@ -89,8 +89,12 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
 
         load_dotenv()
 
+        route_context = auth_data.get("route_context") if auth_data else None
+
         # Get Dhan client_id from BROKER_API_KEY (format: client_id:::api_key)
-        broker_api_key = os.getenv("BROKER_API_KEY")
+        broker_api_key = auth_data.get("api_key") if auth_data else None
+        if not broker_api_key:
+            broker_api_key = os.getenv("BROKER_API_KEY")
         if broker_api_key and ":::" in broker_api_key:
             client_id = broker_api_key.split(":::")[0]
         else:
@@ -122,6 +126,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
             access_token=auth_token,
             is_20_depth=False,
             user_id=user_id,
+            route_context=route_context,
         )
 
         # Initialize 20-depth WebSocket client
@@ -130,6 +135,7 @@ class DhanWebSocketAdapter(BaseBrokerWebSocketAdapter):
             access_token=auth_token,
             is_20_depth=True,
             user_id=user_id,
+            route_context=route_context,
         )
 
         # Set callbacks for 5-depth client
