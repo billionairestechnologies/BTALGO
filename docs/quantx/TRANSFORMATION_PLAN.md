@@ -84,11 +84,53 @@ The first implementation slice should add these platform tables:
 
 The first code commits after this document should be:
 
-1. Add BillionairsHQ SaaS database models and migrations. `started`
-2. Add broker account CRUD APIs without removing legacy `.env` credentials yet. `started`
-3. Add a broker credential resolver that prefers per-user accounts and falls back to legacy env config. `started`
-4. Convert one broker path end-to-end through the resolver.
-5. Add tests for tenant isolation and secret masking.
+1. Add BillionairsHQ SaaS database models and migrations. `done`
+2. Add broker account CRUD APIs without removing legacy `.env` credentials yet. `done`
+3. Add a broker credential resolver that prefers per-user accounts and falls back to legacy env config. `done`
+4. Convert one broker path end-to-end through the resolver. `partial`
+5. Add tests for tenant isolation and secret masking. `partial`
+
+## Progress Snapshot
+
+Completed foundation:
+
+- BillionairsHQ whitelabel naming and reusable branding helpers.
+- SaaS tenant, user profile, broker account, and subscription tables.
+- SaaS broker account CRUD APIs.
+- Broker credential resolver with legacy `.env` fallback.
+- Broker settings UI now stores per-user broker credentials in SaaS tables.
+- Fyers, Upstox, and Zerodha OAuth callback token exchange now resolve credentials from the logged-in user's SaaS broker account.
+- Public signup flow with Resend email OTP verification.
+- Login page updated to support self-serve account creation.
+
+Still in progress:
+
+- More broker auth paths need resolver migration.
+- Billing and entitlements are scaffolded in schema only, not live.
+- OTP exists for signup email verification, but MPIN and product-level auth flows are not done.
+- Static-IP routing is still a design target, not an active execution path.
+- Copy trading is not yet merged into the same SaaS auth and billing model.
+
+## Current Milestone Order
+
+1. Complete broker migration
+   - Move all remaining broker login/token/helper code to resolver-based account context.
+   - Remove hidden assumptions that `BROKER_API_KEY` and `BROKER_API_SECRET` are global.
+
+2. Add billing core
+   - Razorpay customer, checkout, webhook verification, subscription state, entitlement checks.
+
+3. Add stronger account auth
+   - MPIN, optional phone/mobile OTP, device/session controls, and enforcement per action class.
+
+4. Add static-IP routing
+   - Egress node inventory, broker-account route assignment, and outbound request path selection.
+
+5. Unify copy trading
+   - Same login, tenant, subscription, broker account, route, and audit model as BillionairsHQ.
+
+6. Isolate strategy execution
+   - Background jobs, tenant-safe strategy storage, logs, kill switch, quotas, and Python SDK alignment.
 
 ## Non-Negotiables
 
