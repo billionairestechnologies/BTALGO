@@ -244,7 +244,7 @@ export default function WhatsAppIndex() {
           <CardDescription>
             {/* Privacy: the owner's WhatsApp number is intentionally never
                 rendered in the UI. We only surface whether a device is
-                paired and which BTAlgo user owns it. */}
+                paired and which BillionairsHQ user owns it. */}
             {isPaired
               ? cfg?.owner_username
                 ? `Device paired (owner: ${cfg.owner_username})`

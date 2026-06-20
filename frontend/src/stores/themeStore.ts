@@ -170,7 +170,7 @@ export const useThemeStore = create<ThemeStore>()(
       },
     }),
     {
-      name: 'btalgo-theme',
+      name: 'BillionairsHQ-theme',
       partialize: (state) => ({
         mode: state.mode,
         color: state.color,

@@ -254,7 +254,7 @@ export default function RemoteMcp() {
       // banner on reloads until the running process actually picks them up.
       localStorage.setItem(RESTART_PENDING_KEY, JSON.stringify(pendingSettings))
       setRestartPending(pendingSettings)
-      showToast.success('Saved. Restart the btalgo service to apply.', 'admin')
+      showToast.success('Saved. Restart the BillionairsHQ service to apply.', 'admin')
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
@@ -394,7 +394,7 @@ export default function RemoteMcp() {
                 </CardTitle>
                 <CardDescription>
                   Toggle Remote MCP on or off and adjust its OAuth posture. Changes are written to
-                  <code className="mx-1">.env</code>; the btalgo service must be restarted before
+                  <code className="mx-1">.env</code>; the BillionairsHQ service must be restarted before
                   they take effect.
                 </CardDescription>
               </div>
@@ -440,7 +440,7 @@ export default function RemoteMcp() {
                 placeholder="https://yourdomain.com"
               />
               <p className="text-xs text-muted-foreground">
-                Same as your BTAlgo dashboard URL. Required when MCP is enabled. Used as the JWT
+                Same as your BillionairsHQ dashboard URL. Required when MCP is enabled. Used as the JWT
                 issuer / audience claim — tokens are scoped to this exact origin.
               </p>
             </div>
@@ -539,7 +539,7 @@ export default function RemoteMcp() {
           <AlertDescription>
             Settings saved to <code>.env</code>. Run the following on your server to load them:
             <pre className="mt-2 rounded bg-muted px-3 py-2 text-xs font-mono">
-              sudo systemctl restart btalgo
+              sudo systemctl restart BillionairsHQ
             </pre>
             <span className="block mt-2 text-xs">
               This banner clears automatically once the running service reflects the new values.

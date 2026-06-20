@@ -2,6 +2,7 @@ import { Github, Monitor } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { brand } from '@/config/branding'
 import { cn } from '@/lib/utils'
 import { useSessionStore } from '@/stores/sessionStore'
 
@@ -11,6 +12,7 @@ interface FooterProps {
 
 export function Footer({ className }: FooterProps) {
   const [version, setVersion] = useState<string>('')
+  const [productName, setProductName] = useState<string>(brand.productName)
   const activeSessionCount = useSessionStore((s) => s.activeSessionCount)
 
   useEffect(() => {
@@ -20,6 +22,7 @@ export function Footer({ className }: FooterProps) {
         const data = await response.json()
         if (data.status === 'success') {
           setVersion(data.version)
+          setProductName(data.product_name || brand.productName)
         }
       } catch (_error) {}
     }
@@ -35,16 +38,16 @@ export function Footer({ className }: FooterProps) {
             <span>Copyright 2026</span>
             <span className="hidden md:inline">|</span>
             <a
-              href="https://www.billionairestechnologies.com"
+              href={brand.websiteUrl}
               className="text-primary hover:underline font-medium"
               target="_blank"
               rel="noopener noreferrer"
             >
-              www.billionairestechnologies.com
+              {brand.companyName}
             </a>
           </div>
           <span className="hidden md:inline">|</span>
-          <span className="text-center">Open Source Algo Platform for Everyone</span>
+          <span className="text-center">{productName} Algo Platform</span>
           <span className="hidden md:inline">|</span>
           {version && (
             <Badge variant="secondary" className="gap-1">
@@ -69,7 +72,7 @@ export function Footer({ className }: FooterProps) {
         <div className="flex justify-center gap-2 mt-4">
           <Button variant="ghost" size="icon" asChild className="h-8 w-8">
             <a
-              href="https://github.com/billionairestechnologies/btalgo"
+              href={brand.repoUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
@@ -85,7 +88,7 @@ export function Footer({ className }: FooterProps) {
             title="Join our Discord community"
           >
             <a
-              href="https://billionairestechnologies.com/discord"
+              href={brand.discordUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Discord"
@@ -97,7 +100,7 @@ export function Footer({ className }: FooterProps) {
           </Button>
           <Button variant="ghost" size="icon" asChild className="h-8 w-8" title="Follow us on X">
             <a
-              href="https://x.com/BTAlgoHQ"
+              href={brand.xUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X (Twitter)"
@@ -115,7 +118,7 @@ export function Footer({ className }: FooterProps) {
             title="Subscribe to our YouTube channel"
           >
             <a
-              href="https://www.youtube.com/@BTAlgo"
+              href={brand.youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="YouTube"

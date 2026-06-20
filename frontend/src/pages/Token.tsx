@@ -32,7 +32,7 @@ interface SearchHistoryEntry {
   ts: number
 }
 
-const HISTORY_KEY = 'btalgo:search-history'
+const HISTORY_KEY = 'BillionairsHQ:search-history'
 const HISTORY_MAX = 10
 
 function loadHistory(): SearchHistoryEntry[] {

@@ -5,7 +5,7 @@
 // Lazy import() rejects with a browser-specific error message; we recognise
 // any of those and force-reload to fetch the fresh index.html.
 //
-// See marketcalls/btalgo#1393 for the bug report.
+// See marketcalls/BillionairsHQ#1393 for the bug report.
 
 const CHUNK_ERROR_PATTERNS = [
   // Safari: "Importing a module script failed."
@@ -21,7 +21,7 @@ const CHUNK_ERROR_PATTERNS = [
   /Failed to load resource.*\.(?:js|mjs|css)/i,
 ]
 
-const RELOAD_FLAG = 'btalgo:chunk-reload-attempted'
+const RELOAD_FLAG = 'BillionairsHQ:chunk-reload-attempted'
 
 /** True iff the error message looks like a stale-chunk import failure. */
 export function isChunkLoadError(message: string | undefined | null): boolean {

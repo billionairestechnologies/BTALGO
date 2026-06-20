@@ -51,7 +51,7 @@ interface UseOptionChainLiveOptions {
  * - WebSocket for real-time LTP/Bid/Ask updates
  * - REST polling for OI/Volume data (less frequent)
  *
- * @param apiKey - BTAlgo API key
+ * @param apiKey - BillionairsHQ API key
  * @param underlying - Underlying symbol (NIFTY, BANKNIFTY, etc.)
  * @param exchange - Exchange code for underlying (NSE_INDEX, BSE_INDEX)
  * @param optionExchange - Exchange code for options (NFO, BFO)

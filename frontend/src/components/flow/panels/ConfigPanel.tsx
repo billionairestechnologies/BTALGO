@@ -2580,7 +2580,7 @@ export function ConfigPanel() {
             {nodeType === 'telegramAlert' && (
               <>
                 <div className="space-y-2">
-                  <Label className="text-xs">BTAlgo Username</Label>
+                  <Label className="text-xs">BillionairsHQ Username</Label>
                   <Input
                     className="h-8"
                     placeholder="Your login ID"

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { brand, brandedTitle } from '@/config/branding'
 
 const PAGE_TITLES: Record<string, string> = {
   '/': 'Home',
@@ -97,7 +98,7 @@ function getPageTitle(pathname: string): string {
     }
   }
 
-  return 'BTAlgo'
+  return brand.productName
 }
 
 export function usePageTitle() {
@@ -105,6 +106,6 @@ export function usePageTitle() {
 
   useEffect(() => {
     const title = getPageTitle(pathname)
-    document.title = title === 'BTAlgo' ? 'BTAlgo' : `${title} | BTAlgo`
+    document.title = brandedTitle(title)
   }, [pathname])
 }

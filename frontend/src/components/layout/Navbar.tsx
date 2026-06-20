@@ -5,6 +5,7 @@ import { authApi } from '@/api/auth'
 import { LogoutConfirmDialog } from '@/components/auth/LogoutConfirmDialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { brand } from '@/config/branding'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -94,8 +95,8 @@ export function Navbar() {
                 className="flex items-center gap-2 px-2"
                 onClick={() => setMobileOpen(false)}
               >
-                <img src="/logo.png" alt="BTAlgo" className="h-8 w-8" />
-                <span className="font-semibold">BTAlgo</span>
+                <img src="/logo.png" alt={brand.productName} className="h-8 w-8" />
+                <span className="font-semibold">{brand.productName}</span>
               </Link>
 
               {/* Secondary nav items (not in bottom nav) */}
@@ -143,7 +144,7 @@ export function Navbar() {
                   </Link>
                 ))}
                 <a
-                  href="https://docs.billionairestechnologies.com"
+                  href={brand.docsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors min-h-[44px] touch-manipulation hover:bg-muted active:bg-muted"
@@ -159,8 +160,8 @@ export function Navbar() {
 
         {/* Logo */}
         <Link to="/dashboard" className="flex items-center gap-2 mr-6">
-          <img src="/logo.png" alt="BTAlgo" className="h-8 w-8" />
-          <span className="hidden font-semibold sm:inline-block">BTAlgo</span>
+          <img src="/logo.png" alt={brand.productName} className="h-8 w-8" />
+          <span className="hidden font-semibold sm:inline-block">{brand.productName}</span>
         </Link>
 
         {/* Desktop Navigation.

@@ -24,6 +24,7 @@ import {
   Wrench,
   Zap,
 } from 'lucide-react'
+import { brand } from '@/config/branding'
 
 export interface NavItem {
   href: string
@@ -80,7 +81,7 @@ export const profileMenuItems: NavItem[] = [
 
 // External links
 export const externalLinks = {
-  docs: { href: 'https://docs.billionairestechnologies.com', label: 'Docs', icon: BookOpen },
+  docs: { href: brand.docsUrl, label: 'Docs', icon: BookOpen },
 }
 
 // Shared utility to check if a route is active

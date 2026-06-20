@@ -1,6 +1,6 @@
-# BTAlgo — Algorithmic Trading Platform
+# BillionairsHQ - Algorithmic Trading Platform
 
-**BTAlgo** is a production-ready, self-hosted algorithmic trading platform built on Python Flask + React 19. It gives traders a complete environment to design, host, and execute strategies across 30+ Indian brokers through a single unified API.
+**BillionairsHQ** is the QuantX SaaS platform for broker-agnostic algorithmic trading. It builds on the current Flask + React trading stack and gives traders a complete environment to design, host, and execute strategies across 30+ Indian brokers through a single unified API.
 
 ---
 
@@ -19,8 +19,8 @@
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/billionairestechnologies/BTALGO.git
-cd BTALGO
+git clone https://github.com/billionairestechnologies/QuantX.git
+cd QuantX
 
 # 2. Copy and configure environment
 cp .sample.env .env
@@ -31,6 +31,18 @@ uv run app.py
 ```
 
 Access the platform at **http://127.0.0.1:5000**
+
+---
+
+## Whitelabel Branding
+
+Double-click `WHITELABEL.bat` on Windows, or run:
+
+```bash
+python scripts/apply_whitelabel.py --product-name "ClientBrand"
+```
+
+The branding layer updates product/company/display URLs while keeping compatible internal env names intact.
 
 ---
 

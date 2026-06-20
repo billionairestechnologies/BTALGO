@@ -87,7 +87,7 @@ export const useAuthStore = create<AuthStore>()(
       },
     }),
     {
-      name: 'btalgo-auth',
+      name: 'BillionairsHQ-auth',
     }
   )
 )

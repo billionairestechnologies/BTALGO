@@ -1015,9 +1015,10 @@ def active_sessions():
 @auth_bp.route("/app-info", methods=["GET"])
 def get_app_info():
     """Return app information including version for React SPA."""
+    from utils.branding import get_branding
     from utils.version import get_version
 
-    return jsonify({"status": "success", "version": get_version(), "name": "BTAlgo"})
+    return jsonify({"status": "success", "version": get_version(), **get_branding()})
 
 
 @auth_bp.route("/analyzer-mode", methods=["GET"])

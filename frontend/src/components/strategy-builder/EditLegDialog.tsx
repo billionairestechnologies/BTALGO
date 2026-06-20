@@ -40,7 +40,7 @@ export interface EditLegDialogProps {
   underlying: string
   /** F&O exchange (NFO / BFO / MCX / CDS) for the /quotes call. */
   optionExchange: string
-  /** BTAlgo API key for /quotes. */
+  /** BillionairsHQ API key for /quotes. */
   apiKey: string
   /** ATM strike from the live chain — used to show moneyness next to the Strike field. */
   atmStrike?: number | null

@@ -128,7 +128,7 @@ export const useAlertStore = create<AlertStore>()(
       },
     }),
     {
-      name: 'btalgo-alerts',
+      name: 'BillionairsHQ-alerts',
       partialize: (state) => ({
         toastsEnabled: state.toastsEnabled,
         soundEnabled: state.soundEnabled,

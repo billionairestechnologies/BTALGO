@@ -235,7 +235,7 @@ export default function Diagnostics() {
       <p className="text-sm text-muted-foreground">
         Use this page to troubleshoot issues. Click{' '}
         <span className="font-semibold">Download .md</span> and attach it when asking for help on
-        the BTAlgo community — secrets and tokens are never included.
+        the BillionairsHQ community — secrets and tokens are never included.
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -317,8 +317,8 @@ export default function Diagnostics() {
         {/* Build */}
         <Section icon={Settings} title="Build">
           <div>
-            <KV label="BTAlgo" value={info?.build.btalgo_version} />
-            <KV label="BTAlgo SDK" value={info?.build.btalgo_sdk_version} />
+            <KV label="BillionairsHQ" value={info?.build.btalgo_version} />
+            <KV label="BillionairsHQ SDK" value={info?.build.btalgo_sdk_version} />
             <KV label="Git branch" value={info?.build.git_branch} />
             <KV label="Git commit" value={info?.build.git_commit} />
             <KV label="Frontend build" value={info?.build.frontend_build_time} />

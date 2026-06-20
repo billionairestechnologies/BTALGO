@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { brand } from '@/config/branding'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -234,7 +235,7 @@ export default function BrokerSelect() {
           <Card className="w-full max-w-md shadow-xl order-1 lg:order-2">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
-                <img src="/logo.png" alt="BTAlgo" className="h-20 w-20" />
+                <img src="/logo.png" alt={brand.productName} className="h-20 w-20" />
               </div>
               <CardTitle className="text-2xl">Connect Your Trading Account</CardTitle>
               <CardDescription>
@@ -307,7 +308,7 @@ export default function BrokerSelect() {
               Connect Your <span className="text-primary">Broker</span>
             </h1>
             <p className="text-lg lg:text-xl mb-8 text-muted-foreground">
-              Link your trading account to start executing trades through BTAlgo's algorithmic
+              Link your trading account to start executing trades through {brand.productName}'s algorithmic
               trading platform.
             </p>
 
@@ -319,7 +320,7 @@ export default function BrokerSelect() {
 
             <div className="flex justify-center lg:justify-start gap-4">
               <Button variant="outline" asChild>
-                <a href="https://docs.billionairestechnologies.com" target="_blank" rel="noopener noreferrer">
+                <a href={brand.docsUrl} target="_blank" rel="noopener noreferrer">
                   <BookOpen className="mr-2 h-4 w-4" />
                   Documentation
                 </a>
