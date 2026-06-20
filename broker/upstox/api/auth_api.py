@@ -9,11 +9,16 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def authenticate_broker(code):
+def authenticate_broker(
+    code,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+    redirect_url: str | None = None,
+):
     try:
-        BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-        BROKER_API_SECRET = os.getenv("BROKER_API_SECRET")
-        REDIRECT_URL = os.getenv("REDIRECT_URL")
+        BROKER_API_KEY = broker_api_key or os.getenv("BROKER_API_KEY")
+        BROKER_API_SECRET = broker_api_secret or os.getenv("BROKER_API_SECRET")
+        REDIRECT_URL = redirect_url or os.getenv("REDIRECT_URL")
 
         if not all([BROKER_API_KEY, BROKER_API_SECRET, REDIRECT_URL]):
             logger.error(

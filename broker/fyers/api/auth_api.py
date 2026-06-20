@@ -1,7 +1,7 @@
 import hashlib
 import json
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from utils.httpx_client import get_httpx_client
 from utils.logging import get_logger
@@ -9,7 +9,11 @@ from utils.logging import get_logger
 logger = get_logger(__name__)
 
 
-def authenticate_broker(request_token: str) -> tuple[str | None, dict[str, Any] | None]:
+def authenticate_broker(
+    request_token: str,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+) -> tuple[str | None, dict[str, Any] | None]:
     """
     Authenticate with FYERS API using request token and return access token with user details.
 
@@ -25,8 +29,8 @@ def authenticate_broker(request_token: str) -> tuple[str | None, dict[str, Any] 
     response_data = {"status": "error", "message": "Authentication failed", "data": None}
 
     # Get environment variables
-    broker_api_key = os.getenv("BROKER_API_KEY")
-    broker_api_secret = os.getenv("BROKER_API_SECRET")
+    broker_api_key = broker_api_key or os.getenv("BROKER_API_KEY")
+    broker_api_secret = broker_api_secret or os.getenv("BROKER_API_SECRET")
 
     # Validate environment variables
     if not broker_api_key or not broker_api_secret:

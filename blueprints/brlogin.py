@@ -10,6 +10,7 @@ from flask import current_app as app
 
 from limiter import limiter  # Import the limiter instance
 from utils.auth_utils import handle_auth_failure, handle_auth_success
+from utils.broker_context import resolve_broker_credentials
 from utils.config import (
     get_broker_api_key,
     get_broker_api_secret,
@@ -26,6 +27,11 @@ LOGIN_RATE_LIMIT_MIN = get_login_rate_limit_min()
 LOGIN_RATE_LIMIT_HOUR = get_login_rate_limit_hour()
 
 brlogin_bp = Blueprint("brlogin", __name__, url_prefix="/")
+
+
+def _resolve_session_broker_context(broker_name: str):
+    """Prefer the logged-in user's SaaS broker account for OAuth exchanges."""
+    return resolve_broker_credentials(username=session.get("user"), broker=broker_name)
 
 
 @brlogin_bp.errorhandler(429)
@@ -244,7 +250,15 @@ def broker_callback(broker, para=None):
     elif broker == "fyers":
         code = request.args.get("auth_code")
         logger.debug(f"Fyers broker - The code is {code}")
-        auth_token, error_message = auth_function(code)
+        broker_ctx = _resolve_session_broker_context("fyers")
+        auth_token, response_data = auth_function(
+            code,
+            broker_api_key=broker_ctx.api_key,
+            broker_api_secret=broker_ctx.api_secret,
+        )
+        error_message = None if auth_token else (
+            response_data.get("message") if isinstance(response_data, dict) else "Authentication failed"
+        )
         forward_url = "broker.html"
 
     elif broker == "tradejini":
@@ -878,6 +892,29 @@ def broker_callback(broker, para=None):
         auth_token, error_message = auth_function(code)
         forward_url = "broker.html"
 
+    elif broker == "upstox":
+        code = request.args.get("code") or request.args.get("request_token")
+        logger.debug(f"Upstox broker - The code is {code}")
+        broker_ctx = _resolve_session_broker_context("upstox")
+        auth_token, error_message = auth_function(
+            code,
+            broker_api_key=broker_ctx.api_key,
+            broker_api_secret=broker_ctx.api_secret,
+            redirect_url=broker_ctx.redirect_url,
+        )
+        forward_url = "broker.html"
+
+    elif broker == "zerodha":
+        code = request.args.get("code") or request.args.get("request_token")
+        logger.debug(f"Zerodha broker - The code is {code}")
+        broker_ctx = _resolve_session_broker_context("zerodha")
+        auth_token, error_message = auth_function(
+            code,
+            broker_api_key=broker_ctx.api_key,
+            broker_api_secret=broker_ctx.api_secret,
+        )
+        forward_url = "broker.html"
+
     else:
         code = request.args.get("code") or request.args.get("request_token")
         logger.debug(f"Generic broker - The code is {code}")
@@ -889,7 +926,8 @@ def broker_callback(broker, para=None):
         session["broker"] = broker
         logger.info(f"Successfully connected broker: {broker}")
         if broker == "zerodha":
-            auth_token = f"{BROKER_API_KEY}:{auth_token}"
+            broker_ctx = _resolve_session_broker_context("zerodha")
+            auth_token = f"{broker_ctx.api_key or BROKER_API_KEY}:{auth_token}"
         if broker == "dhan":
             auth_token = f"{auth_token}"
 
