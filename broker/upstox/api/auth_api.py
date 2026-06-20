@@ -3,7 +3,7 @@ import os
 
 import httpx
 
-from utils.httpx_client import get_httpx_client
+from utils.httpx_client import post
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -14,6 +14,7 @@ def authenticate_broker(
     broker_api_key: str | None = None,
     broker_api_secret: str | None = None,
     redirect_url: str | None = None,
+    route_context=None,
 ):
     try:
         BROKER_API_KEY = broker_api_key or os.getenv("BROKER_API_KEY")
@@ -35,8 +36,7 @@ def authenticate_broker(
             "grant_type": "authorization_code",
         }
 
-        client = get_httpx_client()
-        response = client.post(url, data=data)
+        response = post(url, data=data, route_context=route_context)
 
         if response.status_code == 200:
             response_data = response.json()

@@ -17,6 +17,7 @@ from utils.config import (
     get_login_rate_limit_hour,
     get_login_rate_limit_min,
 )
+from utils.ip_routing import resolve_ip_route
 from utils.logging import get_logger
 
 # Initialize logger
@@ -32,6 +33,11 @@ brlogin_bp = Blueprint("brlogin", __name__, url_prefix="/")
 def _resolve_session_broker_context(broker_name: str):
     """Prefer the logged-in user's SaaS broker account for OAuth exchanges."""
     return resolve_broker_credentials(username=session.get("user"), broker=broker_name)
+
+
+def _resolve_session_route_context(broker_name: str):
+    """Resolve the user's assigned static-IP route for a broker, if any."""
+    return resolve_ip_route(username=session.get("user"), broker=broker_name)
 
 
 def _broker_key_parts(raw_key: str | None) -> list[str]:
@@ -330,6 +336,7 @@ def broker_callback(broker, para=None):
         )
 
         broker_ctx = _resolve_session_broker_context("iiflcapital")
+        route_ctx = _resolve_session_route_context("iiflcapital")
 
         # Some callback variants may not include clientId explicitly.
         # Fall back to resolved broker key to avoid false failures.
@@ -384,6 +391,7 @@ def broker_callback(broker, para=None):
             auth_code,
             client_id,
             broker_api_secret=broker_ctx.api_secret,
+            route_context=route_ctx,
         )
         forward_url = "broker.html"
 
@@ -397,6 +405,7 @@ def broker_callback(broker, para=None):
 
     elif broker == "dhan":
         broker_ctx = _resolve_session_broker_context("dhan")
+        route_ctx = _resolve_session_route_context("dhan")
         auth_token = None
         error_message = None
         forward_url = "broker.html"
@@ -428,6 +437,7 @@ def broker_callback(broker, para=None):
                     token_id,
                     broker_api_key=broker_ctx.api_key,
                     broker_api_secret=broker_ctx.api_secret,
+                    route_context=route_ctx,
                 )
 
                 # Handle both old format (2 values) and new format (3 values)
@@ -626,13 +636,19 @@ def broker_callback(broker, para=None):
             forward_url = "broker.html"
 
     elif broker == "samco":
+        broker_ctx = _resolve_session_broker_context("samco")
+        route_ctx = _resolve_session_route_context("samco")
         if request.method == "GET":
             # Redirect to Samco multi-step auth wizard
             return redirect("/broker/samco/auth")
 
         elif request.method == "POST":
             # Daily login: generate access token + login using stored secret key
-            auth_token, error_message = auth_function()
+            auth_token, error_message = auth_function(
+                uid=broker_ctx.api_key,
+                password=broker_ctx.api_secret,
+                route_context=route_ctx,
+            )
             forward_url = "broker.html"
 
     elif broker == "motilal":
@@ -775,16 +791,18 @@ def broker_callback(broker, para=None):
         forward_url = "broker.html"
 
     elif broker == "definedge":
+        broker_ctx = _resolve_session_broker_context("definedge")
+        route_ctx = _resolve_session_route_context("definedge")
         if request.method == "GET":
             # Trigger OTP generation and redirect to React page
-            api_token = get_broker_api_key()
-            api_secret = get_broker_api_secret()
+            api_token = broker_ctx.api_key or get_broker_api_key()
+            api_secret = broker_ctx.api_secret or get_broker_api_secret()
 
             # Import the step1 function to trigger OTP
             from broker.definedge.api.auth_api import login_step1
 
             try:
-                step1_response = login_step1(api_token, api_secret)
+                step1_response = login_step1(api_token, api_secret, route_context=route_ctx)
                 if step1_response and "otp_token" in step1_response:
                     # Store OTP token in session for later use
                     session["definedge_otp_token"] = step1_response["otp_token"]
@@ -806,13 +824,13 @@ def broker_callback(broker, para=None):
 
             # Handle OTP resend request
             if action == "resend":
-                api_token = get_broker_api_key()
-                api_secret = get_broker_api_secret()
+                api_token = broker_ctx.api_key or get_broker_api_key()
+                api_secret = broker_ctx.api_secret or get_broker_api_secret()
 
                 from broker.definedge.api.auth_api import login_step1
 
                 try:
-                    step1_response = login_step1(api_token, api_secret)
+                    step1_response = login_step1(api_token, api_secret, route_context=route_ctx)
                     if step1_response and "otp_token" in step1_response:
                         session["definedge_otp_token"] = step1_response["otp_token"]
                         otp_message = "OTP has been resent successfully"
@@ -839,7 +857,8 @@ def broker_callback(broker, para=None):
                     ), 401
 
                 # Get api_secret for authentication
-                api_secret = get_broker_api_secret()
+                api_secret = broker_ctx.api_secret or get_broker_api_secret()
+                api_token = broker_ctx.api_key or get_broker_api_key()
 
                 # Use authenticate_broker for OTP verification
                 from broker.definedge.api.auth_api import authenticate_broker
@@ -847,7 +866,11 @@ def broker_callback(broker, para=None):
                 try:
                     # Call authenticate_broker with OTP token and code
                     auth_token, feed_token, user_id, error_message = authenticate_broker(
-                        otp_token, otp_code, api_secret
+                        otp_token,
+                        otp_code,
+                        api_secret,
+                        api_token=api_token,
+                        route_context=route_ctx,
                     )
 
                     if auth_token:
@@ -949,11 +972,13 @@ def broker_callback(broker, para=None):
         code = request.args.get("code") or request.args.get("request_token")
         logger.debug(f"Upstox broker - The code is {code}")
         broker_ctx = _resolve_session_broker_context("upstox")
+        route_ctx = _resolve_session_route_context("upstox")
         auth_token, error_message = auth_function(
             code,
             broker_api_key=broker_ctx.api_key,
             broker_api_secret=broker_ctx.api_secret,
             redirect_url=broker_ctx.redirect_url,
+            route_context=route_ctx,
         )
         forward_url = "broker.html"
 
@@ -961,10 +986,12 @@ def broker_callback(broker, para=None):
         code = request.args.get("code") or request.args.get("request_token")
         logger.debug(f"Zerodha broker - The code is {code}")
         broker_ctx = _resolve_session_broker_context("zerodha")
+        route_ctx = _resolve_session_route_context("zerodha")
         auth_token, error_message = auth_function(
             code,
             broker_api_key=broker_ctx.api_key,
             broker_api_secret=broker_ctx.api_secret,
+            route_context=route_ctx,
         )
         forward_url = "broker.html"
 
@@ -1027,6 +1054,7 @@ def dhan_initiate_oauth():
         return redirect(url_for("auth.login"))
 
     broker_ctx = _resolve_session_broker_context("dhan")
+    route_ctx = _resolve_session_route_context("dhan")
     raw_broker_key = broker_ctx.api_key or os.getenv("BROKER_API_KEY")
     key_parts = _broker_key_parts(raw_broker_key)
     client_id = key_parts[0] if key_parts else None
@@ -1047,6 +1075,7 @@ def dhan_initiate_oauth():
         client_id,
         broker_api_key=dhan_app_key,
         broker_api_secret=broker_ctx.api_secret,
+        route_context=route_ctx,
     )
 
     if consent_app_id:
@@ -1107,13 +1136,15 @@ def samco_generate_otp():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
 
-    from broker.samco.api.auth_api import generate_otp, get_client_id
+    from broker.samco.api.auth_api import generate_otp
 
-    uid = get_client_id()
+    broker_ctx = _resolve_session_broker_context("samco")
+    route_ctx = _resolve_session_route_context("samco")
+    uid = broker_ctx.api_key
     if not uid:
         return jsonify({"status": "error", "message": "BROKER_API_KEY not configured"}), 400
 
-    data, error = generate_otp(uid)
+    data, error = generate_otp(uid, route_context=route_ctx)
     if error:
         return jsonify({"status": "error", "message": error}), 400
 
@@ -1128,15 +1159,17 @@ def samco_generate_secret():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
 
-    from broker.samco.api.auth_api import generate_secret_key, get_client_id
+    from broker.samco.api.auth_api import generate_secret_key
 
-    uid = get_client_id()
+    broker_ctx = _resolve_session_broker_context("samco")
+    route_ctx = _resolve_session_route_context("samco")
+    uid = broker_ctx.api_key
     otp = request.json.get("otp") if request.is_json else request.form.get("otp")
 
     if not otp:
         return jsonify({"status": "error", "message": "OTP is required"}), 400
 
-    data, error = generate_secret_key(uid, otp)
+    data, error = generate_secret_key(uid, otp, route_context=route_ctx)
     if error:
         return jsonify({"status": "error", "message": error}), 400
 
@@ -1154,10 +1187,10 @@ def samco_save_secret():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
 
-    from broker.samco.api.auth_api import get_client_id
     from database.auth_db import samco_save_secret_key as save_secret_key
 
-    uid = get_client_id()
+    broker_ctx = _resolve_session_broker_context("samco")
+    uid = broker_ctx.api_key
     secret_key = request.json.get("secretApiKey") if request.is_json else request.form.get("secretApiKey")
 
     if not secret_key:
@@ -1177,10 +1210,10 @@ def samco_ip_status():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
 
-    from broker.samco.api.auth_api import get_client_id
     from database.auth_db import samco_get_ip_status as get_ip_status, samco_has_secret_key as has_secret_key
 
-    uid = get_client_id()
+    broker_ctx = _resolve_session_broker_context("samco")
+    uid = broker_ctx.api_key
     ip_status = get_ip_status(uid)
     ip_status["has_secret_key"] = has_secret_key(uid)
     ip_status["status"] = "success"
@@ -1196,11 +1229,13 @@ def samco_update_ip():
     if "user" not in session:
         return jsonify({"status": "error", "message": "Not logged in"}), 401
 
-    from broker.samco.api.auth_api import get_client_id, get_password, register_ip, update_ip
+    from broker.samco.api.auth_api import register_ip, update_ip
     from database.auth_db import samco_get_ip_status as get_ip_status, samco_has_registered_ip as has_registered_ip, samco_save_ip_info as save_ip_info
 
-    uid = get_client_id()
-    password = get_password()
+    broker_ctx = _resolve_session_broker_context("samco")
+    route_ctx = _resolve_session_route_context("samco")
+    uid = broker_ctx.api_key
+    password = broker_ctx.api_secret
 
     primary_ip = request.json.get("primaryIp") if request.is_json else request.form.get("primaryIp")
     secondary_ip = request.json.get("secondaryIp") if request.is_json else request.form.get("secondaryIp")
@@ -1219,9 +1254,9 @@ def samco_update_ip():
 
     # Use register for first time, update for subsequent
     if has_registered_ip(uid):
-        data, error = update_ip(uid, password, primary_ip, secondary_ip)
+        data, error = update_ip(uid, password, primary_ip, secondary_ip, route_context=route_ctx)
     else:
-        data, error = register_ip(uid, password, primary_ip, secondary_ip)
+        data, error = register_ip(uid, password, primary_ip, secondary_ip, route_context=route_ctx)
 
     if error:
         return jsonify({"status": "error", "message": error}), 400

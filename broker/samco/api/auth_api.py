@@ -1,7 +1,7 @@
 import os
 
 from database.auth_db import samco_get_secret_key as get_secret_key
-from utils.httpx_client import get_httpx_client
+from utils.httpx_client import post
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -35,7 +35,7 @@ def get_password():
     return os.getenv("BROKER_API_SECRET")
 
 
-def generate_otp(uid):
+def generate_otp(uid, route_context=None):
     """
     Step 1: Generate OTP - sends OTP to registered mobile and email.
 
@@ -46,12 +46,16 @@ def generate_otp(uid):
         tuple: (response_data, error_message)
     """
     try:
-        client = get_httpx_client()
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         payload = {"uid": uid}
 
         logger.info(f"Generating OTP for user: {uid}")
-        response = client.post(f"{BASE_URL}/otp/generateOtp", headers=headers, json=payload)
+        response = post(
+            f"{BASE_URL}/otp/generateOtp",
+            headers=headers,
+            json=payload,
+            route_context=route_context,
+        )
         data = _parse_response("generateOtp", response)
 
         if data.get("status") == "Success":
@@ -67,7 +71,7 @@ def generate_otp(uid):
         return None, str(e)
 
 
-def generate_secret_key(uid, otp):
+def generate_secret_key(uid, otp, route_context=None):
     """
     Step 2: Generate Secret API Key using OTP.
     The secret key is sent to the user's registered email.
@@ -80,13 +84,15 @@ def generate_secret_key(uid, otp):
         tuple: (response_data, error_message)
     """
     try:
-        client = get_httpx_client()
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         payload = {"uid": uid, "otp": otp}
 
         logger.info(f"Generating secret API key for user: {uid}")
-        response = client.post(
-            f"{BASE_URL}/otp/secretKeyGenerator", headers=headers, json=payload
+        response = post(
+            f"{BASE_URL}/otp/secretKeyGenerator",
+            headers=headers,
+            json=payload,
+            route_context=route_context,
         )
         data = _parse_response("secretKeyGenerator", response)
 
@@ -103,7 +109,7 @@ def generate_secret_key(uid, otp):
         return None, str(e)
 
 
-def generate_access_token(uid, secret_api_key):
+def generate_access_token(uid, secret_api_key, route_context=None):
     """
     Step 3: Generate Access Token using secret API key.
     Access token is valid for 24 hours.
@@ -116,12 +122,16 @@ def generate_access_token(uid, secret_api_key):
         tuple: (access_token, error_message)
     """
     try:
-        client = get_httpx_client()
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         payload = {"uid": uid, "secretApiKey": secret_api_key}
 
         logger.info(f"Generating access token for user: {uid}")
-        response = client.post(f"{BASE_URL}/accessToken/token", headers=headers, json=payload)
+        response = post(
+            f"{BASE_URL}/accessToken/token",
+            headers=headers,
+            json=payload,
+            route_context=route_context,
+        )
         data = _parse_response("accessToken", response)
 
         if data.get("status") == "Success" and data.get("accessToken"):
@@ -137,7 +147,7 @@ def generate_access_token(uid, secret_api_key):
         return None, str(e)
 
 
-def login(uid, password, access_token):
+def login(uid, password, access_token, route_context=None):
     """
     Step 4: Login with userId, password, and access token.
 
@@ -150,7 +160,6 @@ def login(uid, password, access_token):
         tuple: (session_token, error_message)
     """
     try:
-        client = get_httpx_client()
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         payload = {
             "userId": uid,
@@ -159,7 +168,7 @@ def login(uid, password, access_token):
         }
 
         logger.info(f"Attempting Samco login for user: {uid}")
-        response = client.post(f"{BASE_URL}/login", headers=headers, json=payload)
+        response = post(f"{BASE_URL}/login", headers=headers, json=payload, route_context=route_context)
         data = _parse_response("login", response)
 
         if data.get("status") == "Success" and data.get("sessionToken"):
@@ -176,7 +185,7 @@ def login(uid, password, access_token):
         return None, str(e)
 
 
-def register_ip(client_id, password, primary_ip, secondary_ip=None):
+def register_ip(client_id, password, primary_ip, secondary_ip=None, route_context=None):
     """
     Register static IP addresses for secure API access.
 
@@ -190,7 +199,6 @@ def register_ip(client_id, password, primary_ip, secondary_ip=None):
         tuple: (response_data, error_message)
     """
     try:
-        client = get_httpx_client()
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         payload = {
             "clientId": client_id,
@@ -201,7 +209,12 @@ def register_ip(client_id, password, primary_ip, secondary_ip=None):
             payload["secondaryIp"] = secondary_ip
 
         logger.info(f"Registering IP for user: {client_id}")
-        response = client.post(f"{BASE_URL}/ip/ipRegistration", headers=headers, json=payload)
+        response = post(
+            f"{BASE_URL}/ip/ipRegistration",
+            headers=headers,
+            json=payload,
+            route_context=route_context,
+        )
         data = _parse_response("ipRegistration", response)
 
         if data.get("status") == "Success":
@@ -217,7 +230,7 @@ def register_ip(client_id, password, primary_ip, secondary_ip=None):
         return None, str(e)
 
 
-def update_ip(client_id, password, primary_ip, secondary_ip=None):
+def update_ip(client_id, password, primary_ip, secondary_ip=None, route_context=None):
     """
     Update static IP addresses. Can only be updated once per calendar week.
 
@@ -231,7 +244,6 @@ def update_ip(client_id, password, primary_ip, secondary_ip=None):
         tuple: (response_data, error_message)
     """
     try:
-        client = get_httpx_client()
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         payload = {
             "clientId": client_id,
@@ -242,7 +254,12 @@ def update_ip(client_id, password, primary_ip, secondary_ip=None):
             payload["secondaryIp"] = secondary_ip
 
         logger.info(f"Updating IP for user: {client_id}")
-        response = client.post(f"{BASE_URL}/ip/ipUpdate", headers=headers, json=payload)
+        response = post(
+            f"{BASE_URL}/ip/ipUpdate",
+            headers=headers,
+            json=payload,
+            route_context=route_context,
+        )
         data = _parse_response("ipUpdate", response)
 
         if data.get("status") == "Success":
@@ -258,7 +275,7 @@ def update_ip(client_id, password, primary_ip, secondary_ip=None):
         return None, str(e)
 
 
-def authenticate_broker():
+def authenticate_broker(uid=None, password=None, route_context=None):
     """
     Main authentication flow for Samco 2FA.
     Generates access token using stored secret key, then logs in.
@@ -267,8 +284,8 @@ def authenticate_broker():
         tuple: (session_token, error_message)
     """
     try:
-        uid = get_client_id()
-        password = get_password()
+        uid = uid or get_client_id()
+        password = password or get_password()
 
         if not uid:
             return None, "Client ID not configured. Please set BROKER_API_KEY in .env"
@@ -281,12 +298,12 @@ def authenticate_broker():
             return None, "Secret API key not found. Please complete the one-time setup first."
 
         # Step 1: Generate access token (valid 24 hours)
-        access_token, error = generate_access_token(uid, secret_api_key)
+        access_token, error = generate_access_token(uid, secret_api_key, route_context=route_context)
         if not access_token:
             return None, f"Access token generation failed: {error}"
 
         # Step 2: Login with access token
-        session_token, error = login(uid, password, access_token)
+        session_token, error = login(uid, password, access_token, route_context=route_context)
         if not session_token:
             return None, f"Login failed: {error}"
 

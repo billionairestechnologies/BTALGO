@@ -59,6 +59,12 @@ This is the execution queue, ordered by what should happen next.
 - [x] Add admin API to manage route inventory
 - [ ] Add admin UI to assign or rebalance routes
 - [ ] Start using route context in broker API/helper modules that still call shared env-based clients
+  - [x] Dhan auth flow
+  - [x] IIFL Capital auth flow
+  - [x] Samco auth/IP setup flow
+  - [x] Definedge OTP auth flow
+  - [x] Upstox auth exchange
+  - [x] Zerodha auth exchange
 
 ## 5. Copy Trading Unification
 

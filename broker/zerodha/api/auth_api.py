@@ -2,13 +2,14 @@ import hashlib
 import json
 import os
 
-from utils.httpx_client import get_httpx_client
+from utils.httpx_client import post
 
 
 def authenticate_broker(
     request_token,
     broker_api_key: str | None = None,
     broker_api_secret: str | None = None,
+    route_context=None,
 ):
     try:
         # Fetching the necessary credentials from environment variables
@@ -25,18 +26,16 @@ def authenticate_broker(
         # The payload for the POST request
         data = {"api_key": BROKER_API_KEY, "request_token": request_token, "checksum": checksum}
 
-        # Get the shared httpx client with connection pooling
-        client = get_httpx_client()
-
         # Setting the headers as specified by Zerodha's documentation
         headers = {"X-Kite-Version": "3"}
 
         try:
             # Performing the POST request using the shared client
-            response = client.post(
+            response = post(
                 url,
                 headers=headers,
                 data=data,
+                route_context=route_context,
             )
             response.raise_for_status()  # Raises an exception for 4XX/5XX responses
 

@@ -3,7 +3,7 @@ import os
 from urllib.parse import quote_plus
 
 from broker.iiflcapital.baseurl import BASE_URL, LOGIN_URL
-from utils.httpx_client import get_httpx_client
+from utils.httpx_client import post
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -33,7 +33,12 @@ def get_login_url(app_key: str | None = None, redirect_url: str | None = None) -
     )
 
 
-def authenticate_broker(auth_code: str, client_id: str, broker_api_secret: str | None = None):
+def authenticate_broker(
+    auth_code: str,
+    client_id: str,
+    broker_api_secret: str | None = None,
+    route_context=None,
+):
     """
     Exchange authCode + clientId for userSession.
 
@@ -52,8 +57,12 @@ def authenticate_broker(auth_code: str, client_id: str, broker_api_secret: str |
         payload = {"checkSum": checksum}
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
-        client = get_httpx_client()
-        response = client.post(f"{BASE_URL}/getusersession", json=payload, headers=headers)
+        response = post(
+            f"{BASE_URL}/getusersession",
+            json=payload,
+            headers=headers,
+            route_context=route_context,
+        )
 
         try:
             data = response.json()

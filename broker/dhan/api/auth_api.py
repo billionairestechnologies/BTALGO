@@ -5,7 +5,7 @@ import os
 import httpx
 
 from broker.dhan.api.baseurl import BASE_URL, get_url
-from utils.httpx_client import get_httpx_client
+from utils.httpx_client import post
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,7 @@ def generate_consent(
     dhan_client_id,
     broker_api_key: str | None = None,
     broker_api_secret: str | None = None,
+    route_context=None,
 ):
     """Step 1: Generate consent to initiate login session - requires valid Dhan Client ID"""
     try:
@@ -34,8 +35,6 @@ def generate_consent(
             logger.error("Dhan Client ID is required for generating consent")
             return None, "Dhan Client ID is required"
 
-        client = get_httpx_client()
-
         headers = {"app_id": BROKER_API_KEY, "app_secret": BROKER_API_SECRET}
 
         # Build URL with client_id parameter - REQUIRED by Dhan API
@@ -50,7 +49,7 @@ def generate_consent(
         # Make the POST request with the client_id as a query parameter
         # The client_id parameter is REQUIRED for generate-consent
         full_url = f"{url}?client_id={dhan_client_id}"
-        response = client.post(full_url, headers=headers)
+        response = post(full_url, headers=headers, route_context=route_context)
 
         logger.info(f"Generate consent response status: {response.status_code}")
         logger.info(f"Generate consent response: {response.text}")
@@ -87,6 +86,7 @@ def consume_consent(
     token_id,
     broker_api_key: str | None = None,
     broker_api_secret: str | None = None,
+    route_context=None,
 ):
     """Step 3: Consume consent to get access token"""
     try:
@@ -96,8 +96,6 @@ def consume_consent(
         # Extract client_id from API key if format is client_id:::api_key
         if ":::" in BROKER_API_KEY:
             extracted_client_id, BROKER_API_KEY = BROKER_API_KEY.split(":::")
-
-        client = get_httpx_client()
 
         headers = {
             "app_id": BROKER_API_KEY,
@@ -109,7 +107,7 @@ def consume_consent(
         params = {"tokenId": token_id}
 
         logger.debug(f"Consuming consent with tokenId: {token_id}")
-        response = client.post(url, headers=headers, params=params)
+        response = post(url, headers=headers, params=params, route_context=route_context)
 
         if response.status_code == 200:
             data = response.json()
@@ -154,6 +152,7 @@ def authenticate_broker(
     code,
     broker_api_key: str | None = None,
     broker_api_secret: str | None = None,
+    route_context=None,
 ):
     """Main authentication function - handles direct token or OAuth flow"""
     try:
@@ -169,6 +168,7 @@ def authenticate_broker(
                 code,
                 broker_api_key=broker_api_key,
                 broker_api_secret=broker_api_secret,
+                route_context=route_context,
             )
             if access_token and isinstance(additional_data, dict):
                 # Extract the dhanClientId to return as user_id

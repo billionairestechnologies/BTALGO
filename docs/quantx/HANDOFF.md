@@ -29,6 +29,7 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 - Billing foundation exists: plans, customer creation, subscription create/refresh, webhook validation, and payment-event persistence.
 - Billing enforcement has started: live order-entry flows and MCP write-scope approval now read tenant entitlements.
 - Static-IP routing foundation now exists: egress node inventory, entitlement-checked route assignment, route resolver, and proxy-aware shared HTTP request support.
+- Route-aware broker auth execution has started for Dhan, IIFL Capital, Samco, Definedge, Upstox, and Zerodha helper paths.
 - MPIN setup/verify/disable flow exists in backend and Profile UI.
 - Copy trading is not unified into BillionairsHQ yet.
 

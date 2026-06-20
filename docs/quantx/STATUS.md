@@ -112,6 +112,13 @@ Relevant commits:
 - Broker accounts can now store validated `ip_route_key` assignments.
 - Route assignment is entitlement-aware and blocks non-static-IP plans.
 - Added shared route resolver and HTTP proxy-aware request foundation for future broker modules.
+- Started pushing route context into real broker auth/helper calls:
+  - Dhan auth
+  - IIFL Capital auth
+  - Samco auth and IP setup
+  - Definedge OTP auth
+  - Upstox auth exchange
+  - Zerodha auth exchange
 
 ## What Is Not Done Yet
 
