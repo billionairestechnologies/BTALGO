@@ -536,8 +536,13 @@ class BrokerData:
                 # Set start time to 09:15 (market open) for the start date
                 from_date = from_date.replace(hour=9, minute=15)
 
-                # If end_date is today, set the end time to current time
-                current_time = pd.Timestamp.now()
+                # If end_date is today, set the end time to current time.
+                # Anchor "now" to IST wall-clock (not the server's local time) so
+                # the client-side clip below stays correct on UTC/non-IST hosts.
+                # Definedge candle timestamps are naive IST; comparing them against
+                # a server-local now() would truncate the most recent candles by the
+                # host's UTC offset (~5.5h of missing data on a UTC deployment).
+                current_time = pd.Timestamp.now(tz="Asia/Kolkata").tz_localize(None)
                 if to_date.date() == current_time.date():
                     to_date = current_time.replace(second=0, microsecond=0)
                 else:
@@ -679,7 +684,11 @@ class BrokerData:
 
                         # Convert datetime string to timestamp
                         # Definedge format is ddMMyyyyHHmm (e.g., 010920250915 = 01-09-2025 09:15)
-                        chunk_df["datetime"] = chunk_df["datetime"].astype(str)
+                        # read_csv parses this all-digit column as int64, which strips the
+                        # leading zero on single-digit days (1-9): "010620260915" -> 10620260915.
+                        # Left-pad back to 12 chars so %d%m%Y%H%M parses; otherwise those
+                        # candles parse to NaT and are silently dropped (e.g. all of Jun 1-9).
+                        chunk_df["datetime"] = chunk_df["datetime"].astype(str).str.zfill(12)
 
                         # For daily data, the format is the same as minute data but with 0000 for time
                         if timeframe == "day":
@@ -836,6 +845,25 @@ class BrokerData:
             # Ensure timestamp is datetime type (it should already be)
             if "timestamp" in df.columns:
                 df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+            # Clip to the caller-requested window.
+            # Definedge's /sds/history endpoint honors the `from` boundary but
+            # ignores `to` - it returns every candle from `from` up to the latest
+            # available data. Without this clip, an end_date in the past still
+            # returns candles well beyond it. Timestamps here are still naive IST,
+            # matching from_date/to_date, so the comparison is correct.
+            df = df[(df["timestamp"] >= from_date) & (df["timestamp"] <= to_date)].reset_index(
+                drop=True
+            )
+
+            if df.empty:
+                logger.debug(
+                    "Debug - No data within requested range after clipping to "
+                    f"{from_date} - {to_date}"
+                )
+                return pd.DataFrame(
+                    columns=["close", "high", "low", "open", "timestamp", "volume", "oi"]
+                )
 
             # Handle timestamps based on interval type
             if interval == "D":

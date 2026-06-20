@@ -102,7 +102,7 @@ def get_order_book(auth):
         # Treat "Failed to retrieve" as empty, not an error
         msg = response.get("message", "")
         if "Failed to retrieve" in msg or "No orders" in msg.lower():
-            logger.info(f"No orders found: {msg}")
+            logger.debug(f"No orders found: {msg}")
             return []
         return {"stat": "Not_Ok", "emsg": msg or "Failed to fetch order book"}
 
@@ -118,14 +118,14 @@ def get_trade_book(auth):
     response = get_api_response("/open-api/od/v1/orders/trades", auth)
     result = _extract_result(response)
 
-    logger.info(f"AliceBlue tradebook API response type: {type(response)}")
+    logger.debug(f"AliceBlue tradebook API response type: {type(response)}")
 
     if result is None:
         # V2 API returns error message when there are no trades
         # Treat "No trades found" as empty, not an error
         msg = response.get("message", "")
         if "No trades" in msg or "not found" in msg.lower():
-            logger.info(f"No trades found: {msg}")
+            logger.debug(f"No trades found: {msg}")
             return []
         return {"stat": "Not_Ok", "emsg": msg or "Failed to fetch trade book"}
 
@@ -145,7 +145,7 @@ def get_positions(auth):
         # V2 API returns error message when there are no positions
         msg = response.get("message", "")
         if "No position" in msg or "not found" in msg.lower() or "Failed to retrieve" in msg:
-            logger.info(f"No positions found: {msg}")
+            logger.debug(f"No positions found: {msg}")
             return []
         return {"stat": "Not_Ok", "emsg": msg or "Failed to fetch positions"}
 
@@ -220,6 +220,21 @@ def _invalidate_position_cache(auth):
         _position_cache.pop(auth, None)
 
 
+    if result is None:
+        # V2 API returns error message when there are no holdings
+        msg = response.get("message", "")
+        if "No holding" in msg or "not found" in msg.lower() or "Failed to retrieve" in msg:
+            logger.debug(f"No holdings found: {msg}")
+            return []
+        return {"stat": "Not_Ok", "emsg": msg or "Failed to fetch holdings"}
+
+    if not result:
+        return []
+
+    return [normalize_holding(h) for h in result]
+
+
+
 # ─── Open position lookup ────────────────────────────────────────────────────
 
 def get_open_position(tradingsymbol, exchange, product, auth):
@@ -231,7 +246,7 @@ def get_open_position(tradingsymbol, exchange, product, auth):
 
     if isinstance(position_data, dict):
         if position_data.get("stat") == "Not_Ok":
-            logger.info(f"Error fetching position data: {position_data.get('emsg')}")
+            logger.debug(f"Error fetching position data: {position_data.get('emsg')}")
             position_data = {}
 
     net_qty = "0"
@@ -244,7 +259,7 @@ def get_open_position(tradingsymbol, exchange, product, auth):
                 and position.get("Pcode") == product
             ):
                 net_qty = position.get("Netqty", "0")
-                logger.info(f"Net Quantity {net_qty}")
+                logger.debug(f"Net Quantity {net_qty}")
                 break
 
     return net_qty
@@ -374,7 +389,6 @@ def place_order_api(data, auth):
                 result_msg = result_item.get("message", "")
 
                 # AliceBlue error codes start with "EC" (e.g. EC092, EC965).
-                # Also treat empty brokerOrderId with an error message as failure.
                 raw_status = result_item.get("status", "")
                 is_ec_error = str(raw_status).upper().startswith("EC")
                 is_named_error = result_status in ("error", "failed", "not_ok")
@@ -388,7 +402,6 @@ def place_order_api(data, auth):
                     orderid = str(broker_oid)
                     logger.info(f"Order placed successfully: {orderid}")
                 elif is_ec_error and str(raw_status).upper() in PRICE_STALE_CODES:
-                    # Price is stale — retry once at fresh market price
                     logger.warning(
                         f"Stale price ({raw_status}): {result_msg}. "
                         f"Retrying at fresh LTP for {symbol}…"
@@ -418,7 +431,6 @@ def place_order_api(data, auth):
                                 response.status = retry_response.status_code
                                 logger.info(f"Retry order placed: {orderid}")
                                 return response, response_data, orderid
-                        # Retry also failed — return original error
                         response_data = {"status": "error", "message": result_msg}
                         response.status = 400
                         return response, response_data, None
@@ -485,8 +497,8 @@ def place_smartorder_api(data, auth):
             get_open_position(symbol, exchange, reverse_map_product_type(map_product_type(product)), AUTH_TOKEN)
         )
 
-        logger.info(f"position_size : {position_size}")
-        logger.info(f"Open Position : {current_position}")
+        logger.debug(f"position_size : {position_size}")
+        logger.debug(f"Open Position : {current_position}")
 
         # Determine action based on position_size and current_position
         action = None
@@ -553,7 +565,7 @@ def close_all_positions(current_api_key, auth):
 
     if isinstance(positions_response, dict):
         if positions_response.get("stat") == "Not_Ok":
-            logger.info(f"Error fetching position data: {positions_response.get('emsg')}")
+            logger.debug(f"Error fetching position data: {positions_response.get('emsg')}")
             positions_response = {}
 
     # Check if the positions data is null or empty
@@ -585,12 +597,12 @@ def close_all_positions(current_api_key, auth):
                 "quantity": str(quantity),
             }
 
-            logger.info(f"{place_order_payload}")
+            logger.debug(f"{place_order_payload}")
 
             # Place the order to close the position
             _, api_response, _ = place_order_api(place_order_payload, AUTH_TOKEN)
 
-            logger.info(f"{api_response}")
+            logger.debug(f"{api_response}")
 
     return {"status": "success", "message": "All Open Positions SquaredOff"}, 200
 
@@ -700,7 +712,7 @@ def cancel_all_orders_api(data, auth):
     orders_to_cancel = [
         order for order in order_book_response if order.get("Status") in ["open", "trigger pending"]
     ]
-    logger.info(f"{orders_to_cancel}")
+    logger.debug(f"{orders_to_cancel}")
     canceled_orders = []
     failed_cancellations = []
 

@@ -1,7 +1,7 @@
 # Mapping BTAlgo API Request https://billionairestechnologies.com/docs
 # Mapping Dhan Margin API https://dhanhq.co/docs/v2/funds/
 
-from broker.dhan.mapping.transform_data import map_exchange_type, map_order_type, map_product_type
+from broker.dhan.mapping.transform_data import map_exchange_type
 from database.token_db import get_token
 from utils.logging import get_logger
 
@@ -12,8 +12,6 @@ def transform_margin_position(position, client_id):
     """
     Transform a single BTAlgo margin position to Dhan margin format.
 
-    Note: Dhan margin calculator API accepts only one order at a time, not a batch.
-
     Args:
         position: Position in BTAlgo format
         client_id: Dhan client ID
@@ -22,7 +20,6 @@ def transform_margin_position(position, client_id):
         Dict in Dhan margin format or None if transformation fails
     """
     try:
-        # Get the token for the symbol
         token = get_token(position["symbol"], position["exchange"])
 
         if not token:
@@ -31,13 +28,11 @@ def transform_margin_position(position, client_id):
             )
             return None
 
-        # Map exchange segment
         exchange_segment = map_exchange_type(position["exchange"])
         if not exchange_segment:
             logger.warning(f"Invalid exchange: {position['exchange']}")
             return None
 
-        # Transform the position
         transformed = {
             "dhanClientId": client_id,
             "exchangeSegment": exchange_segment,
@@ -48,7 +43,6 @@ def transform_margin_position(position, client_id):
             "price": float(position.get("price", 0)),
         }
 
-        # Add trigger price if present
         trigger_price = position.get("trigger_price", 0)
         if trigger_price and float(trigger_price) > 0:
             transformed["triggerPrice"] = float(trigger_price)
@@ -99,17 +93,20 @@ def parse_margin_response(response_data):
         if not response_data or not isinstance(response_data, dict):
             return {"status": "error", "message": "Invalid response from broker"}
 
-        # Check for error response
-        if response_data.get("errorType") or response_data.get("status") == "failed":
-            error_message = response_data.get("errorMessage", "Failed to calculate margin")
-            return {"status": "error", "message": error_message}
+        status = str(response_data.get("status", "")).lower()
+        if response_data.get("errorType") or status in {"error", "failed", "failure"}:
+            error_message = (
+                response_data.get("errorMessage")
+                or response_data.get("message")
+                or response_data.get("errors")
+                or "Failed to calculate margin"
+            )
+            return {"status": "error", "message": str(error_message)}
 
-        # Extract margin values from response
         total_margin = float(response_data.get("totalMargin", 0))
         span_margin = float(response_data.get("spanMargin", 0))
         exposure_margin = float(response_data.get("exposureMargin", 0))
 
-        # Return standardized format (only essential fields)
         return {
             "status": "success",
             "data": {
@@ -154,8 +151,8 @@ def parse_batch_margin_response(responses):
         total_exposure = 0
         successful_legs = 0
 
-        logger.info("AGGREGATING INDIVIDUAL LEG MARGINS")
-        logger.info("-" * 80)
+        logger.debug("AGGREGATING INDIVIDUAL LEG MARGINS")
+        logger.debug("-" * 80)
 
         for idx, response in enumerate(responses, 1):
             if response.get("status") == "success":
@@ -173,11 +170,11 @@ def parse_batch_margin_response(responses):
                     f"Leg {idx}: Total={leg_margin:,.2f}, SPAN={leg_span:,.2f}, Exposure={leg_exposure:,.2f}"
                 )
 
-        logger.info(f"Successfully aggregated {successful_legs} legs")
-        logger.info(f"Total Margin (Sum):      Rs. {total_margin:,.2f}")
-        logger.info(f"Total SPAN (Sum):        Rs. {total_span:,.2f}")
-        logger.info(f"Total Exposure (Sum):    Rs. {total_exposure:,.2f}")
-        logger.info("-" * 80)
+        logger.debug(f"Successfully aggregated {successful_legs} legs")
+        logger.debug(f"Total Margin (Sum):      Rs. {total_margin:,.2f}")
+        logger.debug(f"Total SPAN (Sum):        Rs. {total_span:,.2f}")
+        logger.debug(f"Total Exposure (Sum):    Rs. {total_exposure:,.2f}")
+        logger.debug("-" * 80)
 
         return {
             "status": "success",

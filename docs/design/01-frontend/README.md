@@ -10,7 +10,7 @@ BTAlgo features a modern React 19 Single Page Application (SPA) built with TypeS
 |------------|---------|---------|
 | React | 19.2.3 | UI framework |
 | TypeScript | 5.9.3 | Type safety |
-| Vite | 7.2.4 | Build tool & dev server |
+| Vite | 8.0.16 | Build tool & dev server |
 | Tailwind CSS | 4.1.18 | Utility-first styling |
 | React Router | 7.12.0 | Client-side routing |
 | Zustand | 5.0.9 | Client state management |

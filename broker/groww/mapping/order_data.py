@@ -118,7 +118,7 @@ def map_order_data(order_data):
                 )
                 if db_record and db_record.symbol:
                     btalgo_symbol = db_record.symbol
-                    logger.info(f"Found symbol in database: {broker_symbol} -> {btalgo_symbol}")
+                    logger.debug(f"Found symbol in database: {broker_symbol} -> {btalgo_symbol}")
             except Exception as e:
                 logger.error(f"Error looking up symbol in database: {e}")
 
