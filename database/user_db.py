@@ -189,6 +189,12 @@ def add_user(username, email, password, is_admin=False):
         user.set_password(password)
         db_session.add(user)
         db_session.commit()
+        try:
+            from database.saas_db import ensure_profile_for_user
+
+            ensure_profile_for_user(user)
+        except Exception as e:
+            logger.warning(f"User created but SaaS profile provisioning failed: {e}")
         return user  # Return the user object instead of True
     except IntegrityError:
         db_session.rollback()

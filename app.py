@@ -13,7 +13,7 @@ if __name__ == "__main__":
     _debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
     _is_reloader_parent = _debug and os.environ.get("WERKZEUG_RUN_MAIN") != "true"
     if not _is_reloader_parent:
-        print("\033[93mStarting BTAlgo...\033[0m", flush=True)
+        print(f"\033[93mStarting {os.getenv('PRODUCT_NAME', 'BillionairsHQ')}...\033[0m", flush=True)
 
 import mimetypes
 
@@ -71,6 +71,7 @@ from blueprints.react_app import (  # Import React frontend blueprint
     serve_react_app,
 )
 from blueprints.sandbox import sandbox_bp  # Import the sandbox blueprint
+from blueprints.saas import saas_bp  # Import QuantX SaaS blueprint
 from blueprints.search import search_bp
 from blueprints.security import security_bp  # Import the security blueprint
 from blueprints.settings import settings_bp  # Import the settings blueprint
@@ -96,6 +97,7 @@ from database.latency_db import init_latency_db as ensure_latency_tables_exists
 from database.leverage_db import init_db as ensure_leverage_tables_exists
 from database.sandbox_db import init_db as ensure_sandbox_tables_exists
 from database.scalping_db import init_db as ensure_scalping_tables_exists
+from database.saas_db import init_db as ensure_saas_tables_exists
 from database.settings_db import init_db as ensure_settings_tables_exists
 from database.strategy_db import init_db as ensure_strategy_tables_exists
 from database.symbol import init_db as ensure_master_contract_tables_exists
@@ -283,6 +285,7 @@ def create_app():
     app.register_blueprint(whatsapp_bp)  # Register WhatsApp blueprint
     app.register_blueprint(security_bp)  # Register Security blueprint
     app.register_blueprint(sandbox_bp)  # Register Sandbox blueprint
+    app.register_blueprint(saas_bp)  # Register QuantX SaaS blueprint
     app.register_blueprint(playground_bp)  # Register API playground blueprint
     app.register_blueprint(logging_bp)  # Register Logging blueprint
     app.register_blueprint(admin_bp)  # Register Admin blueprint
@@ -638,6 +641,7 @@ def setup_environment(app):
                 ("Latency DB", ensure_latency_tables_exists),
                 ("Strategy DB", ensure_strategy_tables_exists),
                 ("Sandbox DB", ensure_sandbox_tables_exists),
+                ("SaaS DB", ensure_saas_tables_exists),
                 ("Action Center DB", ensure_action_center_tables_exists),
                 ("Chart Prefs DB", ensure_chart_prefs_tables_exists),
                 ("Market Calendar DB", ensure_market_calendar_tables_exists),
@@ -875,6 +879,7 @@ def shutdown_database_sessions(exception=None):
         ("database.action_center_db", "db_session"),
         ("database.qty_freeze_db", "db_session"),
         ("database.sandbox_db", "db_session"),
+        ("database.saas_db", "db_session"),
         ("database.analyzer_db", "db_session"),
         ("database.chart_prefs_db", "db_session"),
         ("database.chartink_db", "db_session"),

@@ -84,9 +84,9 @@ The first implementation slice should add these platform tables:
 
 The first code commits after this document should be:
 
-1. Add BillionairsHQ SaaS database models and migrations.
-2. Add broker account CRUD APIs without removing legacy `.env` credentials yet.
-3. Add a broker credential resolver that prefers per-user accounts and falls back to legacy env config.
+1. Add BillionairsHQ SaaS database models and migrations. `started`
+2. Add broker account CRUD APIs without removing legacy `.env` credentials yet. `started`
+3. Add a broker credential resolver that prefers per-user accounts and falls back to legacy env config. `started`
 4. Convert one broker path end-to-end through the resolver.
 5. Add tests for tenant isolation and secret masking.
 
