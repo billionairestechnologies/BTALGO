@@ -55,10 +55,10 @@ def authenticate_broker(request_token):
         return None, None, None, f"Error during authentication: {str(e)}"
 
 
-def get_feed_token():
+def get_feed_token(api_key: str | None = None, api_secret: str | None = None):
     try:
-        BROKER_API_KEY_MARKET = os.getenv("BROKER_API_KEY_MARKET")
-        BROKER_API_SECRET_MARKET = os.getenv("BROKER_API_SECRET_MARKET")
+        BROKER_API_KEY_MARKET = api_key or os.getenv("BROKER_API_KEY_MARKET")
+        BROKER_API_SECRET_MARKET = api_secret or os.getenv("BROKER_API_SECRET_MARKET")
 
         feed_payload = {
             "secretKey": BROKER_API_SECRET_MARKET,

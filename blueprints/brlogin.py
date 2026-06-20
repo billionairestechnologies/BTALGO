@@ -34,6 +34,10 @@ def _resolve_session_broker_context(broker_name: str):
     return resolve_broker_credentials(username=session.get("user"), broker=broker_name)
 
 
+def _broker_key_parts(raw_key: str | None) -> list[str]:
+    return [part.strip() for part in (raw_key or "").split(":::") if part.strip()]
+
+
 @brlogin_bp.errorhandler(429)
 def ratelimit_handler(e):
     return jsonify(error="Rate limit exceeded"), 429
@@ -157,7 +161,8 @@ def broker_callback(broker, para=None):
         else:
             # Initial visit — redirect to AliceBlue login page
             logger.info("Redirecting to AliceBlue login page")
-            appcode = os.environ.get("BROKER_API_KEY")
+            broker_ctx = _resolve_session_broker_context("aliceblue")
+            appcode = broker_ctx.api_key or os.environ.get("BROKER_API_KEY")
             if not appcode:
                 return handle_auth_failure(
                     "BROKER_API_KEY (appCode) not configured in environment",
@@ -324,14 +329,14 @@ def broker_callback(broker, para=None):
             or callback_args.get("clientcode")
         )
 
+        broker_ctx = _resolve_session_broker_context("iiflcapital")
+
         # Some callback variants may not include clientId explicitly.
-        # Fall back to BROKER_API_KEY to avoid false failures.
+        # Fall back to resolved broker key to avoid false failures.
         if not client_id:
-            broker_api_key = (os.getenv("BROKER_API_KEY") or "").strip()
-            if ":::" in broker_api_key:
-                client_id = broker_api_key.split(":::", 1)[0].strip()
-            elif broker_api_key:
-                client_id = broker_api_key
+            key_parts = _broker_key_parts(broker_ctx.api_key or os.getenv("BROKER_API_KEY"))
+            if key_parts:
+                client_id = key_parts[0]
 
         if request.method == "GET":
             # Initial hit from BTAlgo broker page has no callback parameters.
@@ -351,7 +356,10 @@ def broker_callback(broker, para=None):
 
                 from broker.iiflcapital.api.auth_api import get_login_url
 
-                login_url = get_login_url()
+                login_url = get_login_url(
+                    app_key=broker_ctx.api_key,
+                    redirect_url=broker_ctx.redirect_url,
+                )
                 if not login_url:
                     return handle_auth_failure(
                         "IIFL Capital login URL could not be generated. "
@@ -372,7 +380,11 @@ def broker_callback(broker, para=None):
                     forward_url="broker.html",
                 )
 
-        auth_token, error_message = auth_function(auth_code, client_id)
+        auth_token, error_message = auth_function(
+            auth_code,
+            client_id,
+            broker_api_secret=broker_ctx.api_secret,
+        )
         forward_url = "broker.html"
 
     elif broker == "jainamxts":
@@ -384,6 +396,7 @@ def broker_callback(broker, para=None):
         forward_url = "broker.html"
 
     elif broker == "dhan":
+        broker_ctx = _resolve_session_broker_context("dhan")
         auth_token = None
         error_message = None
         forward_url = "broker.html"
@@ -411,7 +424,11 @@ def broker_callback(broker, para=None):
                 # Step 3: Consume consent with tokenId
                 logger.debug(f"Dhan broker - Received tokenId: {token_id}")
                 # auth_function now returns (auth_token, user_id, error_message)
-                auth_result = auth_function(token_id)
+                auth_result = auth_function(
+                    token_id,
+                    broker_api_key=broker_ctx.api_key,
+                    broker_api_secret=broker_ctx.api_secret,
+                )
 
                 # Handle both old format (2 values) and new format (3 values)
                 if len(auth_result) == 3:
@@ -528,14 +545,20 @@ def broker_callback(broker, para=None):
         else:
             # Initial visit — redirect to Zebu OAuth login page
             logger.info("Redirecting to Zebu OAuth login page")
-            # BROKER_API_KEY format: userid:::client_id
-            full_api_key = os.getenv("BROKER_API_KEY")
+            broker_ctx = _resolve_session_broker_context("zebu")
+            full_api_key = broker_ctx.api_key or os.getenv("BROKER_API_KEY")
             if not full_api_key:
                 return handle_auth_failure(
                     "BROKER_API_KEY not configured in environment",
                     forward_url="broker.html",
                 )
-            client_id = full_api_key.split(":::")[1]  # OAuth client_id
+            parts = _broker_key_parts(full_api_key)
+            if len(parts) < 2:
+                return handle_auth_failure(
+                    "BROKER_API_KEY must be in format userid:::client_id",
+                    forward_url="broker.html",
+                )
+            client_id = parts[1]  # OAuth client_id
             zebu_login_url = f"https://go.mynt.in/OAuthlogin/authorize/oauth?client_id={client_id}"
             return redirect(zebu_login_url)
 
@@ -548,15 +571,15 @@ def broker_callback(broker, para=None):
         else:
             # Initial visit — redirect to Shoonya OAuth login page
             logger.info("Redirecting to Shoonya OAuth login page")
-            # BROKER_API_KEY format: userid:::client_id
-            full_api_key = os.getenv("BROKER_API_KEY")
+            broker_ctx = _resolve_session_broker_context("shoonya")
+            full_api_key = broker_ctx.api_key or os.getenv("BROKER_API_KEY")
             if not full_api_key:
                 return handle_auth_failure(
                     "BROKER_API_KEY not configured in environment",
                     forward_url="broker.html",
                 )
-            parts = full_api_key.split(":::", 1)
-            if len(parts) != 2 or not parts[1]:
+            parts = _broker_key_parts(full_api_key)
+            if len(parts) < 2:
                 return handle_auth_failure(
                     "BROKER_API_KEY must be in format userid:::client_id",
                     forward_url="broker.html",
@@ -653,14 +676,20 @@ def broker_callback(broker, para=None):
         else:
             # Initial visit — redirect to the TradeSmart OAuth login page.
             logger.info("Redirecting to TradeSmart OAuth login page")
-            full_api_key = os.getenv("BROKER_API_KEY")
+            broker_ctx = _resolve_session_broker_context("tradesmart")
+            full_api_key = broker_ctx.api_key or os.getenv("BROKER_API_KEY")
             if not full_api_key:
                 return handle_auth_failure(
                     "BROKER_API_KEY not configured in environment",
                     forward_url="broker.html",
                 )
-            parts = full_api_key.split(":::", 1)
-            client_id = parts[1] if len(parts) == 2 and parts[1] else parts[0]
+            parts = _broker_key_parts(full_api_key)
+            client_id = parts[1] if len(parts) >= 2 else (parts[0] if parts else None)
+            if not client_id:
+                return handle_auth_failure(
+                    "BROKER_API_KEY not configured in environment",
+                    forward_url="broker.html",
+                )
             tradesmart_login_url = (
                 "https://v2api.tradesmartonline.in/OAuthlogin/authorize/oauth"
                 f"?client_id={client_id}"
@@ -815,6 +844,7 @@ def broker_callback(broker, para=None):
                 forward_url = "broker.html"
 
     elif broker == "rmoney":
+        broker_ctx = _resolve_session_broker_context("rmoney")
         try:
             # Extract session data from XTS OAuth callback
             session_data = None
@@ -851,7 +881,10 @@ def broker_callback(broker, para=None):
                 # Get feed token for market data
                 from broker.rmoney.api.auth_api import get_feed_token
 
-                feed_token, feed_user_id, feed_error = get_feed_token()
+                feed_token, feed_user_id, feed_error = get_feed_token(
+                    api_key=broker_ctx.market_api_key,
+                    api_secret=broker_ctx.market_api_secret,
+                )
                 if feed_error:
                     logger.warning(f"RMoney feed token error: {feed_error}")
                     feed_token = None
@@ -864,7 +897,7 @@ def broker_callback(broker, para=None):
                 # No session data - initial request, redirect to RMoney OAuth login
                 from broker.rmoney.baseurl import INTERACTIVE_URL as RMONEY_INTERACTIVE_URL
 
-                BROKER_API_KEY_LOCAL = os.getenv("BROKER_API_KEY")
+                BROKER_API_KEY_LOCAL = broker_ctx.api_key or os.getenv("BROKER_API_KEY")
                 callback_url = url_for(
                     "brlogin.broker_callback", broker="rmoney", _external=True
                 )
@@ -973,25 +1006,28 @@ def dhan_initiate_oauth():
     if "user" not in session:
         return redirect(url_for("auth.login"))
 
-    # Get client_id from .env BROKER_API_KEY (format: client_id:::api_key)
-    BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-    client_id = None
-
-    if ":::" in BROKER_API_KEY:
-        client_id, _ = BROKER_API_KEY.split(":::")
+    broker_ctx = _resolve_session_broker_context("dhan")
+    raw_broker_key = broker_ctx.api_key or os.getenv("BROKER_API_KEY")
+    key_parts = _broker_key_parts(raw_broker_key)
+    client_id = key_parts[0] if key_parts else None
+    dhan_app_key = key_parts[1] if len(key_parts) >= 2 else raw_broker_key
 
     if not client_id:
         error_message = "Client ID not found in BROKER_API_KEY. Please configure BROKER_API_KEY as 'client_id:::api_key' in .env"
         logger.error(error_message)
         return handle_auth_failure(error_message, forward_url="broker.html")
 
-    logger.info(f"Initiating Dhan OAuth flow with client ID from .env: {client_id}")
+    logger.info(f"Initiating Dhan OAuth flow with resolved client ID: {client_id}")
 
     # Import the required functions
     from broker.dhan.api.auth_api import generate_consent, get_login_url
 
     # Generate consent with the client ID
-    consent_app_id, error = generate_consent(client_id)
+    consent_app_id, error = generate_consent(
+        client_id,
+        broker_api_key=dhan_app_key,
+        broker_api_secret=broker_ctx.api_secret,
+    )
 
     if consent_app_id:
         # Store consent_app_id in session

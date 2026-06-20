@@ -13,11 +13,15 @@ logger = logging.getLogger(__name__)
 AUTH_BASE_URL = "https://auth.dhan.co"
 
 
-def generate_consent(dhan_client_id):
+def generate_consent(
+    dhan_client_id,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+):
     """Step 1: Generate consent to initiate login session - requires valid Dhan Client ID"""
     try:
-        BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-        BROKER_API_SECRET = os.getenv("BROKER_API_SECRET")
+        BROKER_API_KEY = broker_api_key or os.getenv("BROKER_API_KEY")
+        BROKER_API_SECRET = broker_api_secret or os.getenv("BROKER_API_SECRET")
 
         # Extract client_id from API key if format is client_id:::api_key
         if ":::" in BROKER_API_KEY:
@@ -79,11 +83,15 @@ def get_login_url(consent_app_id):
     return f"{AUTH_BASE_URL}/login/consentApp-login?consentAppId={consent_app_id}"
 
 
-def consume_consent(token_id):
+def consume_consent(
+    token_id,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+):
     """Step 3: Consume consent to get access token"""
     try:
-        BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-        BROKER_API_SECRET = os.getenv("BROKER_API_SECRET")
+        BROKER_API_KEY = broker_api_key or os.getenv("BROKER_API_KEY")
+        BROKER_API_SECRET = broker_api_secret or os.getenv("BROKER_API_SECRET")
 
         # Extract client_id from API key if format is client_id:::api_key
         if ":::" in BROKER_API_KEY:
@@ -142,7 +150,11 @@ def get_direct_access_token(access_token):
         return None, f"An exception occurred: {str(e)}"
 
 
-def authenticate_broker(code):
+def authenticate_broker(
+    code,
+    broker_api_key: str | None = None,
+    broker_api_secret: str | None = None,
+):
     """Main authentication function - handles direct token or OAuth flow"""
     try:
         # Check if code is actually a direct access token (for manual entry)
@@ -153,7 +165,11 @@ def authenticate_broker(code):
             return get_direct_access_token(code)
         # Otherwise, handle OAuth flow with tokenId
         elif code:
-            access_token, additional_data = consume_consent(code)
+            access_token, additional_data = consume_consent(
+                code,
+                broker_api_key=broker_api_key,
+                broker_api_secret=broker_api_secret,
+            )
             if access_token and isinstance(additional_data, dict):
                 # Extract the dhanClientId to return as user_id
                 dhan_client_id = additional_data.get("dhan_client_id")
