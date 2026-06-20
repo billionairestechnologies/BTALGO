@@ -1,6 +1,7 @@
 import os
 import re
 import secrets
+from datetime import datetime
 
 from email_validator import EmailNotValidError, validate_email
 from flask import (
@@ -31,6 +32,7 @@ from database.user_db import (  # Import the function
 from database.saas_db import (
     create_or_refresh_email_otp,
     get_email_otp_status,
+    get_profile_by_username,
     resend_email_otp,
     verify_email_otp,
 )
@@ -89,6 +91,10 @@ def _pending_totp_is_fresh() -> bool:
 def _clear_pending_totp() -> None:
     session.pop("pending_totp_user", None)
     session.pop("pending_totp_started_at", None)
+
+
+def _current_saas_profile():
+    return get_profile_by_username(session.get("user"))
 
 
 @auth_bp.errorhandler(429)
@@ -687,6 +693,111 @@ def two_factor_configure():
             "totp_required_for_password_reset": purpose_reset,
         }
     )
+
+
+@auth_bp.route("/mpin/status", methods=["GET"])
+@check_session_validity
+def mpin_status():
+    profile = _current_saas_profile()
+    if profile is None:
+        return jsonify({"status": "error", "message": "SaaS profile not found."}), 404
+    return jsonify(
+        {
+            "status": "success",
+            "mpin_enabled": bool(profile.mpin_enabled and profile.mpin_hash),
+            "phone": profile.phone,
+            "last_mpin_verified_at": session.get("mpin_verified_at"),
+        }
+    )
+
+
+@auth_bp.route("/mpin/configure", methods=["POST"])
+@check_session_validity
+def mpin_configure():
+    data = request.get_json(silent=True) or {}
+    current_password = (data.get("current_password") or "").strip()
+    mpin = (data.get("mpin") or "").strip()
+    confirm_mpin = (data.get("confirm_mpin") or "").strip()
+    phone = (data.get("phone") or "").strip()
+
+    if not current_password:
+        return jsonify({"status": "error", "message": "Current password is required."}), 400
+    if not mpin or not confirm_mpin:
+        return jsonify({"status": "error", "message": "MPIN and confirmation are required."}), 400
+    if mpin != confirm_mpin:
+        return jsonify({"status": "error", "message": "MPIN entries do not match."}), 400
+
+    user = find_user_by_exact_username(session["user"])
+    if user is None or not user.check_password(current_password):
+        return jsonify({"status": "error", "message": "Current password is incorrect."}), 401
+
+    profile = _current_saas_profile()
+    if profile is None:
+        return jsonify({"status": "error", "message": "SaaS profile not found."}), 404
+
+    try:
+        profile.set_mpin(mpin)
+    except ValueError as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+    if phone:
+        profile.phone = phone
+    profile.updated_at = datetime.utcnow()
+    db_session.commit()
+    session["mpin_verified_at"] = _utcnow_iso()
+    return jsonify(
+        {
+            "status": "success",
+            "message": "MPIN saved successfully.",
+            "mpin_enabled": True,
+            "phone": profile.phone,
+        }
+    )
+
+
+@auth_bp.route("/mpin/disable", methods=["POST"])
+@check_session_validity
+def mpin_disable():
+    data = request.get_json(silent=True) or {}
+    current_password = (data.get("current_password") or "").strip()
+    mpin = (data.get("mpin") or "").strip()
+
+    if not current_password:
+        return jsonify({"status": "error", "message": "Current password is required."}), 400
+
+    user = find_user_by_exact_username(session["user"])
+    if user is None or not user.check_password(current_password):
+        return jsonify({"status": "error", "message": "Current password is incorrect."}), 401
+
+    profile = _current_saas_profile()
+    if profile is None:
+        return jsonify({"status": "error", "message": "SaaS profile not found."}), 404
+    if profile.mpin_enabled and not profile.verify_mpin(mpin):
+        return jsonify({"status": "error", "message": "Current MPIN is incorrect."}), 401
+
+    profile.clear_mpin()
+    profile.updated_at = datetime.utcnow()
+    db_session.commit()
+    session.pop("mpin_verified_at", None)
+    return jsonify({"status": "success", "message": "MPIN disabled successfully.", "mpin_enabled": False})
+
+
+@auth_bp.route("/mpin/verify", methods=["POST"])
+@check_session_validity
+def mpin_verify():
+    data = request.get_json(silent=True) or {}
+    mpin = (data.get("mpin") or "").strip()
+    if not mpin:
+        return jsonify({"status": "error", "message": "MPIN is required."}), 400
+
+    profile = _current_saas_profile()
+    if profile is None:
+        return jsonify({"status": "error", "message": "SaaS profile not found."}), 404
+    if not profile.mpin_enabled or not profile.verify_mpin(mpin):
+        return jsonify({"status": "error", "message": "Invalid MPIN."}), 401
+
+    session["mpin_verified_at"] = _utcnow_iso()
+    return jsonify({"status": "success", "message": "MPIN verified.", "verified_at": session["mpin_verified_at"]})
 
 
 @auth_bp.route("/broker", methods=["GET", "POST"])

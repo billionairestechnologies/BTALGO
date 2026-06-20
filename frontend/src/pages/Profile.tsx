@@ -7,8 +7,10 @@ import {
   Check,
   CheckCircle2,
   Copy,
+  CreditCard,
   FileWarning,
   FolderCheck,
+  History,
   Key,
   Lock,
   Mail,
@@ -18,6 +20,7 @@ import {
   RotateCcw,
   Send,
   Shield,
+  Smartphone,
   Sun,
   User,
   Volume2,
@@ -156,6 +159,70 @@ interface PermissionsData {
   is_windows: boolean
   all_correct: boolean
   checks: PermissionCheck[]
+}
+
+interface BillingPlan {
+  code: string
+  name: string
+  price_label: string
+  configured: boolean
+  plan_id: string | null
+  entitlements: {
+    live_trading: boolean
+    mcp_write: boolean
+    static_ip: boolean
+    copy_trading: boolean
+    strategy_builder: boolean
+    python_sdk: boolean
+    telegram: boolean
+    whatsapp: boolean
+    broker_accounts_limit: number
+  }
+}
+
+interface BillingEvent {
+  id: number
+  event_type: string
+  provider_payment_id: string | null
+  status: string
+  created_at: string | null
+}
+
+interface BillingSummary {
+  tenant: {
+    id: number
+    name: string
+    slug: string
+  }
+  subscription: {
+    plan_code: string
+    status: string
+    razorpay_customer_id: string | null
+    razorpay_subscription_id: string | null
+    current_period_start: string | null
+    current_period_end: string | null
+  }
+  entitlements: {
+    billing_active: boolean
+    live_trading: boolean
+    mcp_write: boolean
+    static_ip: boolean
+    copy_trading: boolean
+    strategy_builder: boolean
+    python_sdk: boolean
+    telegram: boolean
+    whatsapp: boolean
+    broker_accounts_limit: number
+    plan_code: string
+    status: string
+  }
+  plans: BillingPlan[]
+}
+
+interface MpinStatus {
+  mpin_enabled: boolean
+  phone: string | null
+  last_mpin_verified_at: string | null
 }
 
 // Toast position options
@@ -324,6 +391,19 @@ export default function ProfilePage() {
   const [permissionsData, setPermissionsData] = useState<PermissionsData | null>(null)
   const [isLoadingPermissions, setIsLoadingPermissions] = useState(false)
   const [isFixingPermissions, setIsFixingPermissions] = useState(false)
+  const [billingSummary, setBillingSummary] = useState<BillingSummary | null>(null)
+  const [billingEvents, setBillingEvents] = useState<BillingEvent[]>([])
+  const [isLoadingBilling, setIsLoadingBilling] = useState(false)
+  const [isBillingAction, setIsBillingAction] = useState(false)
+  const [mpinStatus, setMpinStatus] = useState<MpinStatus | null>(null)
+  const [isSavingMpin, setIsSavingMpin] = useState(false)
+  const [isVerifyingMpin, setIsVerifyingMpin] = useState(false)
+  const [isDisablingMpin, setIsDisablingMpin] = useState(false)
+  const [mpinCurrentPassword, setMpinCurrentPassword] = useState('')
+  const [mpinValue, setMpinValue] = useState('')
+  const [mpinConfirmValue, setMpinConfirmValue] = useState('')
+  const [mpinVerifyValue, setMpinVerifyValue] = useState('')
+  const [mpinPhone, setMpinPhone] = useState('')
 
   // Check if in analyzer mode (theme changes blocked)
   const isAnalyzerMode = appMode === 'analyzer'
@@ -332,6 +412,8 @@ export default function ProfilePage() {
   useEffect(() => {
     fetchProfileData()
     fetchBrokerCredentials()
+    fetchBillingSummary()
+    fetchMpinStatus()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -375,6 +457,42 @@ export default function ProfilePage() {
         setWebsocketUrl(response.data.data.websocket_url || '')
       }
     } catch (_error) {}
+  }
+
+  const fetchBillingSummary = async () => {
+    setIsLoadingBilling(true)
+    try {
+      const response = await webClient.get<{ status: string } & BillingSummary>(
+        '/api/saas/billing/summary'
+      )
+      if (response.data.status === 'success') {
+        setBillingSummary(response.data)
+      }
+
+      const eventsResponse = await webClient.get<{
+        status: string
+        events: BillingEvent[]
+      }>('/api/saas/billing/events')
+      if (eventsResponse.data.status === 'success') {
+        setBillingEvents(eventsResponse.data.events)
+      }
+    } catch (_error) {
+      showToast.error('Failed to load billing details', 'admin')
+    } finally {
+      setIsLoadingBilling(false)
+    }
+  }
+
+  const fetchMpinStatus = async () => {
+    try {
+      const response = await webClient.get<MpinStatus & { status: string }>('/auth/mpin/status')
+      if (response.data.status === 'success') {
+        setMpinStatus(response.data)
+        setMpinPhone(response.data.phone || '')
+      }
+    } catch (_error) {
+      showToast.error('Failed to load MPIN status', 'system')
+    }
   }
 
   const fetchPermissions = async () => {
@@ -425,6 +543,129 @@ export default function ProfilePage() {
       showToast.error('Failed to fix permissions', 'admin')
     } finally {
       setIsFixingPermissions(false)
+    }
+  }
+
+  const handleActivatePlan = async (planCode: string) => {
+    setIsBillingAction(true)
+    try {
+      await webClient.post('/api/saas/billing/customer', {})
+      const response = await webClient.post<{
+        status: string
+        message?: string
+      }>('/api/saas/billing/subscription', {
+        plan_code: planCode,
+      })
+
+      if (response.data.status === 'success') {
+        showToast.success(`Started ${planCode} billing flow`, 'admin')
+        await fetchBillingSummary()
+      } else {
+        showToast.error(response.data.message || 'Failed to start billing flow', 'admin')
+      }
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
+      showToast.error(err.response?.data?.message || 'Failed to start billing flow', 'admin')
+    } finally {
+      setIsBillingAction(false)
+    }
+  }
+
+  const handleRefreshBilling = async () => {
+    if (!billingSummary?.subscription.razorpay_subscription_id) {
+      await fetchBillingSummary()
+      return
+    }
+    setIsBillingAction(true)
+    try {
+      await webClient.post('/api/saas/billing/subscription/refresh', {})
+      showToast.success('Billing status refreshed', 'admin')
+      await fetchBillingSummary()
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
+      showToast.error(err.response?.data?.message || 'Failed to refresh billing', 'admin')
+    } finally {
+      setIsBillingAction(false)
+    }
+  }
+
+  const handleSaveMpin = async () => {
+    if (!mpinCurrentPassword) {
+      showToast.error('Enter your current password to save MPIN', 'system')
+      return
+    }
+    if (mpinValue.length !== 4 && mpinValue.length !== 6) {
+      showToast.error('MPIN must be 4 or 6 digits', 'system')
+      return
+    }
+    if (mpinValue !== mpinConfirmValue) {
+      showToast.error('MPIN entries do not match', 'system')
+      return
+    }
+
+    setIsSavingMpin(true)
+    try {
+      await webClient.post('/auth/mpin/configure', {
+        current_password: mpinCurrentPassword,
+        mpin: mpinValue,
+        confirm_mpin: mpinConfirmValue,
+        phone: mpinPhone,
+      })
+      showToast.success('MPIN saved successfully', 'system')
+      setMpinValue('')
+      setMpinConfirmValue('')
+      await fetchMpinStatus()
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
+      showToast.error(err.response?.data?.message || 'Failed to save MPIN', 'system')
+    } finally {
+      setIsSavingMpin(false)
+    }
+  }
+
+  const handleVerifyMpin = async () => {
+    if (!mpinVerifyValue) {
+      showToast.error('Enter MPIN to verify', 'system')
+      return
+    }
+    setIsVerifyingMpin(true)
+    try {
+      await webClient.post('/auth/mpin/verify', { mpin: mpinVerifyValue })
+      showToast.success('MPIN verified', 'system')
+      await fetchMpinStatus()
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
+      showToast.error(err.response?.data?.message || 'Invalid MPIN', 'system')
+    } finally {
+      setIsVerifyingMpin(false)
+    }
+  }
+
+  const handleDisableMpin = async () => {
+    if (!mpinCurrentPassword) {
+      showToast.error('Enter your current password to disable MPIN', 'system')
+      return
+    }
+    if (!mpinVerifyValue) {
+      showToast.error('Enter your current MPIN to disable it', 'system')
+      return
+    }
+    setIsDisablingMpin(true)
+    try {
+      await webClient.post('/auth/mpin/disable', {
+        current_password: mpinCurrentPassword,
+        mpin: mpinVerifyValue,
+      })
+      showToast.success('MPIN disabled', 'system')
+      setMpinValue('')
+      setMpinConfirmValue('')
+      setMpinVerifyValue('')
+      await fetchMpinStatus()
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } }
+      showToast.error(err.response?.data?.message || 'Failed to disable MPIN', 'system')
+    } finally {
+      setIsDisablingMpin(false)
     }
   }
 
@@ -841,6 +1082,246 @@ export default function ProfilePage() {
                 <Label>Account Type</Label>
                 <div className="pt-2">
                   <Badge>Administrator</Badge>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <CreditCard className="h-5 w-5" />
+                    Workspace Billing
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your BillionairsHQ subscription, entitlements, and payment events
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleRefreshBilling} disabled={isBillingAction}>
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isBillingAction ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {isLoadingBilling ? (
+                <div className="flex items-center justify-center py-6">
+                  <RefreshCw className="h-5 w-5 animate-spin text-muted-foreground" />
+                </div>
+              ) : billingSummary ? (
+                <>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="rounded-lg border p-4">
+                      <p className="text-sm text-muted-foreground">Current Plan</p>
+                      <p className="mt-2 text-lg font-semibold capitalize">
+                        {billingSummary.subscription.plan_code}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border p-4">
+                      <p className="text-sm text-muted-foreground">Status</p>
+                      <p className="mt-2 text-lg font-semibold capitalize">
+                        {billingSummary.subscription.status}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border p-4">
+                      <p className="text-sm text-muted-foreground">Broker Accounts</p>
+                      <p className="mt-2 text-lg font-semibold">
+                        {billingSummary.entitlements.broker_accounts_limit}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {billingSummary.plans.map((plan) => {
+                      const isCurrent = billingSummary.subscription.plan_code === plan.code
+                      return (
+                        <div key={plan.code} className="rounded-lg border p-4 space-y-4">
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="font-semibold">{plan.name}</p>
+                              <p className="text-sm text-muted-foreground">{plan.price_label}</p>
+                            </div>
+                            {isCurrent ? <Badge>{billingSummary.subscription.status}</Badge> : null}
+                          </div>
+
+                          <div className="space-y-1 text-sm text-muted-foreground">
+                            <p>{plan.entitlements.live_trading ? 'Live trading included' : 'No live trading'}</p>
+                            <p>{plan.entitlements.copy_trading ? 'Copy trading included' : 'Copy trading locked'}</p>
+                            <p>{plan.entitlements.static_ip ? 'Static IP routing included' : 'Shared routing only'}</p>
+                            <p>{plan.entitlements.mcp_write ? 'MCP write access included' : 'MCP read-only'}</p>
+                          </div>
+
+                          <Button
+                            className="w-full"
+                            variant={isCurrent ? 'outline' : 'default'}
+                            disabled={isBillingAction || !plan.configured || isCurrent}
+                            onClick={() => handleActivatePlan(plan.code)}
+                          >
+                            {!plan.configured
+                              ? 'Plan Not Configured'
+                              : isCurrent
+                                ? 'Current Plan'
+                                : `Activate ${plan.name}`}
+                          </Button>
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div className="rounded-lg border p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <History className="h-4 w-4" />
+                      <p className="font-medium">Recent Billing Events</p>
+                    </div>
+                    {billingEvents.length > 0 ? (
+                      <div className="space-y-2">
+                        {billingEvents.slice(0, 5).map((event) => (
+                          <div
+                            key={event.id}
+                            className="flex items-center justify-between gap-4 rounded-md bg-muted/50 px-3 py-2 text-sm"
+                          >
+                            <div>
+                              <p className="font-medium">{event.event_type}</p>
+                              <p className="text-muted-foreground">
+                                {event.provider_payment_id || 'Awaiting payment id'}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="capitalize">{event.status}</p>
+                              <p className="text-muted-foreground">
+                                {event.created_at
+                                  ? new Date(event.created_at).toLocaleString()
+                                  : '-'}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        No billing events yet. Once Razorpay webhooks start hitting this workspace,
+                        events will appear here.
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">Billing details are not available yet.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Smartphone className="h-5 w-5" />
+                MPIN Security
+              </CardTitle>
+              <CardDescription>
+                Set a 4-digit or 6-digit MPIN for quick sensitive-action confirmation flows
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="mt-2 text-lg font-semibold">
+                    {mpinStatus?.mpin_enabled ? 'Enabled' : 'Not set'}
+                  </p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="mt-2 text-lg font-semibold">{mpinStatus?.phone || 'Not set'}</p>
+                </div>
+                <div className="rounded-lg border p-4">
+                  <p className="text-sm text-muted-foreground">Last Verified</p>
+                  <p className="mt-2 text-sm font-medium">
+                    {mpinStatus?.last_mpin_verified_at
+                      ? new Date(mpinStatus.last_mpin_verified_at).toLocaleString()
+                      : 'Never'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Current Password</Label>
+                  <Input
+                    type="password"
+                    value={mpinCurrentPassword}
+                    onChange={(e) => setMpinCurrentPassword(e.target.value)}
+                    placeholder="Required for MPIN changes"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Phone Number</Label>
+                  <Input
+                    value={mpinPhone}
+                    onChange={(e) => setMpinPhone(e.target.value)}
+                    placeholder="Optional recovery phone"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>New MPIN</Label>
+                  <Input
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={mpinValue}
+                    onChange={(e) => setMpinValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="4 or 6 digits"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Confirm MPIN</Label>
+                  <Input
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={mpinConfirmValue}
+                    onChange={(e) =>
+                      setMpinConfirmValue(e.target.value.replace(/\D/g, '').slice(0, 6))
+                    }
+                    placeholder="Repeat MPIN"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <Button onClick={handleSaveMpin} disabled={isSavingMpin}>
+                  {isSavingMpin ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {mpinStatus?.mpin_enabled ? 'Update MPIN' : 'Save MPIN'}
+                </Button>
+              </div>
+
+              <div className="rounded-lg border p-4 space-y-4">
+                <div>
+                  <p className="font-medium">Verify or Disable MPIN</p>
+                  <p className="text-sm text-muted-foreground">
+                    Use this to confirm your MPIN works now. The same verification timestamp can be
+                    reused by future sensitive flows we add next.
+                  </p>
+                </div>
+                <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto_auto]">
+                  <Input
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={mpinVerifyValue}
+                    onChange={(e) => setMpinVerifyValue(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="Enter current MPIN"
+                  />
+                  <Button variant="outline" onClick={handleVerifyMpin} disabled={isVerifyingMpin}>
+                    {isVerifyingMpin ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Verify MPIN
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDisableMpin}
+                    disabled={isDisablingMpin || !mpinStatus?.mpin_enabled}
+                  >
+                    {isDisablingMpin ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Disable MPIN
+                  </Button>
                 </div>
               </div>
             </CardContent>

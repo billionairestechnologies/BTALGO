@@ -8,6 +8,7 @@ from database.saas_db import (
     get_profile_by_username,
     serialize_broker_account,
     serialize_profile,
+    serialize_subscription,
     serialize_tenant,
     upsert_broker_account,
 )
@@ -37,14 +38,7 @@ def get_saas_me():
             "status": "success",
             "tenant": serialize_tenant(profile.tenant),
             "profile": serialize_profile(profile),
-            "subscription": {
-                "plan_code": subscription.plan_code if subscription else "free",
-                "status": subscription.status if subscription else "trialing",
-                "razorpay_customer_id": subscription.razorpay_customer_id if subscription else None,
-                "razorpay_subscription_id": (
-                    subscription.razorpay_subscription_id if subscription else None
-                ),
-            },
+            "subscription": serialize_subscription(subscription),
         }
     )
 

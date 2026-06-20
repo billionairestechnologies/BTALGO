@@ -74,6 +74,30 @@ Relevant commits:
 - `9e4013f0` feat: add resend email otp signup flow
 - `88a72a42` build: refresh frontend bundle for signup flow
 
+### Billing foundation is now product-wired
+
+- Added Razorpay billing blueprint for:
+  - billing summary
+  - plan catalog
+  - customer creation
+  - subscription creation
+  - subscription refresh
+  - webhook verification
+  - payment event history
+- Added tenant billing event persistence.
+- Added plan definitions and entitlement mapping helpers.
+- Added billing visibility to the Profile UI so a signed-in user can see plan state and trigger the subscription flow.
+
+### MPIN product flow now exists
+
+- Added MPIN hashing and verification on SaaS user profiles.
+- Added backend routes for:
+  - MPIN status
+  - configure/save
+  - verify
+  - disable
+- Added Profile UI for MPIN setup, verification, and disable flow.
+
 ## What Is Not Done Yet
 
 ### Broker migration is incomplete
@@ -86,16 +110,13 @@ Still needed:
 - deeper broker helper functions that still assume global env credentials
 - request execution paths that may still read `BROKER_API_KEY` or `BROKER_API_SECRET` directly
 
-### Billing is not live
-
-Schema support exists only at a basic level.
+### Billing is partially live
 
 Still needed:
 
-- Razorpay customer creation
-- checkout session/order flow
-- webhook verification
-- subscription state machine
+- enforcement in trading/MCP/routing flows
+- final checkout/hosted payment UX polish
+- subscription state machine hardening
 - entitlement enforcement
 
 ### Auth product flow is incomplete
@@ -103,13 +124,13 @@ Still needed:
 Done:
 
 - email OTP for registration
+- MPIN setup, verify, disable flow
 
 Still needed:
 
-- MPIN flow
 - phone/mobile OTP if required
 - enforcement rules for sensitive actions
-- tenant/user auth preferences in UI
+- session/device management
 
 ### Static-IP routing is not implemented
 

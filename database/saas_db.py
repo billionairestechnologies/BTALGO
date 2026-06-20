@@ -10,6 +10,8 @@ import os
 import secrets
 from datetime import datetime, timedelta
 
+from argon2 import PasswordHasher
+from argon2.exceptions import VerifyMismatchError
 from sqlalchemy import (
     Boolean,
     Column,
@@ -31,6 +33,7 @@ from database.auth_db import encrypt_token, safe_decrypt_token
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
+ph = PasswordHasher()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -98,6 +101,32 @@ class UserProfile(Base):
         Index("idx_saas_user_profiles_status", "status"),
     )
 
+    def set_mpin(self, mpin: str) -> None:
+        normalized = "".join(ch for ch in (mpin or "") if ch.isdigit())
+        if len(normalized) not in {4, 6}:
+            raise ValueError("MPIN must be exactly 4 or 6 digits.")
+        pepper = os.getenv("API_KEY_PEPPER", "")
+        self.mpin_hash = ph.hash(normalized + pepper)
+        self.mpin_enabled = True
+
+    def verify_mpin(self, mpin: str) -> bool:
+        if not self.mpin_hash:
+            return False
+        normalized = "".join(ch for ch in (mpin or "") if ch.isdigit())
+        pepper = os.getenv("API_KEY_PEPPER", "")
+        try:
+            ph.verify(self.mpin_hash, normalized + pepper)
+            if ph.check_needs_rehash(self.mpin_hash):
+                self.set_mpin(normalized)
+                db_session.commit()
+            return True
+        except VerifyMismatchError:
+            return False
+
+    def clear_mpin(self) -> None:
+        self.mpin_hash = None
+        self.mpin_enabled = False
+
 
 class BrokerAccount(Base):
     """Encrypted per-user broker app credentials and routing metadata."""
@@ -158,6 +187,32 @@ class Subscription(Base):
         Index("idx_saas_subscriptions_tenant", "tenant_id"),
         Index("idx_saas_subscriptions_status", "status"),
         Index("idx_saas_subscriptions_razorpay_customer", "razorpay_customer_id"),
+    )
+
+
+class PaymentEvent(Base):
+    """Persist billing events and webhook payloads for reconciliation."""
+
+    __tablename__ = "saas_payment_events"
+
+    id = Column(Integer, primary_key=True)
+    tenant_id = Column(Integer, ForeignKey("saas_tenants.id"), nullable=True)
+    provider = Column(String(30), nullable=False, default="razorpay")
+    event_type = Column(String(120), nullable=False)
+    provider_event_id = Column(String(120), nullable=True)
+    provider_payment_id = Column(String(120), nullable=True)
+    provider_subscription_id = Column(String(120), nullable=True)
+    status = Column(String(30), nullable=False, default="received")
+    payload_json = Column(Text, nullable=False)
+    signature = Column(String(255), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index("idx_saas_payment_events_tenant", "tenant_id"),
+        Index("idx_saas_payment_events_provider", "provider"),
+        Index("idx_saas_payment_events_type", "event_type"),
+        Index("idx_saas_payment_events_subscription", "provider_subscription_id"),
     )
 
 
@@ -409,6 +464,38 @@ def serialize_profile(profile: UserProfile) -> dict:
     }
 
 
+def serialize_subscription(subscription: Subscription | None) -> dict:
+    return {
+        "plan_code": subscription.plan_code if subscription else "free",
+        "status": subscription.status if subscription else "trialing",
+        "razorpay_customer_id": subscription.razorpay_customer_id if subscription else None,
+        "razorpay_subscription_id": subscription.razorpay_subscription_id if subscription else None,
+        "current_period_start": (
+            subscription.current_period_start.isoformat()
+            if subscription and subscription.current_period_start
+            else None
+        ),
+        "current_period_end": (
+            subscription.current_period_end.isoformat()
+            if subscription and subscription.current_period_end
+            else None
+        ),
+    }
+
+
+def serialize_payment_event(event: PaymentEvent) -> dict:
+    return {
+        "id": event.id,
+        "provider": event.provider,
+        "event_type": event.event_type,
+        "provider_event_id": event.provider_event_id,
+        "provider_payment_id": event.provider_payment_id,
+        "provider_subscription_id": event.provider_subscription_id,
+        "status": event.status,
+        "created_at": event.created_at.isoformat() if event.created_at else None,
+    }
+
+
 def _mask(value: str | None, show_chars: int = 4) -> str:
     if not value:
         return ""
@@ -488,3 +575,40 @@ def upsert_broker_account(profile: UserProfile, data: dict) -> BrokerAccount:
     account.updated_at = datetime.utcnow()
     db_session.commit()
     return account
+
+
+def get_or_create_subscription_for_tenant(tenant_id: int) -> Subscription:
+    subscription = Subscription.query.filter_by(tenant_id=tenant_id).first()
+    if subscription:
+        return subscription
+
+    subscription = Subscription(tenant_id=tenant_id, plan_code="free", status="trialing")
+    db_session.add(subscription)
+    db_session.commit()
+    return subscription
+
+
+def record_payment_event(
+    *,
+    tenant_id: int | None,
+    event_type: str,
+    payload_json: str,
+    signature: str | None = None,
+    provider_event_id: str | None = None,
+    provider_payment_id: str | None = None,
+    provider_subscription_id: str | None = None,
+    status: str = "received",
+) -> PaymentEvent:
+    event = PaymentEvent(
+        tenant_id=tenant_id,
+        event_type=event_type,
+        payload_json=payload_json,
+        signature=signature,
+        provider_event_id=provider_event_id,
+        provider_payment_id=provider_payment_id,
+        provider_subscription_id=provider_subscription_id,
+        status=status,
+    )
+    db_session.add(event)
+    db_session.commit()
+    return event

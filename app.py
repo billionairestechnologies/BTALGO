@@ -31,6 +31,7 @@ from blueprints.analyzer import analyzer_bp  # Import the analyzer blueprint
 from blueprints.apikey import api_key_bp
 from blueprints.auth import auth_bp
 from blueprints.brlogin import brlogin_bp
+from blueprints.billing import billing_bp
 from blueprints.broker_credentials import (
     broker_credentials_bp,  # Import the broker credentials blueprint
 )
@@ -286,6 +287,7 @@ def create_app():
     app.register_blueprint(security_bp)  # Register Security blueprint
     app.register_blueprint(sandbox_bp)  # Register Sandbox blueprint
     app.register_blueprint(saas_bp)  # Register QuantX SaaS blueprint
+    app.register_blueprint(billing_bp)  # Register SaaS billing blueprint
     app.register_blueprint(playground_bp)  # Register API playground blueprint
     app.register_blueprint(logging_bp)  # Register Logging blueprint
     app.register_blueprint(admin_bp)  # Register Admin blueprint

@@ -7,8 +7,8 @@ This is the execution queue, ordered by what should happen next.
 ## Current Priority
 
 - [ ] Finish broker auth migration to resolver-based SaaS account context
-- [ ] Add Razorpay billing core
-- [ ] Add MPIN and stronger auth product flow
+- [x] Add Razorpay billing core
+- [x] Add MPIN and stronger auth product flow
 - [ ] Add static-IP routing
 - [ ] Merge copy trading into BillionairsHQ auth, billing, routing, and broker account model
 
@@ -27,10 +27,10 @@ This is the execution queue, ordered by what should happen next.
 
 ## 2. Billing and Entitlements
 
-- [ ] Add Razorpay customer/order/subscription integration
-- [ ] Add webhook signature verification
-- [ ] Persist billing events and payment history
-- [ ] Add plan definitions and entitlement mapping
+- [x] Add Razorpay customer/order/subscription integration
+- [x] Add webhook signature verification
+- [x] Persist billing events and payment history
+- [x] Add plan definitions and entitlement mapping
 - [ ] Gate live trading by subscription
 - [ ] Gate MCP write scope by subscription
 - [ ] Gate static-IP routing by subscription
@@ -39,9 +39,9 @@ This is the execution queue, ordered by what should happen next.
 ## 3. OTP / MPIN / Account Security
 
 - [x] Add email OTP signup flow with Resend
-- [ ] Add MPIN set/reset flow
+- [x] Add MPIN set/reset flow
 - [ ] Add optional mobile/phone OTP flow if product requires it
-- [ ] Add UI for auth preferences per user
+- [x] Add UI for auth preferences per user
 - [ ] Add session/device management UI
 - [ ] Add enforcement rules for sensitive actions:
   - [ ] broker connect
@@ -90,7 +90,7 @@ This is the execution queue, ordered by what should happen next.
 ## Suggested Next Execution Order
 
 1. Finish broker migration completely.
-2. Add Razorpay billing and entitlements.
-3. Add MPIN flow.
+2. Finish broker migration completely.
+3. Enforce billing entitlements in trading/MCP/routing paths.
 4. Add static-IP routing.
 5. Merge copy trading into the same SaaS model.

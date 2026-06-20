@@ -24,7 +24,8 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 
 - SaaS signup with email OTP exists.
 - Some broker auth flows are SaaS-aware.
-- Billing is not live.
+- Billing foundation exists: plans, customer creation, subscription create/refresh, webhook validation, and payment-event persistence.
+- MPIN setup/verify/disable flow exists in backend and Profile UI.
 - Static-IP routing is not live.
 - Copy trading is not unified into BillionairsHQ yet.
 
@@ -32,13 +33,13 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 
 Best next engineering task:
 
-`Finish broker auth migration so all broker login/token/helper paths resolve credentials from SaaS broker account context first, with legacy env fallback only during migration.`
+`Finish broker auth migration, then enforce billing entitlements on live trading, MCP write scope, and future static-IP routing.`
 
 Reason:
 
-- It reduces the biggest architectural split in the codebase.
-- It unlocks billing, routing, and copy trading reuse later.
-- It removes the remaining per-server/shared-secret behavior.
+- It removes the biggest remaining architectural split in the codebase.
+- It lets the new billing layer actually control product access.
+- It is the cleanest path to routing and copy-trading unification.
 
 ## Watch Outs
 
@@ -49,9 +50,10 @@ Reason:
 
 ## Definition Of Done For The Next Slice
 
-The next broker-migration slice should be considered done only when:
+The next broker-migration and billing-enforcement slice should be considered done only when:
 
 - all supported broker login/auth paths use the resolver
 - helper modules do not silently read global broker env vars when a user account context exists
 - at least one regression test covers tenant isolation for broker credentials
 - UI behavior still works with legacy fallback for installs not yet migrated
+- live trading and MCP write decisions read the tenant subscription entitlements instead of assuming access
