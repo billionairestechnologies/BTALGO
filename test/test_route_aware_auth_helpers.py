@@ -8,8 +8,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import broker.definedge.api.auth_api as definedge_auth  # noqa: E402
 import broker.dhan.api.auth_api as dhan_auth  # noqa: E402
+import broker.dhan.api.order_api as dhan_order_api  # noqa: E402
 import broker.iiflcapital.api.auth_api as iifl_auth  # noqa: E402
 import broker.samco.api.auth_api as samco_auth  # noqa: E402
+import broker.upstox.api.order_api as upstox_order_api  # noqa: E402
 
 
 class _FakeResponse:
@@ -102,4 +104,44 @@ def test_iifl_authenticate_broker_passes_route_context(monkeypatch):
 
     assert error is None
     assert token == "session-1"
+    assert captured["route_context"] is route_context
+
+
+def test_upstox_order_request_passes_route_context(monkeypatch):
+    captured = {}
+
+    def fake_get(url, **kwargs):
+        captured["route_context"] = kwargs.get("route_context")
+        return _FakeResponse({"status": "success", "data": []})
+
+    monkeypatch.setattr(upstox_order_api, "get", fake_get)
+
+    route_context = SimpleNamespace(proxy_url="http://proxy")
+    payload = upstox_order_api.get_api_response(
+        "/v2/order/retrieve-all",
+        "token-1",
+        route_context=route_context,
+    )
+
+    assert payload["status"] == "success"
+    assert captured["route_context"] is route_context
+
+
+def test_dhan_order_request_passes_route_context(monkeypatch):
+    captured = {}
+
+    def fake_get(url, **kwargs):
+        captured["route_context"] = kwargs.get("route_context")
+        return _FakeResponse([], text="[]")
+
+    monkeypatch.setattr(dhan_order_api, "get", fake_get)
+
+    route_context = SimpleNamespace(proxy_url="http://proxy")
+    payload = dhan_order_api.get_api_response(
+        "/v2/orders",
+        "token-1",
+        route_context=route_context,
+    )
+
+    assert payload == []
     assert captured["route_context"] is route_context

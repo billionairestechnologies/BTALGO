@@ -65,6 +65,9 @@ This is the execution queue, ordered by what should happen next.
   - [x] Definedge OTP auth flow
   - [x] Upstox auth exchange
   - [x] Zerodha auth exchange
+  - [x] Upstox order HTTP requests
+  - [x] Dhan order HTTP requests
+  - [x] WebSocket pool keeps tenant auth context across reconnects/new pooled adapters
 
 ## 5. Copy Trading Unification
 

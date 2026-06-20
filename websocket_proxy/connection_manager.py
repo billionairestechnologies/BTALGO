@@ -283,6 +283,7 @@ class ConnectionPool:
         # State
         self.initialized = False
         self.connected = False
+        self.auth_data: dict[str, Any] | None = None
 
         # Peak usage tracking (for logging purposes)
         self.peak_total_symbols = 0
@@ -369,7 +370,7 @@ class ConnectionPool:
             adapter = self._create_adapter()
 
             # Initialize and connect the new adapter
-            adapter.initialize(self.broker_name, self.user_id)
+            adapter.initialize(self.broker_name, self.user_id, self.auth_data)
             adapter.connect()
 
             self.adapters.append(adapter)
@@ -408,6 +409,9 @@ class ConnectionPool:
             return {"success": True, "message": "Already initialized"}
 
         with self.lock:
+            if auth_data is not None:
+                self.auth_data = auth_data
+
             # If forcing re-initialization, clean up existing adapters first (inside lock to prevent race conditions)
             if force and self.initialized:
                 self.logger.info(f"Force re-initializing pool for {self.broker_name} with fresh credentials")
@@ -433,7 +437,7 @@ class ConnectionPool:
 
                 # Create first adapter
                 adapter = self._create_adapter()
-                result = adapter.initialize(self.broker_name, self.user_id, auth_data)
+                result = adapter.initialize(self.broker_name, self.user_id, self.auth_data)
 
                 # Handle both response formats from adapters:
                 # - {"success": False, "error": "..."} (ConnectionPool format)
@@ -509,7 +513,7 @@ class ConnectionPool:
             ]
 
         self._clear_auth_cache_for_user()
-        reinit = self.initialize(force=True)
+        reinit = self.initialize(force=True, auth_data=self.auth_data)
         if not reinit.get("success"):
             self.logger.error(
                 f"Pool re-initialization after auth error failed: {reinit.get('error')}"

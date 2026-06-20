@@ -14,8 +14,10 @@ import zmq.asyncio
 from dotenv import load_dotenv
 from sqlalchemy import text
 
-from database.auth_db import get_broker_name, verify_api_key
+from database.auth_db import get_auth_token_broker, get_broker_name, verify_api_key
 from services.market_data_service import get_market_data_service
+from utils.broker_context import resolve_broker_credentials
+from utils.ip_routing import resolve_ip_route, serialize_ip_route_context
 from utils.logging import get_logger, highlight_url
 
 from .base_adapter import BaseBrokerWebSocketAdapter
@@ -755,17 +757,34 @@ class WebSocketProxy:
                     f"No broker found in database for user {user_id}, using fallback: {broker_name}"
                 )
 
-            # Get broker credentials from environment variables
-            # In a production system, these would be stored encrypted in the database per user
+            broker_credentials = resolve_broker_credentials(
+                username=user_id,
+                broker=broker_name,
+            )
+            route_context = resolve_ip_route(username=user_id, broker=broker_name)
+            api_key = self._resolve_api_key_for_user(user_id)
+            auth_token = None
+            feed_token = None
+            if api_key:
+                auth_token, feed_token, _ = get_auth_token_broker(
+                    api_key,
+                    include_feed_token=True,
+                )
+
             broker_config = {
                 "broker_name": broker_name,
-                "api_key": os.getenv("BROKER_API_KEY"),
-                "api_secret": os.getenv("BROKER_API_SECRET"),
-                "api_key_market": os.getenv("BROKER_API_KEY_MARKET"),
-                "api_secret_market": os.getenv("BROKER_API_SECRET_MARKET"),
+                "api_key": broker_credentials.api_key,
+                "api_secret": broker_credentials.api_secret,
+                "api_key_market": broker_credentials.market_api_key,
+                "api_secret_market": broker_credentials.market_api_secret,
                 "broker_user_id": os.getenv("BROKER_USER_ID"),
                 "password": os.getenv("BROKER_PASSWORD"),
                 "totp_secret": os.getenv("BROKER_TOTP_SECRET"),
+                "redirect_url": broker_credentials.redirect_url,
+                "ip_route_key": broker_credentials.ip_route_key,
+                "auth_token": auth_token,
+                "feed_token": feed_token,
+                "route_context": serialize_ip_route_context(route_context),
             }
 
             # Validate broker is supported
@@ -789,6 +808,18 @@ class WebSocketProxy:
 
         except Exception as e:
             logger.exception(f"Error getting broker configuration for user {user_id}: {e}")
+            return None
+
+    def _resolve_api_key_for_user(self, user_id: str) -> str | None:
+        try:
+            from database.auth_db import ApiKeys, decrypt_token
+
+            api_key_row = ApiKeys.query.filter_by(user_id=user_id).first()
+            if not api_key_row:
+                return None
+            return decrypt_token(api_key_row.api_key_encrypted)
+        except Exception as e:
+            logger.warning(f"Unable to resolve API key for user {user_id}: {e}")
             return None
 
     async def authenticate_client(self, client_id, data):
@@ -879,9 +910,18 @@ class WebSocketProxy:
                     )
                     return
 
+                broker_config = await self.get_user_broker_configuration(user_id)
+                if not broker_config:
+                    await self.send_error(
+                        client_id,
+                        "BROKER_ERROR",
+                        f"Broker configuration unavailable for user {user_id}",
+                    )
+                    return
+
                 # Initialize adapter with broker configuration
                 # The adapter's initialize method should handle broker-specific setup
-                initialization_result = adapter.initialize(broker_name, user_id)
+                initialization_result = adapter.initialize(broker_name, user_id, broker_config)
                 if initialization_result and initialization_result.get("status") == "error":
                     error_msg = initialization_result.get(
                         "message", initialization_result.get("error", "Failed to initialize broker adapter")
@@ -894,7 +934,9 @@ class WebSocketProxy:
                         adapter.clear_auth_cache_for_user(user_id)
 
                         # Retry initialization with fresh credentials
-                        initialization_result = adapter.initialize(broker_name, user_id)
+                        initialization_result = adapter.initialize(
+                            broker_name, user_id, broker_config
+                        )
                         if initialization_result and initialization_result.get("status") == "error":
                             error_msg = initialization_result.get("message", "Failed to initialize after retry")
                             await self.send_error(client_id, "BROKER_INIT_ERROR", error_msg)
@@ -937,10 +979,14 @@ class WebSocketProxy:
                         logger.info(f"Re-initializing adapter for user {user_id} with fresh token")
                         try:
                             # Try with force parameter (supported by _PooledAdapterWrapper)
-                            init_retry_result = adapter.initialize(broker_name, user_id, force=True)
+                            init_retry_result = adapter.initialize(
+                                broker_name, user_id, broker_config, force=True
+                            )
                         except TypeError:
                             # Fallback for raw adapters that don't support force parameter
-                            init_retry_result = adapter.initialize(broker_name, user_id)
+                            init_retry_result = adapter.initialize(
+                                broker_name, user_id, broker_config
+                            )
                         # Handle both response formats
                         init_is_error = (
                             (init_retry_result and init_retry_result.get("status") == "error") or
@@ -996,7 +1042,10 @@ class WebSocketProxy:
                             if hasattr(adapter, 'clear_auth_cache_for_user'):
                                 adapter.clear_auth_cache_for_user(user_id)
 
-                            initialization_result = adapter.initialize(broker_name, user_id)
+                            broker_config = await self.get_user_broker_configuration(user_id)
+                            initialization_result = adapter.initialize(
+                                broker_name, user_id, broker_config
+                            )
                             # Handle both response formats
                             init_is_error = (
                                 (initialization_result and initialization_result.get("status") == "error") or

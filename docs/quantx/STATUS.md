@@ -119,6 +119,11 @@ Relevant commits:
   - Definedge OTP auth
   - Upstox auth exchange
   - Zerodha auth exchange
+- Extended route-aware execution deeper into live traffic:
+  - Upstox order HTTP requests now resolve tenant route context
+  - Dhan order HTTP requests now resolve tenant route context
+  - WebSocket proxy initialization now passes tenant broker/auth context into pooled adapters
+  - pooled reconnect/new-connection flows now retain the same tenant auth context
 
 ## What Is Not Done Yet
 

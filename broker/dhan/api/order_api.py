@@ -14,20 +14,30 @@ from broker.dhan.mapping.transform_data import (
     transform_data,
     transform_modify_order_data,
 )
-from database.auth_db import get_auth_token, get_user_id, verify_api_key
+from database.auth_db import (
+    get_auth_token,
+    get_user_id,
+    get_username_by_apikey,
+    verify_api_key,
+)
 from database.token_db import get_br_symbol, get_oa_symbol, get_symbol, get_token
-from utils.httpx_client import get_httpx_client
+from utils.broker_context import resolve_broker_credentials
+from utils.httpx_client import get, post, request
+from utils.ip_routing import resolve_ip_route
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-def get_api_response(endpoint, auth, method="GET", payload=""):
-    AUTH_TOKEN = auth
-    api_key = os.getenv("BROKER_API_KEY")
+def _resolve_request_context(api_key: str | None):
+    username = get_username_by_apikey(api_key) if api_key else None
+    route_context = resolve_ip_route(username=username, broker="dhan")
+    broker_context = resolve_broker_credentials(username=username, broker="dhan")
+    return username, route_context, broker_context
 
-    # Get the shared httpx client with connection pooling
-    client = get_httpx_client()
+
+def get_api_response(endpoint, auth, method="GET", payload="", route_context=None):
+    AUTH_TOKEN = auth
 
     headers = {
         "access-token": AUTH_TOKEN,
@@ -39,11 +49,17 @@ def get_api_response(endpoint, auth, method="GET", payload=""):
 
     try:
         if method == "GET":
-            response = client.get(url, headers=headers)
+            response = get(url, headers=headers, route_context=route_context)
         elif method == "POST":
-            response = client.post(url, headers=headers, content=payload)
+            response = post(url, headers=headers, content=payload, route_context=route_context)
         else:
-            response = client.request(method, url, headers=headers, content=payload)
+            response = request(
+                method,
+                url,
+                headers=headers,
+                content=payload,
+                route_context=route_context,
+            )
 
         # Add status attribute for compatibility with existing codebase
         response.status = response.status_code
@@ -79,20 +95,20 @@ def get_api_response(endpoint, auth, method="GET", payload=""):
         return {"errorType": "ConnectionError", "errorMessage": str(e)}
 
 
-def get_order_book(auth):
-    return get_api_response("/v2/orders", auth)
+def get_order_book(auth, route_context=None):
+    return get_api_response("/v2/orders", auth, route_context=route_context)
 
 
-def get_trade_book(auth):
-    return get_api_response("/v2/trades", auth)
+def get_trade_book(auth, route_context=None):
+    return get_api_response("/v2/trades", auth, route_context=route_context)
 
 
-def get_positions(auth):
-    return get_api_response("/v2/positions", auth)
+def get_positions(auth, route_context=None):
+    return get_api_response("/v2/positions", auth, route_context=route_context)
 
 
-def get_holdings(auth):
-    return get_api_response("/v2/holdings", auth)
+def get_holdings(auth, route_context=None):
+    return get_api_response("/v2/holdings", auth, route_context=route_context)
 
 
 # --- Per-Symbol Smart Order Lock ---
@@ -117,7 +133,7 @@ def _get_symbol_lock(symbol, exchange, product):
         return _symbol_locks[key]
 
 
-def _get_cached_positions(auth):
+def _get_cached_positions(auth, route_context=None):
     """Get positions from cache if fresh, otherwise fetch from broker API."""
     with _position_cache_lock:
         now = time.monotonic()
@@ -126,7 +142,7 @@ def _get_cached_positions(auth):
             return cached["data"]
 
     # Cache miss or expired - fetch from broker
-    positions_data = get_positions(auth)
+    positions_data = get_positions(auth, route_context=route_context)
 
     with _position_cache_lock:
         _position_cache[auth] = {"data": positions_data, "timestamp": time.monotonic()}
@@ -141,10 +157,10 @@ def _invalidate_position_cache(auth):
 
 
 
-def get_open_position(tradingsymbol, exchange, product, auth):
+def get_open_position(tradingsymbol, exchange, product, auth, route_context=None):
     # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
-    positions_data = _get_cached_positions(auth)
+    positions_data = _get_cached_positions(auth, route_context=route_context)
     net_qty = "0"
 
     # Check if positions_data is an error response
@@ -174,12 +190,13 @@ def get_open_position(tradingsymbol, exchange, product, auth):
 
 def place_order_api(data, auth):
     AUTH_TOKEN = auth
-    BROKER_API_KEY = os.getenv("BROKER_API_KEY")
+    _, route_context, broker_context = _resolve_request_context(data.get("apikey"))
+    broker_api_key = broker_context.api_key or os.getenv("BROKER_API_KEY")
 
     # Extract client_id from BROKER_API_KEY if format is client_id:::api_key
     client_id = None
-    if ":::" in BROKER_API_KEY:
-        client_id, BROKER_API_KEY = BROKER_API_KEY.split(":::")
+    if broker_api_key and ":::" in broker_api_key:
+        client_id, broker_api_key = broker_api_key.split(":::", 1)
 
     # If client_id not found in API key, try to fetch from database
     if not client_id:
@@ -191,7 +208,7 @@ def place_order_api(data, auth):
     if client_id:
         data["dhan_client_id"] = client_id
 
-    data["apikey"] = BROKER_API_KEY
+    data["apikey"] = broker_api_key
     token = get_token(data["symbol"], data["exchange"])
     newdata = transform_data(data, token)
     headers = {
@@ -209,11 +226,8 @@ def place_order_api(data, auth):
     logger.debug(f"Placing order with headers: {headers}")
     logger.debug(f"Placing order with payload: {payload}")
 
-    # Get the shared httpx client with connection pooling
-    client = get_httpx_client()
-
     url = get_url("/v2/orders")
-    res = client.post(url, headers=headers, content=payload)
+    res = post(url, headers=headers, content=payload, route_context=route_context)
     # Add status attribute for compatibility with existing codebase
     res.status = res.status_code
 
@@ -240,7 +254,7 @@ def place_order_api(data, auth):
 
 def place_smartorder_api(data, auth):
     AUTH_TOKEN = auth
-    BROKER_API_KEY = os.getenv("BROKER_API_KEY")
+    _, route_context, _ = _resolve_request_context(data.get("apikey"))
     # If no API call is made in this function then res will return None
     res = None
 
@@ -256,7 +270,13 @@ def place_smartorder_api(data, auth):
 
         # Get current open position for the symbol
         current_position = int(
-            get_open_position(symbol, exchange, map_product_type(product), AUTH_TOKEN)
+            get_open_position(
+                symbol,
+                exchange,
+                map_product_type(product),
+                AUTH_TOKEN,
+                route_context=route_context,
+            )
         )
 
         logger.debug(f"position_size : {position_size}")
@@ -321,8 +341,9 @@ def place_smartorder_api(data, auth):
 
 def close_all_positions(current_api_key, auth):
     AUTH_TOKEN = auth
+    _, route_context, _ = _resolve_request_context(current_api_key)
     # Fetch the current open positions
-    positions_response = get_positions(AUTH_TOKEN)
+    positions_response = get_positions(AUTH_TOKEN, route_context=route_context)
     logger.debug(f"Positions response for closing all: {positions_response}")
 
     # Check if the positions data is null or empty
@@ -371,7 +392,7 @@ def close_all_positions(current_api_key, auth):
     return {"status": "success", "message": "All Open Positions SquaredOff"}, 200
 
 
-def cancel_order(orderid, auth):
+def cancel_order(orderid, auth, route_context=None):
     # Assuming you have a function to get the authentication token
     AUTH_TOKEN = auth
 
@@ -382,14 +403,11 @@ def cancel_order(orderid, auth):
         "Accept": "application/json",
     }
 
-    # Get the shared httpx client with connection pooling
-    client = get_httpx_client()
-
     # Construct the URL for deleting the order
     url = get_url(f"/v2/orders/{orderid}")
 
     # Make the DELETE request using httpx
-    res = client.delete(url, headers=headers)
+    res = request("DELETE", url, headers=headers, route_context=route_context)
 
     # Add status attribute for compatibility with existing codebase
     res.status = res.status_code
@@ -412,8 +430,8 @@ def cancel_order(orderid, auth):
 def modify_order(data, auth):
     # Assuming you have a function to get the authentication token
     AUTH_TOKEN = auth
-    BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-    data["apikey"] = BROKER_API_KEY
+    _, route_context, broker_context = _resolve_request_context(data.get("apikey"))
+    data["apikey"] = broker_context.api_key or os.getenv("BROKER_API_KEY")
 
     orderid = data["orderid"]
     transformed_order_data = transform_modify_order_data(
@@ -430,14 +448,11 @@ def modify_order(data, auth):
 
     logger.debug(f"Modify order payload: {payload}")
 
-    # Get the shared httpx client with connection pooling
-    client = get_httpx_client()
-
     # Construct the URL for modifying the order
     url = get_url(f"/v2/orders/{orderid}")
 
     # Make the PUT request using httpx
-    res = client.put(url, headers=headers, content=payload)
+    res = request("PUT", url, headers=headers, content=payload, route_context=route_context)
 
     # Add status attribute for compatibility with existing codebase
     res.status = res.status_code
@@ -459,7 +474,8 @@ def modify_order(data, auth):
 def cancel_all_orders_api(data, auth):
     # Get the order book
     AUTH_TOKEN = auth
-    order_book_response = get_order_book(AUTH_TOKEN)
+    _, route_context, _ = _resolve_request_context(data.get("apikey"))
+    order_book_response = get_order_book(AUTH_TOKEN, route_context=route_context)
     logger.debug(f"Order book for cancel all: {order_book_response}")
     if order_book_response is None:
         return [], []  # Return empty lists indicating failure to retrieve the order book
@@ -475,7 +491,9 @@ def cancel_all_orders_api(data, auth):
     # Cancel the filtered orders
     for order in orders_to_cancel:
         orderid = order["orderId"]
-        cancel_response, status_code = cancel_order(orderid, AUTH_TOKEN)
+        cancel_response, status_code = cancel_order(
+            orderid, AUTH_TOKEN, route_context=route_context
+        )
         if status_code == 200:
             canceled_orders.append(orderid)
         else:

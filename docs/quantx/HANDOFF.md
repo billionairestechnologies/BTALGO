@@ -30,6 +30,10 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 - Billing enforcement has started: live order-entry flows and MCP write-scope approval now read tenant entitlements.
 - Static-IP routing foundation now exists: egress node inventory, entitlement-checked route assignment, route resolver, and proxy-aware shared HTTP request support.
 - Route-aware broker auth execution has started for Dhan, IIFL Capital, Samco, Definedge, Upstox, and Zerodha helper paths.
+- Route-aware live execution has now moved one layer deeper:
+  - Upstox order HTTP path is route-aware
+  - Dhan order HTTP path is route-aware
+  - WebSocket pooled adapters keep tenant auth context during new pooled connections and auth-refresh rebuilds
 - MPIN setup/verify/disable flow exists in backend and Profile UI.
 - Copy trading is not unified into BillionairsHQ yet.
 

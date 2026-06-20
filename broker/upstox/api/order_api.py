@@ -11,15 +11,24 @@ from broker.upstox.mapping.transform_data import (
     transform_data,
     transform_modify_order_data,
 )
-from database.auth_db import get_auth_token
+from database.auth_db import get_auth_token, get_username_by_apikey
 from database.token_db import get_br_symbol, get_symbol, get_token
-from utils.httpx_client import get_httpx_client
+from utils.broker_context import resolve_broker_credentials
+from utils.httpx_client import delete, get, post, put
+from utils.ip_routing import resolve_ip_route
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-def get_api_response(endpoint, auth, method="GET", payload=""):
+def _resolve_request_context(api_key: str | None):
+    username = get_username_by_apikey(api_key) if api_key else None
+    route_context = resolve_ip_route(username=username, broker="upstox")
+    broker_context = resolve_broker_credentials(username=username, broker="upstox")
+    return username, route_context, broker_context
+
+
+def get_api_response(endpoint, auth, method="GET", payload="", route_context=None):
     """
     A wrapper to send requests to the Upstox API and handle responses.
     Args:
@@ -32,12 +41,6 @@ def get_api_response(endpoint, auth, method="GET", payload=""):
     """
     logger.debug(f"Requesting {method} on endpoint: {endpoint}")
     try:
-        api_key = os.getenv("BROKER_API_KEY")
-        if not api_key:
-            logger.error("BROKER_API_KEY environment variable not set.")
-            return {"status": "error", "message": "BROKER_API_KEY not set"}
-
-        client = get_httpx_client()
         headers = {
             "Authorization": f"Bearer {auth}",
             "Content-Type": "application/json",
@@ -46,13 +49,13 @@ def get_api_response(endpoint, auth, method="GET", payload=""):
         url = f"https://api.upstox.com{endpoint}"
 
         if method == "GET":
-            response = client.get(url, headers=headers)
+            response = get(url, headers=headers, route_context=route_context)
         elif method == "POST":
-            response = client.post(url, headers=headers, content=payload)
+            response = post(url, headers=headers, content=payload, route_context=route_context)
         elif method == "PUT":
-            response = client.put(url, headers=headers, content=payload)
+            response = put(url, headers=headers, content=payload, route_context=route_context)
         elif method == "DELETE":
-            response = client.delete(url, headers=headers)
+            response = delete(url, headers=headers, route_context=route_context)
         else:
             logger.error(f"Unsupported HTTP method: {method}")
             return {"status": "error", "message": f"Unsupported HTTP method: {method}"}
@@ -74,24 +77,30 @@ def get_api_response(endpoint, auth, method="GET", payload=""):
         return {"status": "error", "message": str(e)}
 
 
-def get_order_book(auth):
+def get_order_book(auth, route_context=None):
     """Fetches the order book."""
-    return get_api_response("/v2/order/retrieve-all", auth)
+    return get_api_response("/v2/order/retrieve-all", auth, route_context=route_context)
 
 
-def get_trade_book(auth):
+def get_trade_book(auth, route_context=None):
     """Fetches the trade book."""
-    return get_api_response("/v2/order/trades/get-trades-for-day", auth)
+    return get_api_response(
+        "/v2/order/trades/get-trades-for-day", auth, route_context=route_context
+    )
 
 
-def get_positions(auth):
+def get_positions(auth, route_context=None):
     """Fetches short-term positions."""
-    return get_api_response("/v2/portfolio/short-term-positions", auth)
+    return get_api_response(
+        "/v2/portfolio/short-term-positions", auth, route_context=route_context
+    )
 
 
-def get_holdings(auth):
+def get_holdings(auth, route_context=None):
     """Fetches long-term holdings."""
-    return get_api_response("/v2/portfolio/long-term-holdings", auth)
+    return get_api_response(
+        "/v2/portfolio/long-term-holdings", auth, route_context=route_context
+    )
 
 
 # --- Per-Symbol Smart Order Lock ---
@@ -116,7 +125,7 @@ def _get_symbol_lock(symbol, exchange, product):
         return _symbol_locks[key]
 
 
-def _get_cached_positions(auth):
+def _get_cached_positions(auth, route_context=None):
     """Get positions from cache if fresh, otherwise fetch from broker API."""
     with _position_cache_lock:
         now = time.monotonic()
@@ -125,7 +134,7 @@ def _get_cached_positions(auth):
             return cached["data"]
 
     # Cache miss or expired - fetch from broker
-    positions_data = get_positions(auth)
+    positions_data = get_positions(auth, route_context=route_context)
 
     with _position_cache_lock:
         _position_cache[auth] = {"data": positions_data, "timestamp": time.monotonic()}
@@ -140,14 +149,14 @@ def _invalidate_position_cache(auth):
 
 
 
-def get_open_position(tradingsymbol, exchange, product, auth):
+def get_open_position(tradingsymbol, exchange, product, auth, route_context=None):
     """
     Gets the net quantity of an open position for a given symbol.
     """
     logger.debug(f"Getting open position for {tradingsymbol} on {exchange} with product {product}")
     try:
         br_symbol = get_br_symbol(tradingsymbol, exchange)
-        positions_data = _get_cached_positions(auth)
+        positions_data = _get_cached_positions(auth, route_context=route_context)
         net_qty = "0"
 
         if (
@@ -180,10 +189,7 @@ def place_order_api(data, auth):
     """
     logger.debug(f"Placing order with data: {data}")
     try:
-        api_key = os.getenv("BROKER_API_KEY")
-        if not api_key:
-            logger.error("BROKER_API_KEY not set. Cannot place order.")
-            return None, {"status": "error", "message": "BROKER_API_KEY not set"}, None
+        _, route_context, _ = _resolve_request_context(data.get("apikey"))
 
         token = get_token(data["symbol"], data["exchange"])
         if not token:
@@ -208,14 +214,16 @@ def place_order_api(data, auth):
         )
         logger.debug(f"Placing order with payload: {payload}")
 
-        client = get_httpx_client()
         headers = {
             "Authorization": f"Bearer {auth}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
-        response = client.post(
-            "https://api.upstox.com/v2/order/place", headers=headers, content=payload
+        response = post(
+            "https://api.upstox.com/v2/order/place",
+            headers=headers,
+            content=payload,
+            route_context=route_context,
         )
         response.raise_for_status()
 
@@ -249,6 +257,7 @@ def place_smartorder_api(data, auth):
     """
     logger.debug(f"Placing smart order with data: {data}")
     try:
+        _, route_context, _ = _resolve_request_context(data.get("apikey"))
         symbol = data.get("symbol")
         exchange = data.get("exchange")
         product = data.get("product")
@@ -258,7 +267,15 @@ def place_smartorder_api(data, auth):
         with symbol_lock:
             position_size = int(data.get("position_size", "0"))
 
-            current_position = int(get_open_position(symbol, exchange, map_product_type(product), auth))
+            current_position = int(
+                get_open_position(
+                    symbol,
+                    exchange,
+                    map_product_type(product),
+                    auth,
+                    route_context=route_context,
+                )
+            )
             logger.debug(
                 f"Desired position size: {position_size}, Current position: {current_position}"
             )
@@ -301,7 +318,8 @@ def close_all_positions(current_api_key, auth):
     """
     logger.debug("Attempting to close all open positions.")
     try:
-        positions_response = get_positions(auth)
+        _, route_context, _ = _resolve_request_context(current_api_key)
+        positions_response = get_positions(auth, route_context=route_context)
         if positions_response.get("status") != "success" or not positions_response.get("data"):
             logger.debug("No open positions found to close.")
             return {"message": "No Open Positions Found"}, 200
@@ -342,14 +360,17 @@ def close_all_positions(current_api_key, auth):
         return {"status": "error", "message": "Failed to close all positions"}, 500
 
 
-def cancel_order(orderid, auth):
+def cancel_order(orderid, auth, route_context=None):
     """
     Cancels a specific order by its ID.
     """
     logger.debug(f"Attempting to cancel order ID: {orderid}")
     try:
         response_data = get_api_response(
-            f"/v2/order/cancel?order_id={orderid}", auth, method="DELETE"
+            f"/v2/order/cancel?order_id={orderid}",
+            auth,
+            method="DELETE",
+            route_context=route_context,
         )
 
         if response_data.get("status") == "success":
@@ -374,11 +395,18 @@ def modify_order(data, auth):
     """
     logger.debug(f"Attempting to modify order with data: {data}")
     try:
+        _, route_context, _ = _resolve_request_context(data.get("apikey"))
         transformed_order_data = transform_modify_order_data(data)
         payload = json.dumps(transformed_order_data)
         logger.debug(f"Modify order payload: {payload}")
 
-        response_data = get_api_response("/v2/order/modify", auth, method="PUT", payload=payload)
+        response_data = get_api_response(
+            "/v2/order/modify",
+            auth,
+            method="PUT",
+            payload=payload,
+            route_context=route_context,
+        )
 
         if response_data.get("status") == "success":
             modified_id = response_data.get("data", {}).get("order_id")
@@ -400,7 +428,8 @@ def cancel_all_orders_api(data, auth):
     """
     logger.debug("Attempting to cancel all open orders.")
     try:
-        order_book_response = get_order_book(auth)
+        _, route_context, _ = _resolve_request_context(data.get("apikey"))
+        order_book_response = get_order_book(auth, route_context=route_context)
         if order_book_response.get("status") != "success":
             logger.error(
                 f"Failed to retrieve order book to cancel orders: {order_book_response.get('message')}"
@@ -424,7 +453,9 @@ def cancel_all_orders_api(data, auth):
 
         for order in orders_to_cancel:
             orderid = order["order_id"]
-            cancel_response, status_code = cancel_order(orderid, auth)
+            cancel_response, status_code = cancel_order(
+                orderid, auth, route_context=route_context
+            )
             if status_code == 200:
                 canceled_orders.append(orderid)
             else:
