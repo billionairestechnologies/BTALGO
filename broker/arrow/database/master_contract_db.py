@@ -1,6 +1,6 @@
 # broker/arrow/database/master_contract_db.py
 #
-# Builds the OpenAlgo SymToken table from Arrow's instrument master.
+# Builds the BTAlgo SymToken table from Arrow's instrument master.
 #
 # Sources (both require auth):
 #   1. GET https://edge.arrow.trade/all          -> full instrument CSV
@@ -10,7 +10,7 @@
 # (221k+ rows): ExchSeg drives the exchange mapping, OptionType "XX" marks
 # futures, currency-derivative strikes arrive x100000 and ticks in paise.
 # Index rows (NSEIDX/BSEIDX/MCXIDX) carry display names in `Symbol` and are
-# standardized to the documented OpenAlgo index symbols in mapping/exchange.py.
+# standardized to the documented BTAlgo index symbols in mapping/exchange.py.
 # The resulting `token` is what quotes, history and the websocket all key off.
 
 import io
@@ -105,7 +105,7 @@ def _broker_auth_token():
 
     Tries LOGIN_USERNAME first (legacy convention shared with Zerodha), then
     falls back to the single non-revoked arrow row in the Auth table --
-    OpenAlgo is single-user, so there is at most one.
+    BTAlgo is single-user, so there is at most one.
     """
     login_username = os.getenv("LOGIN_USERNAME")
     if login_username:
@@ -167,7 +167,7 @@ def fetch_index_list(auth_token):
 # carry -0.01/0 placeholders).
 _CD_SEGMENTS = ["NSECD", "BSECD"]
 
-# OpenAlgo exchanges whose instruments can be futures (used by the
+# BTAlgo exchanges whose instruments can be futures (used by the
 # expiry-based FUT fallback when OptionType is missing).
 _DERIVATIVE_EXCHANGES = ["NFO", "BFO", "MCX", "CDS", "BCD", "NCO"]
 
@@ -212,7 +212,7 @@ def process_arrow_csv(df):
     )
     is_deriv = is_option | is_future
 
-    # NOTE: OpenAlgo stores indices with instrumenttype "EQ" (verified against
+    # NOTE: BTAlgo stores indices with instrumenttype "EQ" (verified against
     # the live symtoken table); the *_INDEX exchange is what distinguishes
     # them. There is NO "INDEX" instrumenttype.
     instrumenttype = pd.Series("EQ", index=df.index)
@@ -254,7 +254,7 @@ def process_arrow_csv(df):
     )
 
     # Index rows carry a display name in `Symbol` ("Nifty 50", "BSE IT",
-    # "CrudeOil"); standardize to the documented OpenAlgo index symbols.
+    # "CrudeOil"); standardize to the documented BTAlgo index symbols.
     # Only ~200 rows, so a Python loop is fine here.
     idx_mask = out["exchange"].isin(OA_INDEX_EXCHANGES)
     if idx_mask.any():
@@ -265,7 +265,7 @@ def process_arrow_csv(df):
             )
         ]
 
-    # Drop rows that failed to map to a valid OpenAlgo exchange.
+    # Drop rows that failed to map to a valid BTAlgo exchange.
     out = out[out["exchange"].notna() & (out["exchange"] != "")]
     return out
 
@@ -294,7 +294,7 @@ def build_index_rows(index_list, existing_tokens):
                 "expiry": "",
                 "strike": 0.0,
                 "lotsize": 0,
-                # OpenAlgo stores indices as instrumenttype "EQ" (the
+                # BTAlgo stores indices as instrumenttype "EQ" (the
                 # NSE_INDEX/BSE_INDEX exchange distinguishes them).
                 "instrumenttype": "EQ",
                 "tick_size": 0.0,

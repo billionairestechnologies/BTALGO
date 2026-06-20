@@ -26,7 +26,7 @@ INSTRUMENTS_URL = f"{ROOT_URL}/all"
 # WebSocket hosts --------------------------------------------------------
 # Standard market-data stream: big-endian binary, integer-token based,
 # modes ltp/ltpc/quote/full (5-level depth). This is the stream used by the
-# OpenAlgo streaming adapter (token-based maps cleanly to SymToken.token).
+# BTAlgo streaming adapter (token-based maps cleanly to SymToken.token).
 WS_MARKET_DATA_URL = "wss://ds.arrow.trade"
 # Low-latency HFT stream (little-endian, symbol/symId based) -- not used by
 # the default adapter, kept here for reference.

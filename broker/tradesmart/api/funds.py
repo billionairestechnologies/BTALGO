@@ -26,7 +26,7 @@ def calculate_pnl(entry):
 def get_margin_data(auth_token):
     """Fetch and process margin and position data.
 
-    Returns the OpenAlgo common funds dict (all 2-dp strings); ``{}`` on error.
+    Returns the BTAlgo common funds dict (all 2-dp strings); ``{}`` on error.
     """
     userid = resolve_uid(auth_token)
     data = {"uid": userid, "actid": userid}

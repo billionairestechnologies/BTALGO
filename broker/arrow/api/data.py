@@ -54,7 +54,7 @@ class BrokerData:
         """Arrow data handler. `auth_token` is the JWT access token."""
         self.auth_token = auth_token
 
-        # OpenAlgo timeframe -> Arrow interval string. Keys are what
+        # BTAlgo timeframe -> Arrow interval string. Keys are what
         # intervals_service exposes to users.
         self.timeframe_map = {
             "1m": "min",
@@ -75,7 +75,7 @@ class BrokerData:
     # --- helpers --------------------------------------------------------
 
     def _lookup(self, symbol, exchange):
-        """Resolve an OpenAlgo (symbol, exchange) to the Arrow instrument.
+        """Resolve an BTAlgo (symbol, exchange) to the Arrow instrument.
 
         Returns (br_symbol, token, arrow_quote_exchange).
         """
@@ -106,7 +106,7 @@ class BrokerData:
     def _quote_index(self, mode, symbol, br_symbol, token):
         """Quote an index, resolving Arrow's INDEX-exchange symbol vocabulary.
 
-        Tries the OpenAlgo symbol, then the uppercased display name, then the
+        Tries the BTAlgo symbol, then the uppercased display name, then the
         raw display name; caches whichever the API accepts (keyed by token) so
         the fallback costs extra requests only on first use.
         """
@@ -172,7 +172,7 @@ class BrokerData:
     # --- public API -----------------------------------------------------
 
     def get_quotes(self, symbol, exchange):
-        """Return the OpenAlgo quote dict. Uses Arrow `full` mode so bid/ask are
+        """Return the BTAlgo quote dict. Uses Arrow `full` mode so bid/ask are
         available. Works for NSE_INDEX/BSE_INDEX (exchange -> INDEX)."""
         try:
             q = self._fetch_quote("full", symbol, exchange)
@@ -195,7 +195,7 @@ class BrokerData:
             raise ArrowAPIError(f"Error fetching quotes: {e}") from e
 
     def get_depth(self, symbol, exchange):
-        """Return OpenAlgo 5-level market depth. Indices supported via INDEX."""
+        """Return BTAlgo 5-level market depth. Indices supported via INDEX."""
         try:
             q = self._fetch_quote("full", symbol, exchange)
 
@@ -260,7 +260,7 @@ class BrokerData:
 
     @staticmethod
     def _format_quote(q):
-        """Arrow FULL-quote payload -> OpenAlgo quote dict (same shape as get_quotes)."""
+        """Arrow FULL-quote payload -> BTAlgo quote dict (same shape as get_quotes)."""
         bids = q.get("bids") or [{}]
         asks = q.get("asks") or [{}]
         return {
@@ -391,7 +391,7 @@ class BrokerData:
         return {}
 
     def get_history(self, symbol, exchange, timeframe, from_date, to_date):
-        """Historical candles -> OpenAlgo DataFrame (timestamp, open, high, low,
+        """Historical candles -> BTAlgo DataFrame (timestamp, open, high, low,
         close, volume, oi). Token-based; works for indices (NSE_INDEX/BSE_INDEX
         -> nse/bse path)."""
         try:

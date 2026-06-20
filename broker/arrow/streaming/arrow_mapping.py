@@ -14,10 +14,10 @@ logger = get_logger(__name__)
 
 
 class ArrowExchangeMapper:
-    """OpenAlgo <-> Arrow exchange codes. Indices collapse to Arrow 'INDEX' on
+    """BTAlgo <-> Arrow exchange codes. Indices collapse to Arrow 'INDEX' on
     the quote side, but the websocket is token-based so streaming does not need
     the exchange in the subscribe frame -- the token alone identifies the
-    instrument. We retain the OpenAlgo exchange per token for topic routing."""
+    instrument. We retain the BTAlgo exchange per token for topic routing."""
 
     _OA_TO_ARROW = {
         "NSE": "NSE",
@@ -52,7 +52,7 @@ class ArrowExchangeMapper:
 class ArrowCapabilityRegistry:
     """Arrow WebSocket capabilities."""
 
-    # OpenAlgo capability -> Arrow subscription mode.
+    # BTAlgo capability -> Arrow subscription mode.
     # LTP -> ltpc so we also receive previous close (cheap, useful for change%).
     CAPABILITY_MAP = {
         "LTP": "ltpc",
@@ -60,7 +60,7 @@ class ArrowCapabilityRegistry:
         "DEPTH": "full",
     }
 
-    # OpenAlgo numeric mode (1/2/3) -> Arrow subscription mode.
+    # BTAlgo numeric mode (1/2/3) -> Arrow subscription mode.
     MODE_MAP = {
         1: "ltpc",
         2: "quote",

@@ -1,6 +1,6 @@
 # broker/arrow/mapping/exchange.py
 #
-# Central exchange-code translation between OpenAlgo and Arrow, plus index
+# Central exchange-code translation between BTAlgo and Arrow, plus index
 # handling. All mappings below are verified against the live instrument
 # master (https://edge.arrow.trade/all, ~221k rows) and the conventions in
 # the platform's symtoken table (Zerodha reference implementation).
@@ -9,7 +9,7 @@
 #   NSECM / BSECM   cash equities
 #   NSEFO / BSEFO   equity & index F&O
 #   NSECD           NSE currency derivatives
-#   NSECO           NSE commodities (OpenAlgo exchange NCO)
+#   NSECO           NSE commodities (BTAlgo exchange NCO)
 #   MCXFO           MCX commodities
 #   NSEIDX / BSEIDX / MCXIDX   index-only quote rows
 #
@@ -18,10 +18,10 @@
 #   - api/data.py                     (quotes / depth / history)
 #   - streaming/*                     (token-based subscriptions)
 
-# OpenAlgo index exchanges (quote-only).
+# BTAlgo index exchanges (quote-only).
 OA_INDEX_EXCHANGES = {"NSE_INDEX", "BSE_INDEX", "MCX_INDEX"}
 
-# Arrow ExchSeg -> OpenAlgo exchange. Verified against the live CSV.
+# Arrow ExchSeg -> BTAlgo exchange. Verified against the live CSV.
 ARROW_EXCHSEG_TO_OA = {
     "NSECM": "NSE",
     "BSECM": "BSE",
@@ -36,7 +36,7 @@ ARROW_EXCHSEG_TO_OA = {
     "MCXIDX": "MCX_INDEX",
 }
 
-# OpenAlgo exchange -> Arrow exchange code used by the /info/quote* endpoints.
+# BTAlgo exchange -> Arrow exchange code used by the /info/quote* endpoints.
 # Verified against the live API: NSE/BSE/NFO/BFO pass through, MCX requires
 # "MCXFO" (plain "MCX" is rejected despite being in the SDK enum), and all
 # indices collapse to the single "INDEX" pseudo-exchange.
@@ -58,7 +58,7 @@ _OA_TO_ARROW_QUOTE = {
 # flows over the websocket, which is token-based and exchange-agnostic.
 QUOTE_UNSUPPORTED_EXCHANGES = {"CDS", "BCD", "NCO"}
 
-# OpenAlgo exchange -> Arrow historical-API path segment (lowercase). Indices
+# BTAlgo exchange -> Arrow historical-API path segment (lowercase). Indices
 # resolve to their parent cash exchange for the candle path.
 # TODO(arrow): confirm the historical exchange path for indices (nse/bse vs index)
 # and for NSE commodities (nco vs co).
@@ -79,12 +79,12 @@ _OA_TO_ARROW_HISTORY = {
 # --- index symbol mapping -------------------------------------------------
 #
 # Arrow index rows carry a display name in the CSV `Symbol` column
-# ("Nifty 50", "BSE IT", "CrudeOil"). OpenAlgo standardizes these to the
+# ("Nifty 50", "BSE IT", "CrudeOil"). BTAlgo standardizes these to the
 # symbols documented in docs/prompt/symbol-format.md (same set the Zerodha
 # reference implementation produces). Lookup keys are uppercased with
 # whitespace removed; anything unmapped falls back to its cleaned name.
 
-# NSE index display names (normalized) -> OpenAlgo symbol.
+# NSE index display names (normalized) -> BTAlgo symbol.
 _NSE_INDEX_MAP = {
     # Major indices
     "NIFTY50": "NIFTY",
@@ -151,7 +151,7 @@ _NSE_INDEX_MAP = {
     "NIFTYGSCOMPSITE": "NIFTYGSCOMPSITE",
 }
 
-# BSE index short codes (normalized CSV `Symbol`) -> OpenAlgo symbol.
+# BSE index short codes (normalized CSV `Symbol`) -> BTAlgo symbol.
 _BSE_INDEX_MAP = {
     "SENSEX": "SENSEX",
     "BANKEX": "BANKEX",
@@ -195,10 +195,10 @@ _BSE_INDEX_MAP = {
     "TELCOM": "BSETELECOM",
 }
 
-# MCX iCOMDEX index names (normalized CSV `Symbol`) -> OpenAlgo symbol.
+# MCX iCOMDEX index names (normalized CSV `Symbol`) -> BTAlgo symbol.
 # The first eight match the documented MCX_INDEX set; the rest are
 # single-commodity iCOMDEX feeds Arrow carries that have no documented
-# OpenAlgo name yet, so they get a consistent MCX-prefixed symbol.
+# BTAlgo name yet, so they get a consistent MCX-prefixed symbol.
 _MCX_INDEX_MAP = {
     "COMPOSITE": "MCXCOMPDEX",
     "BULLION": "MCXBULLDEX",
@@ -226,12 +226,12 @@ def _norm(name):
 
 
 def to_arrow_quote_exchange(oa_exchange):
-    """OpenAlgo exchange -> Arrow quote exchange (indices -> INDEX)."""
+    """BTAlgo exchange -> Arrow quote exchange (indices -> INDEX)."""
     return _OA_TO_ARROW_QUOTE.get(oa_exchange, oa_exchange)
 
 
 def to_arrow_history_exchange(oa_exchange):
-    """OpenAlgo exchange -> Arrow historical path segment (lowercase)."""
+    """BTAlgo exchange -> Arrow historical path segment (lowercase)."""
     return _OA_TO_ARROW_HISTORY.get(oa_exchange, str(oa_exchange).lower())
 
 
@@ -240,7 +240,7 @@ def is_index_exchange(oa_exchange):
 
 
 def arrow_exchange_to_oa(exchseg, segment=None, exchange=None):
-    """Map an Arrow instrument's raw exchange fields to an OpenAlgo exchange.
+    """Map an Arrow instrument's raw exchange fields to an BTAlgo exchange.
 
     The ExchSeg column (NSECM/NSEFO/NSEIDX/...) is authoritative. The
     Segment == INDEX fallback covers any index row with an unexpected

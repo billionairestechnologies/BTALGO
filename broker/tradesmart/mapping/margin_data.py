@@ -1,4 +1,4 @@
-# Mapping OpenAlgo API Request https://openalgo.in/docs
+# Mapping BTAlgo API Request https://btalgo.in/docs
 # Mapping TradeSmart (Noren v2) GetOrderMargin API
 #
 # TradeSmart v2 exposes only a single-order margin calculator (/GetOrderMargin)
@@ -15,7 +15,7 @@ logger = get_logger(__name__)
 
 
 def build_order_margin_payload(position, uid=""):
-    """Build a /GetOrderMargin payload for a single OpenAlgo position."""
+    """Build a /GetOrderMargin payload for a single BTAlgo position."""
     oa_symbol = position["symbol"]
     exchange = position["exchange"]
     br_symbol = get_br_symbol(oa_symbol, exchange)

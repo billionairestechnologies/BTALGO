@@ -16,7 +16,7 @@ def _to_float(value, default=0.0):
 
 
 def get_margin_data(auth_token):
-    """Fetch funds/limits from Arrow and map to the OpenAlgo margin dict.
+    """Fetch funds/limits from Arrow and map to the BTAlgo margin dict.
 
     Returns a dict with: availablecash, collateral, m2munrealized,
     m2mrealized, utiliseddebits. Returns {} on error.

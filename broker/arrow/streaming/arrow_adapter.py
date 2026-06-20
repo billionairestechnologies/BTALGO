@@ -1,12 +1,12 @@
-"""Arrow WebSocket adapter -> OpenAlgo unified streaming.
+"""Arrow WebSocket adapter -> BTAlgo unified streaming.
 
-Subclasses BaseBrokerWebSocketAdapter. Resolves OpenAlgo (symbol, exchange) to
+Subclasses BaseBrokerWebSocketAdapter. Resolves BTAlgo (symbol, exchange) to
 Arrow integer tokens, drives the ArrowWebSocket client, normalizes ticks, and
 publishes them to the ZeroMQ bus via the inherited publish_market_data().
 
 NSE_INDEX / BSE_INDEX are first-class here: the websocket is token-based, so
 indices subscribe exactly like any other instrument (their tokens come from the
-master contract). The publish topic EXCHANGE_SYMBOL_MODE keeps the OpenAlgo
+master contract). The publish topic EXCHANGE_SYMBOL_MODE keeps the BTAlgo
 exchange (e.g. NSE_INDEX) -- the proxy already recognizes NSE_INDEX/BSE_INDEX as
 two-segment prefixes when splitting topics.
 """
@@ -19,7 +19,7 @@ from database.auth_db import get_auth_token
 from database.token_db import get_token
 from websocket_proxy.base_adapter import BaseBrokerWebSocketAdapter
 
-# Arrow subscription mode -> OpenAlgo topic suffix. The proxy fans a higher mode
+# Arrow subscription mode -> BTAlgo topic suffix. The proxy fans a higher mode
 # down to lower-mode subscribers, so publishing to the tick's own mode topic is
 # sufficient.
 _MODE_TO_TOPIC = {
@@ -191,7 +191,7 @@ class ArrowWebSocketAdapter(BaseBrokerWebSocketAdapter):
                 self.logger.error(f"Error handling Arrow tick: {e}")
 
     def _normalize(self, tick, symbol, exchange, topic_mode):
-        """Build the OpenAlgo normalized tick (same key set as the Zerodha
+        """Build the BTAlgo normalized tick (same key set as the Zerodha
         adapter so the proxy/UI see a consistent shape across brokers)."""
         ltp = tick.get("ltp", 0)
         data = {

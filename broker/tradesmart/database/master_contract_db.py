@@ -145,7 +145,7 @@ def process_tradesmart_nse_data(output_path):
     df.columns = ["exchange", "token", "lotsize", "name", "brsymbol", "instrumenttype", "tick_size"]
     df["symbol"] = df["brsymbol"]
 
-    def get_openalgo_symbol(broker_symbol):
+    def get_btalgo_symbol(broker_symbol):
         # Strip only the broker series suffix; keep hyphens/ampersands in the base
         # (BAJAJ-AUTO-EQ -> BAJAJ-AUTO, M&M-EQ -> M&M)
         if "-EQ" in broker_symbol:
@@ -154,7 +154,7 @@ def process_tradesmart_nse_data(output_path):
             return broker_symbol.replace("-BE", "")
         return broker_symbol
 
-    df["symbol"] = df["brsymbol"].apply(get_openalgo_symbol)
+    df["symbol"] = df["brsymbol"].apply(get_btalgo_symbol)
     df["exchange"] = df.apply(
         lambda row: "NSE_INDEX" if row["instrumenttype"] == "INDEX" else "NSE", axis=1
     )

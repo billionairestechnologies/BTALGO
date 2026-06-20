@@ -2,7 +2,7 @@
 
 OAuth-style flow:
   1. The user logs in on the TradeSmart portal and is redirected back to the
-     OpenAlgo callback with a ``code`` query param.
+     BTAlgo callback with a ``code`` query param.
   2. We build ``checksum = SHA-256(api_key + secret_key + code)`` and POST it to
      ``/GenAcsTok`` to receive an ``access_token`` valid for one trading day.
 

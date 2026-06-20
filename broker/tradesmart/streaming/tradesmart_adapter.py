@@ -1,7 +1,7 @@
 """
-TradeSmart (Noren v2) WebSocket Adapter for OpenAlgo
+TradeSmart (Noren v2) WebSocket Adapter for BTAlgo
 
-Bridges TradeSmart's JSON market-data feed to OpenAlgo's unified WebSocket proxy
+Bridges TradeSmart's JSON market-data feed to BTAlgo's unified WebSocket proxy
 via ZeroMQ. Mirrors the flattrade adapter (same Noren JSON protocol).
 """
 

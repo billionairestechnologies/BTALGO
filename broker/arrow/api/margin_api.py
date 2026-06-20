@@ -9,7 +9,7 @@
 # If the basket endpoint rejects a request, degrades to the conservative
 # per-order sum instead of failing.
 #
-# Output follows the OpenAlgo standard:
+# Output follows the BTAlgo standard:
 #   {"status": "success", "data": {total_margin_required, span_margin,
 #    exposure_margin, total_charges}}
 # Contract (margin_service): calculate_margin_api(positions, auth) -> (response, data),
@@ -183,9 +183,9 @@ def calculate_margin_api(positions, auth, api_key=None):
     spread/hedge benefits are included by the broker.
 
     Args:
-        positions: List of positions in OpenAlgo format
+        positions: List of positions in BTAlgo format
         auth: Arrow JWT access token
-        api_key: OpenAlgo API key (unused; present for interface parity)
+        api_key: BTAlgo API key (unused; present for interface parity)
 
     Returns:
         Tuple of (response, response_data)

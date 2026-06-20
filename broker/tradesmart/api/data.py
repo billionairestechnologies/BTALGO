@@ -36,7 +36,7 @@ def _apply_rate_limit():
 
 
 def _normalize_data_exchange(exchange):
-    """Map OpenAlgo index pseudo-exchanges to their parent cash exchange for data."""
+    """Map BTAlgo index pseudo-exchanges to their parent cash exchange for data."""
     if exchange == "NSE_INDEX":
         return "NSE"
     if exchange == "BSE_INDEX":
@@ -91,7 +91,7 @@ class BrokerData:
     def __init__(self, auth_token):
         """Initialize TradeSmart data handler with an access token."""
         self.auth_token = auth_token
-        # OpenAlgo interval -> TradeSmart TPSeries interval (minutes). 'D' -> EOD.
+        # BTAlgo interval -> TradeSmart TPSeries interval (minutes). 'D' -> EOD.
         self.timeframe_map = {
             "1m": "1",
             "3m": "3",
@@ -105,7 +105,7 @@ class BrokerData:
         }
 
     def _quote_dict(self, response):
-        """Build the OpenAlgo quote dict from a GetQuotes response."""
+        """Build the BTAlgo quote dict from a GetQuotes response."""
         return {
             "bid": float(response.get("bp1", 0)),
             "ask": float(response.get("sp1", 0)),

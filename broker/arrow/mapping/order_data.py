@@ -4,7 +4,7 @@ from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Arrow code -> OpenAlgo vocabulary (for normalizing broker responses).
+# Arrow code -> BTAlgo vocabulary (for normalizing broker responses).
 _SIDE_MAP = {"B": "BUY", "S": "SELL"}
 _ORDER_TYPE_REVERSE = {
     "LMT": "LIMIT",
@@ -12,7 +12,7 @@ _ORDER_TYPE_REVERSE = {
     "SL-LMT": "SL",
     "SL-MKT": "SL-M",
 }
-# Arrow order status -> OpenAlgo lowercase status (matches the rest of the app).
+# Arrow order status -> BTAlgo lowercase status (matches the rest of the app).
 _STATUS_MAP = {
     "COMPLETE": "complete",
     "OPEN": "open",

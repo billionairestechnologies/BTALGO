@@ -5,7 +5,7 @@ logger = get_logger(__name__)
 
 
 def map_order_data(order_data):
-    """Normalize raw OrderBook rows: resolve OpenAlgo symbol + product/pricetype."""
+    """Normalize raw OrderBook rows: resolve BTAlgo symbol + product/pricetype."""
     if order_data is None or (isinstance(order_data, dict) and (order_data.get("stat") == "Not_Ok")):
         logger.warning("No order data available.")
         order_data = {}
@@ -87,7 +87,7 @@ def calculate_order_statistics(order_data):
 
 
 def transform_order_data(orders):
-    """Convert normalized OrderBook rows into the OpenAlgo common orderbook shape."""
+    """Convert normalized OrderBook rows into the BTAlgo common orderbook shape."""
     if orders is None:
         logger.warning("No order data available - orders is None")
         return []
@@ -149,7 +149,7 @@ def map_trade_data(trade_data):
 
 
 def transform_tradebook_data(tradebook_data):
-    """Convert normalized TradeBook rows into the OpenAlgo common tradebook shape."""
+    """Convert normalized TradeBook rows into the BTAlgo common tradebook shape."""
     transformed_data = []
     for trade in tradebook_data:
         avg_price = round(float(trade.get("avgprc", 0)), 2)
@@ -199,7 +199,7 @@ def map_position_data(position_data):
 
 
 def transform_positions_data(positions_data):
-    """Convert normalized PositionBook rows into the OpenAlgo common positions shape."""
+    """Convert normalized PositionBook rows into the BTAlgo common positions shape."""
     transformed_data = []
     for position in positions_data:
         realized_pnl = float(position.get("rpnl", 0))
@@ -310,7 +310,7 @@ def calculate_portfolio_statistics(holdings_data):
 
 
 def transform_holdings_data(holdings_data):
-    """Convert normalized Holdings into the OpenAlgo common holdings shape (NSE leg)."""
+    """Convert normalized Holdings into the BTAlgo common holdings shape (NSE leg)."""
     transformed_data = []
     if isinstance(holdings_data, list):
         for holding in holdings_data:
