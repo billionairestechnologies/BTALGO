@@ -10,7 +10,14 @@ import re
 
 from flask import Blueprint, jsonify, request, session
 
-from database.saas_db import get_profile_by_username, serialize_broker_account, upsert_broker_account
+from database.saas_db import (
+    get_profile_by_username,
+    list_ip_egress_nodes,
+    serialize_broker_account,
+    serialize_ip_egress_node,
+    upsert_broker_account,
+)
+from utils.access_control import get_entitlement_context
 from utils.broker_context import resolve_broker_credentials
 from utils.logging import get_logger
 from utils.session import check_session_validity
@@ -166,6 +173,17 @@ def get_credentials():
             "credential_source": context.source,
             "ip_route_key": context.ip_route_key,
         }
+        entitlement_context = get_entitlement_context(username=username)
+        entitlements = entitlement_context["entitlements"] if entitlement_context else {}
+        payload["entitlements"] = entitlements
+        payload["available_ip_routes"] = (
+            [
+                serialize_ip_egress_node(node)
+                for node in list_ip_egress_nodes(active_only=True, healthy_only=True)
+            ]
+            if entitlements.get("static_ip")
+            else []
+        )
         payload.update(_server_settings_payload())
 
         return jsonify({"status": "success", "data": payload})

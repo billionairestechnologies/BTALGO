@@ -106,9 +106,9 @@ Completed foundation:
 Still in progress:
 
 - More broker auth paths need resolver migration.
-- Billing and entitlements are scaffolded in schema only, not live.
-- OTP exists for signup email verification, but MPIN and product-level auth flows are not done.
-- Static-IP routing is still a design target, not an active execution path.
+- Billing and entitlements are live for live-trading, MCP write gating, and static-IP route assignment, but broader broker coverage is still incomplete.
+- OTP exists for signup email verification, and MPIN product flow is live, but session/device controls and broader enforcement rules are not done.
+- Static-IP routing now has route inventory, validated broker-account assignment, and HTTP proxy plumbing, but WebSocket routing and broker-wide adoption are still pending.
 - Copy trading is not yet merged into the same SaaS auth and billing model.
 
 ## Current Milestone Order

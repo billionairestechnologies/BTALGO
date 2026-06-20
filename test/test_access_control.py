@@ -63,3 +63,33 @@ def test_require_live_trading_blocks_cancelled_workspace(monkeypatch):
     assert allowed is False
     assert status == 403
     assert payload["feature"] == "live_trading"
+
+
+def test_require_static_ip_blocks_without_entitlement(monkeypatch):
+    monkeypatch.setattr(access_control, "get_profile_by_username", lambda username: SimpleNamespace(tenant_id=1))
+    monkeypatch.setattr(
+        access_control,
+        "get_or_create_subscription_for_tenant",
+        lambda tenant_id: _DummySubscription("pro", "active"),
+    )
+
+    allowed, payload, status = access_control.require_static_ip(username="trader1")
+
+    assert allowed is False
+    assert status == 403
+    assert payload["feature"] == "static_ip"
+
+
+def test_require_static_ip_allows_elite_workspace(monkeypatch):
+    monkeypatch.setattr(access_control, "get_profile_by_username", lambda username: SimpleNamespace(tenant_id=1))
+    monkeypatch.setattr(
+        access_control,
+        "get_or_create_subscription_for_tenant",
+        lambda tenant_id: _DummySubscription("elite", "active"),
+    )
+
+    allowed, payload, status = access_control.require_static_ip(username="trader1")
+
+    assert allowed is True
+    assert payload is None
+    assert status is None

@@ -54,11 +54,20 @@ def request(method: str, url: str, **kwargs) -> httpx.Response:
 
     from flask import g
 
-    client = get_httpx_client()
+    proxy = kwargs.pop("proxy", None)
+    route_context = kwargs.pop("route_context", None)
+    if route_context is not None and not proxy:
+        proxy = getattr(route_context, "proxy_url", None)
+
+    client = _create_http_client(proxy=proxy) if proxy else get_httpx_client()
 
     # Track actual broker API call time for latency monitoring
     broker_api_start = time.time()
-    response = client.request(method, url, **kwargs)
+    try:
+        response = client.request(method, url, **kwargs)
+    finally:
+        if proxy:
+            client.close()
     broker_api_end = time.time()
 
     # Store broker API time in Flask's g object for latency tracking
@@ -131,7 +140,7 @@ def delete(url: str, **kwargs) -> httpx.Response:
     return request("DELETE", url, **kwargs)
 
 
-def _create_http_client() -> httpx.Client:
+def _create_http_client(proxy: str | None = None) -> httpx.Client:
     """
     Create a new HTTP client with automatic protocol negotiation and latency tracking.
     Enables both HTTP/2 and HTTP/1.1, letting httpx choose the best protocol.
@@ -184,6 +193,7 @@ def _create_http_client() -> httpx.Client:
         client = httpx.Client(
             http2=http2_enabled,  # Disable HTTP/2 in standalone mode, enable in integrated mode
             http1=True,  # Always enable HTTP/1.1 for compatibility
+            proxy=proxy,
             timeout=120.0,  # Increased timeout for large historical data requests
             limits=httpx.Limits(
                 max_keepalive_connections=40,  # Increased from 20 for multi-strategy environments
@@ -200,6 +210,8 @@ def _create_http_client() -> httpx.Client:
             logger.info("Running in standalone mode - HTTP/2 disabled for compatibility")
         else:
             logger.info("Running in integrated mode - HTTP/2 enabled for optimal performance")
+        if proxy:
+            logger.info("Created routed HTTP client using proxy transport")
 
         return client
 

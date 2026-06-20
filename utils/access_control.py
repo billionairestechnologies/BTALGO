@@ -95,3 +95,21 @@ def require_mcp_write(
         "MCP write access is not enabled for your current BillionairsHQ plan.",
         context["subscription"],
     )
+
+
+def require_static_ip(
+    *,
+    username: str | None = None,
+) -> tuple[bool, dict[str, Any] | None, int | None]:
+    context = get_entitlement_context(username=username)
+    if context is None:
+        return True, None, None
+
+    if context["entitlements"].get("static_ip"):
+        return True, None, None
+
+    return _blocked_response(
+        "static_ip",
+        "Static IP routing is not enabled for your current BillionairsHQ plan.",
+        context["subscription"],
+    )

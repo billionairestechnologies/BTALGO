@@ -51,12 +51,14 @@ This is the execution queue, ordered by what should happen next.
 
 ## 4. Static-IP Routing
 
-- [ ] Add egress node table/model
-- [ ] Add route assignment per broker account
-- [ ] Add health status for route nodes
-- [ ] Add outbound broker HTTP routing
+- [x] Add egress node table/model
+- [x] Add route assignment per broker account
+- [x] Add health status for route nodes
+- [x] Add outbound broker HTTP routing foundation
 - [ ] Add outbound broker WebSocket routing
+- [x] Add admin API to manage route inventory
 - [ ] Add admin UI to assign or rebalance routes
+- [ ] Start using route context in broker API/helper modules that still call shared env-based clients
 
 ## 5. Copy Trading Unification
 

@@ -165,6 +165,32 @@ class BrokerAccount(Base):
         return safe_decrypt_token(getattr(self, field_name))
 
 
+class IpEgressNode(Base):
+    """Static egress/proxy node inventory for tenant broker traffic."""
+
+    __tablename__ = "saas_ip_egress_nodes"
+
+    id = Column(Integer, primary_key=True)
+    route_key = Column(String(120), unique=True, nullable=False)
+    name = Column(String(120), nullable=False)
+    region = Column(String(80), nullable=True)
+    provider = Column(String(80), nullable=True)
+    egress_ip = Column(String(80), nullable=True)
+    proxy_url = Column(String(500), nullable=True)
+    websocket_proxy_url = Column(String(500), nullable=True)
+    notes = Column(Text, nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    is_healthy = Column(Boolean, nullable=False, default=True)
+    last_health_check_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index("idx_saas_ip_egress_nodes_active", "is_active"),
+        Index("idx_saas_ip_egress_nodes_health", "is_healthy"),
+    )
+
+
 class Subscription(Base):
     """Billing state for a tenant. Razorpay IDs land here in the next slice."""
 
@@ -496,6 +522,27 @@ def serialize_payment_event(event: PaymentEvent) -> dict:
     }
 
 
+def serialize_ip_egress_node(node: IpEgressNode) -> dict:
+    return {
+        "id": node.id,
+        "route_key": node.route_key,
+        "name": node.name,
+        "region": node.region,
+        "provider": node.provider,
+        "egress_ip": node.egress_ip,
+        "proxy_url": node.proxy_url,
+        "websocket_proxy_url": node.websocket_proxy_url,
+        "notes": node.notes,
+        "is_active": bool(node.is_active),
+        "is_healthy": bool(node.is_healthy),
+        "last_health_check_at": (
+            node.last_health_check_at.isoformat() if node.last_health_check_at else None
+        ),
+        "created_at": node.created_at.isoformat() if node.created_at else None,
+        "updated_at": node.updated_at.isoformat() if node.updated_at else None,
+    }
+
+
 def _mask(value: str | None, show_chars: int = 4) -> str:
     if not value:
         return ""
@@ -537,6 +584,51 @@ def serialize_broker_account(account: BrokerAccount, include_lengths: bool = Fal
     return payload
 
 
+def get_ip_egress_node_by_key(route_key: str | None) -> IpEgressNode | None:
+    normalized = (route_key or "").strip()
+    if not normalized:
+        return None
+    return IpEgressNode.query.filter_by(route_key=normalized).first()
+
+
+def list_ip_egress_nodes(*, active_only: bool = False, healthy_only: bool = False) -> list[IpEgressNode]:
+    query = IpEgressNode.query
+    if active_only:
+        query = query.filter_by(is_active=True)
+    if healthy_only:
+        query = query.filter_by(is_healthy=True)
+    return query.order_by(IpEgressNode.name.asc(), IpEgressNode.route_key.asc()).all()
+
+
+def upsert_ip_egress_node(data: dict) -> IpEgressNode:
+    route_key = (data.get("route_key") or "").strip()
+    name = (data.get("name") or "").strip()
+    if not route_key:
+        raise ValueError("route_key is required")
+    if not name:
+        raise ValueError("name is required")
+
+    node = IpEgressNode.query.filter_by(route_key=route_key).first()
+    if node is None:
+        node = IpEgressNode(route_key=route_key, name=name)
+        db_session.add(node)
+
+    node.name = name
+    node.region = (data.get("region") or "").strip() or None
+    node.provider = (data.get("provider") or "").strip() or None
+    node.egress_ip = (data.get("egress_ip") or "").strip() or None
+    node.proxy_url = (data.get("proxy_url") or "").strip() or None
+    node.websocket_proxy_url = (data.get("websocket_proxy_url") or "").strip() or None
+    node.notes = (data.get("notes") or "").strip() or None
+    node.is_active = bool(data.get("is_active", True))
+    node.is_healthy = bool(data.get("is_healthy", True))
+    if data.get("last_health_check_at"):
+        node.last_health_check_at = data.get("last_health_check_at")
+    node.updated_at = datetime.utcnow()
+    db_session.commit()
+    return node
+
+
 def upsert_broker_account(profile: UserProfile, data: dict) -> BrokerAccount:
     broker = (data.get("broker") or "").strip().lower()
     label = (data.get("label") or "Primary").strip() or "Primary"
@@ -553,7 +645,19 @@ def upsert_broker_account(profile: UserProfile, data: dict) -> BrokerAccount:
 
     account.client_id = (data.get("client_id") or account.client_id or "").strip() or None
     account.redirect_url = (data.get("redirect_url") or account.redirect_url or "").strip() or None
-    account.ip_route_key = (data.get("ip_route_key") or account.ip_route_key or "").strip() or None
+    route_key = (data.get("ip_route_key") or account.ip_route_key or "").strip() or None
+    if route_key:
+        subscription = get_or_create_subscription_for_tenant(profile.tenant_id)
+        from utils.subscriptions import resolve_entitlements
+
+        entitlements = resolve_entitlements(subscription)
+        if not entitlements.get("static_ip"):
+            raise ValueError(
+                "Static IP routing requires a BillionairsHQ plan with static IP entitlement."
+            )
+        if get_ip_egress_node_by_key(route_key) is None:
+            raise ValueError(f"Unknown IP route '{route_key}'.")
+    account.ip_route_key = route_key
     account.is_active = bool(data.get("is_active", True))
 
     if data.get("api_key"):

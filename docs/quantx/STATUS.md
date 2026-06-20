@@ -91,6 +91,7 @@ Relevant commits:
   - live order-entry flows now check subscription entitlements
   - MCP `write:orders` approval now checks subscription entitlements
   - risk-reduction paths still remain available
+  - static-IP route assignment now checks subscription entitlements
 
 ### MPIN product flow now exists
 
@@ -101,6 +102,16 @@ Relevant commits:
   - verify
   - disable
 - Added Profile UI for MPIN setup, verification, and disable flow.
+
+### Static-IP routing foundation is now in place
+
+- Added SaaS route inventory table for egress nodes.
+- Added route inventory APIs:
+  - tenant-visible route listing
+  - admin route create/update
+- Broker accounts can now store validated `ip_route_key` assignments.
+- Route assignment is entitlement-aware and blocks non-static-IP plans.
+- Added shared route resolver and HTTP proxy-aware request foundation for future broker modules.
 
 ## What Is Not Done Yet
 
@@ -136,13 +147,13 @@ Still needed:
 - enforcement rules for sensitive actions
 - session/device management
 
-### Static-IP routing is not implemented
+### Static-IP routing is not fully implemented
 
 Still needed:
 
-- route inventory
-- broker account to route mapping
-- outbound broker traffic via selected egress
+- move more broker HTTP helpers onto route-aware request paths
+- add WebSocket route selection
+- add admin/operator UI for route balancing and health controls
 
 ### Copy trading is not unified yet
 

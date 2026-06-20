@@ -19,6 +19,8 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 - `9ff86904` feat: use SaaS broker credentials in OAuth callbacks
 - `9e4013f0` feat: add resend email otp signup flow
 - `88a72a42` build: refresh frontend bundle for signup flow
+- `e314cd0d` feat: add billing foundation and mpin security
+- `798a201d` feat: enforce subscription access on trading and mcp
 
 ## Current Truth
 
@@ -26,21 +28,21 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 - Some broker auth flows are SaaS-aware.
 - Billing foundation exists: plans, customer creation, subscription create/refresh, webhook validation, and payment-event persistence.
 - Billing enforcement has started: live order-entry flows and MCP write-scope approval now read tenant entitlements.
+- Static-IP routing foundation now exists: egress node inventory, entitlement-checked route assignment, route resolver, and proxy-aware shared HTTP request support.
 - MPIN setup/verify/disable flow exists in backend and Profile UI.
-- Static-IP routing is not live.
 - Copy trading is not unified into BillionairsHQ yet.
 
 ## Good Next Task
 
 Best next engineering task:
 
-`Finish broker auth migration, then enforce billing entitlements on live trading, MCP write scope, and future static-IP routing.`
+`Move the remaining broker API/helper modules onto resolver-based credentials plus route-aware HTTP/WebSocket execution.`
 
 Reason:
 
 - It removes the biggest remaining architectural split in the codebase.
-- It lets the new billing layer actually control product access.
-- It is the cleanest path to routing and copy-trading unification.
+- It lets the new routing layer actually affect real broker traffic instead of only storing assignments.
+- It is the cleanest path to copy-trading unification and static-IP rollout.
 
 ## Watch Outs
 
@@ -51,11 +53,11 @@ Reason:
 
 ## Definition Of Done For The Next Slice
 
-The next broker-migration and billing-enforcement slice should be considered done only when:
+The next broker-migration and routing slice should be considered done only when:
 
 - all supported broker login/auth paths use the resolver
 - helper modules do not silently read global broker env vars when a user account context exists
 - at least one regression test covers tenant isolation for broker credentials
 - UI behavior still works with legacy fallback for installs not yet migrated
-- live trading and MCP write decisions read the tenant subscription entitlements instead of assuming access
-- remaining order mutation paths and routing decisions follow the same entitlement model
+- live trading, MCP write, and static-IP route assignment read the tenant subscription entitlements instead of assuming access
+- remaining broker HTTP and WebSocket paths can consume the selected route context
