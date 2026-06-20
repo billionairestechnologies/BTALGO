@@ -12,6 +12,9 @@ import broker.dhan.api.order_api as dhan_order_api  # noqa: E402
 import broker.iiflcapital.api.auth_api as iifl_auth  # noqa: E402
 import broker.samco.api.auth_api as samco_auth  # noqa: E402
 import broker.upstox.api.order_api as upstox_order_api  # noqa: E402
+import broker.zerodha.api.funds as zerodha_funds  # noqa: E402
+import broker.zerodha.api.margin_api as zerodha_margin  # noqa: E402
+import broker.zerodha.api.order_api as zerodha_order_api  # noqa: E402
 
 
 class _FakeResponse:
@@ -145,3 +148,94 @@ def test_dhan_order_request_passes_route_context(monkeypatch):
 
     assert payload == []
     assert captured["route_context"] is route_context
+
+
+def test_zerodha_order_request_passes_route_context(monkeypatch):
+    captured = {}
+
+    def fake_get(url, **kwargs):
+        captured["route_context"] = kwargs.get("route_context")
+        return _FakeResponse({"status": "success", "data": []})
+
+    monkeypatch.setattr(zerodha_order_api, "get", fake_get)
+
+    route_context = SimpleNamespace(proxy_url="http://proxy")
+    payload = zerodha_order_api.get_api_response(
+        "/orders",
+        "token-1",
+        route_context=route_context,
+    )
+
+    assert payload["status"] == "success"
+    assert captured["route_context"] is route_context
+
+
+def test_zerodha_funds_request_passes_route_context(monkeypatch):
+    captured = {}
+
+    def fake_resolve_request_context(api_key):
+        return ("trader1", SimpleNamespace(proxy_url="http://proxy"), None)
+
+    def fake_get(url, **kwargs):
+        captured.setdefault("calls", []).append(kwargs.get("route_context"))
+        if "user/margins" in url:
+            return _FakeResponse(
+                {
+                    "status": "success",
+                    "data": {
+                        "commodity": {
+                            "net": 100.0,
+                            "utilised": {"debits": 10.0},
+                            "available": {"collateral": 5.0},
+                        },
+                        "equity": {
+                            "net": 200.0,
+                            "utilised": {"debits": 20.0},
+                            "available": {"collateral": 15.0},
+                        },
+                    },
+                }
+            )
+        if "portfolio/positions" in url:
+            return _FakeResponse({"status": "success", "data": {"net": []}})
+        return _FakeResponse({"status": "success", "data": {}})
+
+    monkeypatch.setattr(zerodha_funds, "resolve_request_context", fake_resolve_request_context)
+    monkeypatch.setattr(zerodha_funds, "get", fake_get)
+
+    result = zerodha_funds.get_margin_data("token-1", api_key="api-key-1")
+
+    assert result["availablecash"] == "300.00"
+    assert all(call.proxy_url == "http://proxy" for call in captured["calls"])
+
+
+def test_zerodha_margin_request_passes_route_context(monkeypatch):
+    captured = {}
+
+    def fake_resolve_request_context(api_key):
+        return ("trader1", SimpleNamespace(proxy_url="http://proxy"), None)
+
+    def fake_post(url, **kwargs):
+        captured["route_context"] = kwargs.get("route_context")
+        response = _FakeResponse({"status": "success", "data": {"orders": []}})
+        response.status = 200
+        return response
+
+    monkeypatch.setattr(zerodha_margin, "resolve_request_context", fake_resolve_request_context)
+    monkeypatch.setattr(zerodha_margin, "post", fake_post)
+    monkeypatch.setattr(zerodha_margin, "parse_margin_response", lambda payload: payload)
+    monkeypatch.setattr(
+        zerodha_margin,
+        "transform_margin_positions",
+        lambda positions: [{"tradingsymbol": "SBIN", "quantity": 1}],
+    )
+
+    response, payload = zerodha_margin.calculate_margin_api(
+        [{"symbol": "SBIN"}],
+        "token-1",
+        api_key="api-key-1",
+    )
+
+    assert response.status == 200
+    assert payload["status"] == "success"
+    assert captured["route_context"].proxy_url == "http://proxy"

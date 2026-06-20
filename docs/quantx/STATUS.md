@@ -122,11 +122,15 @@ Relevant commits:
 - Extended route-aware execution deeper into live traffic:
   - Upstox order HTTP requests now resolve tenant route context
   - Dhan order HTTP requests now resolve tenant route context
+  - Zerodha order HTTP requests now resolve tenant route context
+  - Zerodha funds HTTP requests now resolve tenant route context
+  - Zerodha margin HTTP requests now resolve tenant route context
   - WebSocket proxy initialization now passes tenant broker/auth context into pooled adapters
   - pooled reconnect/new-connection flows now retain the same tenant auth context
   - Upstox websocket client can now dial through tenant-selected proxy routes
   - Dhan websocket client can now dial through tenant-selected proxy routes
   - Zerodha websocket client can now dial through tenant-selected proxy routes
+  - funds/margin service layer now forwards API-key context where broker modules support it
 
 ## What Is Not Done Yet
 

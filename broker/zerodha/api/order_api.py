@@ -13,13 +13,14 @@ from broker.zerodha.mapping.transform_data import (
 )
 from database.auth_db import get_auth_token
 from database.token_db import get_br_symbol, get_oa_symbol
-from utils.httpx_client import get_httpx_client
+from utils.httpx_client import delete, get, post, put
 from utils.logging import get_logger
+from .context import resolve_request_context
 
 logger = get_logger(__name__)
 
 
-def get_api_response(endpoint, auth, method="GET", payload=None):
+def get_api_response(endpoint, auth, method="GET", payload=None, route_context=None):
     """
     Make an API request to Zerodha's API using shared httpx client with connection pooling.
 
@@ -35,9 +36,6 @@ def get_api_response(endpoint, auth, method="GET", payload=None):
     AUTH_TOKEN = auth
     base_url = "https://api.kite.trade"
 
-    # Get the shared httpx client with connection pooling
-    client = get_httpx_client()
-
     headers = {"X-Kite-Version": "3", "Authorization": f"token {AUTH_TOKEN}"}
 
     url = f"{base_url}{endpoint}"
@@ -45,16 +43,36 @@ def get_api_response(endpoint, auth, method="GET", payload=None):
     try:
         # Handle different HTTP methods
         if method.upper() == "GET":
-            response = client.get(url, headers=headers)
+            response = get(url, headers=headers, route_context=route_context)
         elif method.upper() == "POST":
             if isinstance(payload, str):
                 # For form-urlencoded data
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
-                response = client.post(url, headers=headers, content=payload)
+                response = post(
+                    url,
+                    headers=headers,
+                    content=payload,
+                    route_context=route_context,
+                )
             else:
                 # For JSON data
                 headers["Content-Type"] = "application/json"
-                response = client.post(url, headers=headers, json=payload)
+                response = post(
+                    url,
+                    headers=headers,
+                    json=payload,
+                    route_context=route_context,
+                )
+        elif method.upper() == "PUT":
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            response = put(
+                url,
+                headers=headers,
+                content=payload,
+                route_context=route_context,
+            )
+        elif method.upper() == "DELETE":
+            response = delete(url, headers=headers, route_context=route_context)
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 
@@ -76,20 +94,20 @@ def get_api_response(endpoint, auth, method="GET", payload=None):
         raise
 
 
-def get_order_book(auth):
-    return get_api_response("/orders", auth)
+def get_order_book(auth, route_context=None):
+    return get_api_response("/orders", auth, route_context=route_context)
 
 
-def get_trade_book(auth):
-    return get_api_response("/trades", auth)
+def get_trade_book(auth, route_context=None):
+    return get_api_response("/trades", auth, route_context=route_context)
 
 
-def get_positions(auth):
-    return get_api_response("/portfolio/positions", auth)
+def get_positions(auth, route_context=None):
+    return get_api_response("/portfolio/positions", auth, route_context=route_context)
 
 
-def get_holdings(auth):
-    return get_api_response("/portfolio/holdings", auth)
+def get_holdings(auth, route_context=None):
+    return get_api_response("/portfolio/holdings", auth, route_context=route_context)
 
 
 # --- Per-Symbol Smart Order Lock ---
@@ -114,7 +132,7 @@ def _get_symbol_lock(symbol, exchange, product):
         return _symbol_locks[key]
 
 
-def _get_cached_positions(auth):
+def _get_cached_positions(auth, route_context=None):
     """Get positions from cache if fresh, otherwise fetch from broker API."""
     with _position_cache_lock:
         now = time.monotonic()
@@ -124,7 +142,7 @@ def _get_cached_positions(auth):
             return cached["data"]
 
     # Cache miss or expired — fetch from broker
-    positions_data = get_positions(auth)
+    positions_data = get_positions(auth, route_context=route_context)
 
     with _position_cache_lock:
         _position_cache[auth] = {"data": positions_data, "timestamp": time.monotonic()}
@@ -138,11 +156,11 @@ def _invalidate_position_cache(auth):
         _position_cache.pop(auth, None)
 
 
-def get_open_position(tradingsymbol, exchange, product, auth):
+def get_open_position(tradingsymbol, exchange, product, auth, route_context=None):
     # Convert Trading Symbol from BTAlgo Format to Broker Format Before Search in OpenPosition
     tradingsymbol = get_br_symbol(tradingsymbol, exchange)
 
-    positions_data = _get_cached_positions(auth)
+    positions_data = _get_cached_positions(auth, route_context=route_context)
     net_qty = "0"
 
     if positions_data and positions_data.get("status") and positions_data.get("data"):
@@ -162,8 +180,8 @@ def get_open_position(tradingsymbol, exchange, product, auth):
 def place_order_api(data, auth):
     AUTH_TOKEN = auth
 
-    BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-    data["apikey"] = BROKER_API_KEY
+    _, route_context, broker_context = resolve_request_context(data.get("apikey"))
+    data["apikey"] = broker_context.api_key or os.getenv("BROKER_API_KEY")
     # token = get_token(data['symbol'], data['exchange'])
     newdata = transform_data(data)
 
@@ -189,18 +207,16 @@ def place_order_api(data, auth):
     payload_encoded = urllib.parse.urlencode(payload)
     logger.debug(f"Encoded payload to Zerodha: {payload_encoded}")
 
-    # Get the shared httpx client with connection pooling
-    client = get_httpx_client()
-
-    headers = {
-        "X-Kite-Version": "3",
-        "Authorization": f"token {AUTH_TOKEN}",
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-
     # Make the request using the shared client
-    response = client.post(
-        "https://api.kite.trade/orders/regular", headers=headers, content=payload_encoded
+    response = post(
+        "https://api.kite.trade/orders/regular",
+        headers={
+            "X-Kite-Version": "3",
+            "Authorization": f"token {AUTH_TOKEN}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        content=payload_encoded,
+        route_context=route_context,
     )
 
     # Log raw response
@@ -232,6 +248,7 @@ def place_smartorder_api(data, auth):
     orderid = None
 
     try:
+        _, route_context, _ = resolve_request_context(data.get("apikey"))
         # Extract necessary info from data
         symbol = data.get("symbol")
         exchange = data.get("exchange")
@@ -250,7 +267,13 @@ def place_smartorder_api(data, auth):
 
             # Get current open position for the symbol
             current_position = int(
-                get_open_position(symbol, exchange, map_product_type(product), AUTH_TOKEN)
+                get_open_position(
+                    symbol,
+                    exchange,
+                    map_product_type(product),
+                    AUTH_TOKEN,
+                    route_context=route_context,
+                )
             )
 
             logger.debug(f"position_size: {position_size}")
@@ -311,8 +334,9 @@ def place_smartorder_api(data, auth):
 
 def close_all_positions(current_api_key, auth):
     AUTH_TOKEN = auth
+    _, route_context, _ = resolve_request_context(current_api_key)
     # Fetch the current open positions
-    positions_response = get_positions(AUTH_TOKEN)
+    positions_response = get_positions(AUTH_TOKEN, route_context=route_context)
 
     # Check if the positions data is null or empty
     if positions_response["data"] is None or not positions_response["data"]:
@@ -355,7 +379,7 @@ def close_all_positions(current_api_key, auth):
     return {"status": "success", "message": "All Open Positions SquaredOff"}, 200
 
 
-def cancel_order(orderid, auth):
+def cancel_order(orderid, auth, route_context=None):
     """
     Cancel an existing order using the shared httpx client with connection pooling.
 
@@ -369,29 +393,22 @@ def cancel_order(orderid, auth):
     AUTH_TOKEN = auth
 
     try:
-        # Get the shared httpx client with connection pooling
-        client = get_httpx_client()
-
-        # Set up the request headers
-        headers = {"X-Kite-Version": "3", "Authorization": f"token {AUTH_TOKEN}"}
-
-        # Make the DELETE request using the shared client
-        response = client.delete(
-            f"https://api.kite.trade/orders/regular/{orderid}", headers=headers
+        response_data = get_api_response(
+            f"/orders/regular/{orderid}",
+            AUTH_TOKEN,
+            method="DELETE",
+            route_context=route_context,
         )
-
-        response.raise_for_status()
-        data = response.json()
-        logger.debug(f"Cancel order response: {data}")
+        logger.debug(f"Cancel order response: {response_data}")
 
         # Check if the request was successful
-        if data.get("status"):
-            return {"status": "success", "orderid": data["data"]["order_id"]}, 200
+        if response_data.get("status"):
+            return {"status": "success", "orderid": response_data["data"]["order_id"]}, 200
         else:
             return {
                 "status": "error",
-                "message": data.get("message", "Failed to cancel order"),
-            }, response.status_code
+                "message": response_data.get("message", "Failed to cancel order"),
+            }, 400
 
     except Exception as e:
         error_msg = str(e)
@@ -401,6 +418,7 @@ def cancel_order(orderid, auth):
 
 def modify_order(data, auth):
     AUTH_TOKEN = auth
+    _, route_context, _ = resolve_request_context(data.get("apikey"))
 
     newdata = transform_modify_order_data(data)  # You need to implement this function
 
@@ -424,28 +442,14 @@ def modify_order(data, auth):
     # URL-encode the payload
     payload_encoded = urllib.parse.urlencode(payload)
 
-    # Get the shared httpx client with connection pooling
-    client = get_httpx_client()
-
-    headers = {
-        "X-Kite-Version": "3",
-        "Authorization": f"token {AUTH_TOKEN}",
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-
-    # Make the request using the shared client
-    response = client.put(
-        f"https://api.kite.trade/orders/regular/{data['orderid']}",
-        headers=headers,
-        content=payload_encoded,
+    response_data = get_api_response(
+        f"/orders/regular/{data['orderid']}",
+        AUTH_TOKEN,
+        method="PUT",
+        payload=payload_encoded,
+        route_context=route_context,
     )
-
-    # Parse the response
-    response_data = response.json()
     logger.debug(f"Modify order response: {response_data}")
-
-    # Add status attribute to maintain backward compatibility
-    response.status = response.status_code
 
     if response_data.get("status") == "success" or response_data.get("message") == "SUCCESS":
         return {"status": "success", "orderid": response_data["data"]["order_id"]}, 200
@@ -453,13 +457,14 @@ def modify_order(data, auth):
         return {
             "status": "error",
             "message": response_data.get("message", "Failed to modify order"),
-        }, response.status_code
+        }, 400
 
 
 def cancel_all_orders_api(data, auth):
     AUTH_TOKEN = auth
+    _, route_context, _ = resolve_request_context(data.get("apikey"))
     # Get the order book
-    order_book_response = get_order_book(AUTH_TOKEN)
+    order_book_response = get_order_book(AUTH_TOKEN, route_context=route_context)
     if order_book_response["status"] != "success":
         return [], []  # Return empty lists indicating failure to retrieve the order book
 
@@ -476,7 +481,7 @@ def cancel_all_orders_api(data, auth):
     # Cancel the filtered orders
     for order in orders_to_cancel:
         orderid = order["order_id"]
-        cancel_response, status_code = cancel_order(orderid, AUTH_TOKEN)
+        cancel_response, status_code = cancel_order(orderid, AUTH_TOKEN, route_context=route_context)
         if status_code == 200:
             canceled_orders.append(orderid)
         else:

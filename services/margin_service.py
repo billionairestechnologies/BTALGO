@@ -190,7 +190,14 @@ def calculate_margin_with_auth(
 
     try:
         # Call the broker's calculate_margin_api function
-        response, response_data = broker_module.calculate_margin_api(positions, auth_token)
+        try:
+            response, response_data = broker_module.calculate_margin_api(
+                positions,
+                auth_token,
+                api_key=original_data.get("apikey"),
+            )
+        except TypeError:
+            response, response_data = broker_module.calculate_margin_api(positions, auth_token)
     except NotImplementedError as e:
         logger.info(f"Margin calculation not supported by broker {broker}: {e}")
         error_response = {"status": "error", "message": str(e)}

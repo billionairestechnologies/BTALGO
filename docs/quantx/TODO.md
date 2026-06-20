@@ -23,6 +23,9 @@ This is the execution queue, ordered by what should happen next.
 - [ ] Move remaining broker callback flows to resolved broker account context
 - [ ] Move deeper helper/API modules away from shared env assumptions
 - [ ] Ensure API-key authenticated requests can resolve the correct broker account
+  - [x] Zerodha order execution path
+  - [x] Zerodha funds endpoint path
+  - [x] Zerodha margin endpoint path
 - [ ] Add regression tests for tenant isolation and masked secret responses
 
 ## 2. Billing and Entitlements

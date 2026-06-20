@@ -33,6 +33,7 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 - Route-aware live execution has now moved one layer deeper:
   - Upstox order HTTP path is route-aware
   - Dhan order HTTP path is route-aware
+  - Zerodha order/funds/margin HTTP paths are route-aware
   - WebSocket pooled adapters keep tenant auth context during new pooled connections and auth-refresh rebuilds
   - Upstox, Dhan, and Zerodha websocket clients now accept proxy-derived route config
 - MPIN setup/verify/disable flow exists in backend and Profile UI.

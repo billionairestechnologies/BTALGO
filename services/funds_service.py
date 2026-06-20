@@ -71,7 +71,13 @@ def get_funds_with_auth(
 
     try:
         # Get funds data using broker's implementation
-        funds = broker_module.get_margin_data(auth_token)
+        try:
+            funds = broker_module.get_margin_data(
+                auth_token,
+                api_key=original_data.get("apikey") if original_data else None,
+            )
+        except TypeError:
+            funds = broker_module.get_margin_data(auth_token)
 
         return True, {"status": "success", "data": funds}, 200
     except Exception as e:
