@@ -136,8 +136,9 @@ class User(Base):
 
     def get_totp_uri(self):
         """Get the TOTP URI for QR code generation"""
+        issuer_name = os.getenv("PRODUCT_NAME", "BillionairsHQ")
         return pyotp.totp.TOTP(self.get_totp_secret()).provisioning_uri(
-            name=self.email, issuer_name="BTAlgo"
+            name=self.email, issuer_name=issuer_name
         )
 
     def verify_totp(self, token):

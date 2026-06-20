@@ -223,10 +223,10 @@ export default function Login() {
           <Card className="w-full max-w-md order-1 lg:order-2 shadow-xl">
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
-                <img src="/logo.png" alt="BillionairsHQ" className="h-20 w-20" />
+                <img src="/logo.png" alt={brand.productName} className="h-20 w-20" />
               </div>
               <CardTitle className="text-2xl">Welcome Back</CardTitle>
-              <CardDescription>Sign in to your BillionairsHQ account</CardDescription>
+              <CardDescription>Sign in to your {brand.productName} account</CardDescription>
             </CardHeader>
             <CardContent>
               {step === 'password' ? (
@@ -371,7 +371,7 @@ export default function Login() {
           {/* Welcome Content - Second on mobile */}
           <div className="flex-1 max-w-xl text-center lg:text-left order-2 lg:order-1">
             <h1 className="text-4xl lg:text-5xl font-bold mb-6">
-              Welcome to <span className="text-primary">BillionairsHQ</span>
+              Welcome to <span className="text-primary">{brand.productName}</span>
             </h1>
             <p className="text-lg lg:text-xl mb-8 text-muted-foreground">
               Sign in to your account to access your trading dashboard and manage your algorithmic
@@ -380,13 +380,16 @@ export default function Login() {
 
             <Alert className="mb-6">
               <Info className="h-4 w-4" />
-              <AlertTitle>First Time User?</AlertTitle>
+              <AlertTitle>New here?</AlertTitle>
               <AlertDescription>
-                Contact your administrator to set up your account.
+                Create your workspace account with email verification, then connect your broker apps.
               </AlertDescription>
             </Alert>
 
-            <div className="flex justify-center lg:justify-start gap-4">
+            <div className="flex justify-center lg:justify-start gap-4 flex-wrap">
+              <Button asChild>
+                <Link to="/register">Create account</Link>
+              </Button>
               <Button variant="outline" asChild>
                 <a
                   href={brand.repoUrl}

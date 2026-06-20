@@ -2,6 +2,7 @@ import os
 import re
 import secrets
 
+from email_validator import EmailNotValidError, validate_email
 from flask import (
     Blueprint,
     current_app,
@@ -16,15 +17,24 @@ from flask import (
 from flask_wtf.csrf import generate_csrf
 
 from database.auth_db import auth_cache, feed_token_cache, upsert_auth
+from blueprints.apikey import generate_api_key
 from database.settings_db import get_smtp_settings, set_smtp_settings
 from database.user_db import (  # Import the function
     User,
+    add_user,
     authenticate_user,
     db_session,
     find_user_by_email,
     find_user_by_exact_username,
     find_user_by_username,
 )
+from database.saas_db import (
+    create_or_refresh_email_otp,
+    get_email_otp_status,
+    resend_email_otp,
+    verify_email_otp,
+)
+from database.auth_db import upsert_api_key
 from extensions import socketio
 from limiter import limiter  # Import the limiter instance
 from utils.email_debug import debug_smtp_connection
@@ -32,6 +42,7 @@ from utils.email_utils import send_password_reset_email, send_test_email
 from utils.broker_context import resolve_broker_credentials
 from utils.ip_helper import get_real_ip
 from utils.logging import get_logger
+from utils.resend_email import send_registration_otp_email
 from utils.session import check_session_validity, is_session_valid, revoke_user_tokens
 
 # Initialize logger
@@ -41,6 +52,9 @@ logger = get_logger(__name__)
 LOGIN_RATE_LIMIT_MIN = os.getenv("LOGIN_RATE_LIMIT_MIN", "5 per minute")
 LOGIN_RATE_LIMIT_HOUR = os.getenv("LOGIN_RATE_LIMIT_HOUR", "25 per hour")
 RESET_RATE_LIMIT = os.getenv("RESET_RATE_LIMIT", "15 per hour")  # Password reset rate limit
+REGISTER_RATE_LIMIT = os.getenv("REGISTER_RATE_LIMIT", "10 per hour")
+REGISTER_VERIFY_RATE_LIMIT = os.getenv("REGISTER_VERIFY_RATE_LIMIT", "30 per hour")
+REGISTER_OTP_EXPIRY_MINUTES = max(3, int(os.getenv("REGISTER_OTP_EXPIRY_MINUTES", "10")))
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -132,7 +146,177 @@ def get_broker_config():
 def check_setup_required():
     """Check if initial setup is required (no users exist)."""
     needs_setup = find_user_by_username() is None
-    return jsonify({"status": "success", "needs_setup": needs_setup})
+    return jsonify(
+        {
+            "status": "success",
+            "needs_setup": needs_setup,
+            "registration_enabled": not needs_setup,
+        }
+    )
+
+
+def _get_request_value(key: str) -> str:
+    value = ""
+    if request.is_json:
+        value = (request.get_json(silent=True) or {}).get(key, "")
+    else:
+        value = request.form.get(key, "")
+    return (value or "").strip()
+
+
+def _validate_registration_inputs(username: str, email: str, password: str, confirm_password: str):
+    if find_user_by_username() is None:
+        return False, "Complete initial setup before enabling public registrations.", None
+
+    if not username or not email or not password or not confirm_password:
+        return False, "All fields are required.", None
+
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{3,30}", username):
+        return (
+            False,
+            "Username must be 3-30 characters and use only letters, numbers, dot, dash, or underscore.",
+            None,
+        )
+
+    try:
+        normalized_email = validate_email(email, check_deliverability=False).normalized
+    except EmailNotValidError as exc:
+        return False, str(exc), None
+
+    if password != confirm_password:
+        return False, "Passwords do not match.", None
+
+    from utils.auth_utils import validate_password_strength
+
+    is_valid, error_message = validate_password_strength(password)
+    if not is_valid:
+        return False, error_message, None
+
+    if find_user_by_exact_username(username):
+        return False, "That username is already taken.", None
+
+    if find_user_by_email(normalized_email):
+        return False, "An account with that email already exists.", None
+
+    return True, None, normalized_email
+
+
+@auth_bp.route("/register/status", methods=["POST"])
+@limiter.limit(REGISTER_RATE_LIMIT)
+def register_status():
+    email = _get_request_value("email")
+    if not email:
+        return jsonify({"status": "error", "message": "Email is required."}), 400
+
+    challenge = get_email_otp_status(email)
+    if challenge is None:
+        return jsonify({"status": "error", "message": "No pending verification found."}), 404
+
+    return jsonify({"status": "success", "challenge": challenge})
+
+
+@auth_bp.route("/register/start", methods=["POST"])
+@limiter.limit(REGISTER_RATE_LIMIT)
+def register_start():
+    username = _get_request_value("username")
+    email = _get_request_value("email")
+    password = _get_request_value("password")
+    confirm_password = _get_request_value("confirm_password")
+
+    ok, error_message, normalized_email = _validate_registration_inputs(
+        username, email, password, confirm_password
+    )
+    if not ok:
+        return jsonify({"status": "error", "message": error_message}), 400
+
+    _, otp_code = create_or_refresh_email_otp(
+        email=normalized_email,
+        username=username,
+        password=password,
+        expiry_minutes=REGISTER_OTP_EXPIRY_MINUTES,
+    )
+    mail_result = send_registration_otp_email(
+        normalized_email, otp_code, expiry_minutes=REGISTER_OTP_EXPIRY_MINUTES
+    )
+    if not mail_result.get("success"):
+        return jsonify({"status": "error", "message": mail_result["message"]}), 500
+
+    return jsonify(
+        {
+            "status": "success",
+            "message": "Verification code sent.",
+            "email": normalized_email,
+            "expires_in_minutes": REGISTER_OTP_EXPIRY_MINUTES,
+        }
+    )
+
+
+@auth_bp.route("/register/resend", methods=["POST"])
+@limiter.limit(REGISTER_RATE_LIMIT)
+def register_resend():
+    email = _get_request_value("email")
+    if not email:
+        return jsonify({"status": "error", "message": "Email is required."}), 400
+
+    challenge = get_email_otp_status(email)
+    if challenge is None:
+        return jsonify({"status": "error", "message": "No pending verification found."}), 404
+
+    try:
+        _, otp_code = resend_email_otp(email, expiry_minutes=REGISTER_OTP_EXPIRY_MINUTES)
+    except ValueError as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+    mail_result = send_registration_otp_email(
+        challenge["email"], otp_code, expiry_minutes=REGISTER_OTP_EXPIRY_MINUTES
+    )
+    if not mail_result.get("success"):
+        return jsonify({"status": "error", "message": mail_result["message"]}), 500
+
+    return jsonify(
+        {
+            "status": "success",
+            "message": "A new verification code has been sent.",
+            "email": challenge["email"],
+            "expires_in_minutes": REGISTER_OTP_EXPIRY_MINUTES,
+        }
+    )
+
+
+@auth_bp.route("/register/verify", methods=["POST"])
+@limiter.limit(REGISTER_VERIFY_RATE_LIMIT)
+def register_verify():
+    email = _get_request_value("email")
+    otp_code = _get_request_value("otp_code")
+
+    if not email or not otp_code:
+        return jsonify({"status": "error", "message": "Email and verification code are required."}), 400
+
+    try:
+        payload = verify_email_otp(email, otp_code)
+    except ValueError as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 400
+
+    if find_user_by_exact_username(payload["username"]):
+        return jsonify({"status": "error", "message": "That username is already taken."}), 409
+
+    if find_user_by_email(payload["email"]):
+        return jsonify({"status": "error", "message": "An account with that email already exists."}), 409
+
+    user = add_user(payload["username"], payload["email"], payload["password"], is_admin=False)
+    if user is None:
+        return jsonify({"status": "error", "message": "Could not create account. Please try again."}), 500
+
+    api_key = generate_api_key()
+    upsert_api_key(user.username, api_key)
+
+    return jsonify(
+        {
+            "status": "success",
+            "message": "Account created successfully. Please sign in.",
+            "redirect": "/login",
+        }
+    )
 
 
 def _broker_validation_failure_reason(funds_data):

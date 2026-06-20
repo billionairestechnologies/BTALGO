@@ -1,12 +1,14 @@
-"""SaaS tenancy, billing, and per-user broker account storage.
+"""SaaS tenancy, billing, per-user broker accounts, and signup OTP state.
 
 This module is intentionally additive. Existing single-install flows keep
 using the current users/auth/api_keys tables, while QuantX SaaS features can
 start resolving account context from these tables.
 """
 
+import hashlib
 import os
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta
 
 from sqlalchemy import (
     Boolean,
@@ -159,6 +161,31 @@ class Subscription(Base):
     )
 
 
+class EmailOtpChallenge(Base):
+    """Pending email OTP verification for registration and future auth flows."""
+
+    __tablename__ = "saas_email_otp_challenges"
+
+    id = Column(Integer, primary_key=True)
+    purpose = Column(String(40), nullable=False, default="registration")
+    email = Column(String(255), nullable=False)
+    username = Column(String(80), nullable=False)
+    password_encrypted = Column(Text, nullable=False)
+    otp_hash = Column(String(64), nullable=False)
+    attempts = Column(Integer, nullable=False, default=0)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    last_sent_at = Column(DateTime(timezone=True), nullable=False, default=func.now())
+    consumed_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        Index("idx_saas_email_otp_email", "email"),
+        Index("idx_saas_email_otp_purpose", "purpose"),
+        Index("idx_saas_email_otp_consumed", "consumed_at"),
+    )
+
+
 def init_db():
     from database.db_init_helper import init_db_with_logging
 
@@ -170,6 +197,145 @@ def _slugify(value: str) -> str:
 
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
     return slug or "tenant"
+
+
+def _hash_otp(otp: str) -> str:
+    pepper = os.getenv("API_KEY_PEPPER", "")
+    return hashlib.sha256(f"{otp}:{pepper}".encode("utf-8")).hexdigest()
+
+
+def _active_challenge(email: str, purpose: str = "registration") -> EmailOtpChallenge | None:
+    return (
+        EmailOtpChallenge.query.filter_by(email=email.lower().strip(), purpose=purpose, consumed_at=None)
+        .order_by(EmailOtpChallenge.created_at.desc())
+        .first()
+    )
+
+
+def create_or_refresh_email_otp(
+    *,
+    email: str,
+    username: str,
+    password: str,
+    purpose: str = "registration",
+    expiry_minutes: int = 10,
+) -> tuple[EmailOtpChallenge, str]:
+    """Create or refresh a pending OTP challenge and return the raw OTP once."""
+    from database.auth_db import encrypt_token
+
+    normalized_email = email.lower().strip()
+    normalized_username = username.strip()
+
+    challenge = _active_challenge(normalized_email, purpose=purpose)
+    if challenge is None:
+        challenge = EmailOtpChallenge(
+            purpose=purpose,
+            email=normalized_email,
+            username=normalized_username,
+            password_encrypted=encrypt_token(password),
+            otp_hash="",
+        )
+        db_session.add(challenge)
+    else:
+        challenge.username = normalized_username
+        challenge.password_encrypted = encrypt_token(password)
+        challenge.attempts = 0
+        challenge.consumed_at = None
+
+    otp_code = f"{secrets.randbelow(1000000):06d}"
+    challenge.otp_hash = _hash_otp(otp_code)
+    challenge.last_sent_at = datetime.utcnow()
+    challenge.expires_at = datetime.utcnow() + timedelta(minutes=expiry_minutes)
+    challenge.updated_at = datetime.utcnow()
+    db_session.commit()
+    return challenge, otp_code
+
+
+def get_email_otp_status(email: str, purpose: str = "registration") -> dict | None:
+    challenge = _active_challenge(email, purpose=purpose)
+    if challenge is None:
+        return None
+    return {
+        "email": challenge.email,
+        "username": challenge.username,
+        "expires_at": challenge.expires_at.isoformat() if challenge.expires_at else None,
+        "last_sent_at": challenge.last_sent_at.isoformat() if challenge.last_sent_at else None,
+        "attempts": challenge.attempts,
+    }
+
+
+def resend_email_otp(
+    email: str,
+    *,
+    purpose: str = "registration",
+    expiry_minutes: int = 10,
+) -> tuple[EmailOtpChallenge, str]:
+    challenge = _active_challenge(email, purpose=purpose)
+    if challenge is None:
+        raise ValueError("No pending verification found for this email.")
+
+    plaintext_password = safe_decrypt_token(challenge.password_encrypted)
+    if not plaintext_password:
+        raise ValueError("Pending verification is invalid. Please start registration again.")
+
+    return create_or_refresh_email_otp(
+        email=challenge.email,
+        username=challenge.username,
+        password=plaintext_password,
+        purpose=purpose,
+        expiry_minutes=expiry_minutes,
+    )
+
+
+def verify_email_otp(
+    email: str,
+    otp_code: str,
+    *,
+    purpose: str = "registration",
+    max_attempts: int = 5,
+) -> dict:
+    """Verify a pending OTP challenge and return the stored registration payload."""
+    from database.auth_db import safe_decrypt_token
+
+    challenge = _active_challenge(email, purpose=purpose)
+    if challenge is None:
+        raise ValueError("No pending verification found for this email.")
+
+    now = datetime.utcnow()
+    if challenge.expires_at and now > challenge.expires_at.replace(tzinfo=None):
+        db_session.delete(challenge)
+        db_session.commit()
+        raise ValueError("Verification code expired. Please request a new code.")
+
+    if challenge.attempts >= max_attempts:
+        db_session.delete(challenge)
+        db_session.commit()
+        raise ValueError("Too many invalid attempts. Please request a new code.")
+
+    if challenge.otp_hash != _hash_otp(otp_code.strip()):
+        challenge.attempts += 1
+        challenge.updated_at = now
+        db_session.commit()
+        remaining = max_attempts - challenge.attempts
+        if remaining <= 0:
+            db_session.delete(challenge)
+            db_session.commit()
+            raise ValueError("Too many invalid attempts. Please request a new code.")
+        raise ValueError(f"Invalid verification code. {remaining} attempt(s) remaining.")
+
+    challenge.consumed_at = now
+    challenge.updated_at = now
+    password = safe_decrypt_token(challenge.password_encrypted)
+    if not password:
+        db_session.commit()
+        raise ValueError("Pending verification is invalid. Please start registration again.")
+    payload = {
+        "email": challenge.email,
+        "username": challenge.username,
+        "password": password,
+    }
+    db_session.commit()
+    return payload
 
 
 def ensure_profile_for_user(user) -> UserProfile:
