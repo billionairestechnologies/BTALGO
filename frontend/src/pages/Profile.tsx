@@ -452,6 +452,7 @@ export default function ProfilePage() {
         status: string
         message: string
         restart_required?: boolean
+        credential_source?: 'saas' | 'env'
       }>('/api/broker/credentials', formData)
 
       if (response.data.status === 'success') {
@@ -488,8 +489,9 @@ export default function ProfilePage() {
         setBrokerApiSecret('')
         setBrokerApiKeyMarket('')
         setBrokerApiSecretMarket('')
-        // Show restart dialog
-        setShowRestartDialog(true)
+        if (response.data.restart_required) {
+          setShowRestartDialog(true)
+        }
       } else {
         showToast.error(response.data.message || 'Failed to save credentials', 'admin')
       }

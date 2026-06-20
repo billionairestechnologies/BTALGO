@@ -29,6 +29,7 @@ from extensions import socketio
 from limiter import limiter  # Import the limiter instance
 from utils.email_debug import debug_smtp_connection
 from utils.email_utils import send_password_reset_email, send_test_email
+from utils.broker_context import resolve_broker_credentials
 from utils.ip_helper import get_real_ip
 from utils.logging import get_logger
 from utils.session import check_session_validity, is_session_valid, revoke_user_tokens
@@ -95,24 +96,24 @@ def get_broker_config():
     broker_name is always returned (needed to display the broker login button).
     broker_api_key and redirect_url are only returned when authenticated.
     """
-    REDIRECT_URL = os.getenv("REDIRECT_URL")
-
-    # Extract broker name from redirect URL
-    match = re.search(r"/([^/]+)/callback$", REDIRECT_URL)
-    broker_name = match.group(1) if match else None
+    context = resolve_broker_credentials(username=session.get("user"))
+    redirect_url = context.redirect_url or os.getenv("REDIRECT_URL")
+    broker_name = context.broker
+    if not broker_name and redirect_url:
+        match = re.search(r"/([^/]+)/callback$", redirect_url)
+        broker_name = match.group(1) if match else None
 
     if not broker_name:
         return jsonify({"status": "error", "message": "Broker not configured"}), 500
 
     # Return full config only for authenticated users
     if "user" in session:
-        BROKER_API_KEY = os.getenv("BROKER_API_KEY")
         return jsonify(
             {
                 "status": "success",
                 "broker_name": broker_name,
-                "broker_api_key": BROKER_API_KEY,
-                "redirect_url": REDIRECT_URL,
+                "broker_api_key": context.api_key or os.getenv("BROKER_API_KEY"),
+                "redirect_url": redirect_url,
             }
         )
 
@@ -122,7 +123,7 @@ def get_broker_config():
             "status": "success",
             "broker_name": broker_name,
             "broker_api_key": None,
-            "redirect_url": REDIRECT_URL,
+            "redirect_url": redirect_url,
         }
     )
 
