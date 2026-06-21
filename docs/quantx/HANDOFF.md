@@ -1,6 +1,6 @@
 # BillionairsHQ Handoff
 
-Last updated: 2026-06-20
+Last updated: 2026-06-21
 
 This file is for the next agent or developer who needs to continue the SaaS transformation.
 
@@ -21,6 +21,11 @@ This file is for the next agent or developer who needs to continue the SaaS tran
 - `88a72a42` build: refresh frontend bundle for signup flow
 - `e314cd0d` feat: add billing foundation and mpin security
 - `798a201d` feat: enforce subscription access on trading and mcp
+- `6022869e` feat: add static ip routing foundation
+- `445bd19f` feat: route broker auth helpers through tenant ip context
+- `c0dd0c1c` feat: route websocket and order flows through tenant context
+- `e37457ea` feat: add route-aware websocket proxy support
+- `3ff0e220` feat: route zerodha execution through tenant context
 
 ## Current Truth
 
@@ -36,6 +41,8 @@ This file is for the next agent or developer who needs to continue the SaaS tran
   - Zerodha order/funds/margin HTTP paths are route-aware
   - WebSocket pooled adapters keep tenant auth context during new pooled connections and auth-refresh rebuilds
   - Upstox, Dhan, and Zerodha websocket clients now accept proxy-derived route config
+- Latest clean stop point is right after `3ff0e220`.
+- Recommended next block is remaining broker tenant-isolation cleanup, then admin UI.
 - MPIN setup/verify/disable flow exists in backend and Profile UI.
 - Copy trading is not unified into BillionairsHQ yet.
 
